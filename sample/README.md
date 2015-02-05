@@ -8,5 +8,9 @@
 ◆SpriteStudio5Sample
 本プラグインの機能サンプルです。
 まずはこちらをご覧下さい。
+対応バージョン：UE4.4.3
 
+◆SpriteStudioGame
+OPTPiX SpriteStudio 勉強会#10(https://atnd.org/events/60164)で使用したゲームサンプルです。
+対応バージョン：UE4.4.3
 
