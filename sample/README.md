@@ -1,16 +1,15 @@
 ### SS5Player for Unreal Engine 4 sample projects
 
-–{ƒvƒ‰ƒOƒCƒ“‚ðŽg—p‚µ‚½ƒTƒ“ƒvƒ‹ƒvƒƒWƒFƒNƒg‚Å‚·B
-‚±‚ÌƒTƒ“ƒvƒ‹ƒvƒƒWƒFƒNƒg’†‚ÉŠÜ‚Ü‚ê‚éƒvƒ‰ƒOƒCƒ“‚ÍAƒTƒ“ƒvƒ‹ŠJ”­Žž‚Ìƒo[ƒWƒ‡ƒ“‚©‚çXV‚³‚ê‚Ä‚¢‚È‚¢ê‡‚ª‚ ‚è‚Ü‚·B
-ÅV”Å‚Ìƒvƒ‰ƒOƒCƒ“‚ðŽg—p‚·‚éê‡‚ÍAƒTƒ“ƒvƒ‹ƒvƒƒWƒFƒNƒg‚©‚ç‚Å‚Í‚È‚­APluginsƒtƒHƒ‹ƒ_‚©‚çŽæ“¾‚µ‚Ä‰º‚³‚¢B
+æœ¬ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‚’ä½¿ç”¨ã—ãŸã‚µãƒ³ãƒ—ãƒ«ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆã§ã™ã€‚  
+ã“ã®ã‚µãƒ³ãƒ—ãƒ«ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆä¸­ã«å«ã¾ã‚Œã‚‹ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã¯ã€ã‚µãƒ³ãƒ—ãƒ«é–‹ç™ºæ™‚ã®ãƒãƒ¼ã‚¸ãƒ§ãƒ³ã‹ã‚‰æ›´æ–°ã•ã‚Œã¦ã„ãªã„å ´åˆãŒã‚ã‚Šã¾ã™ã€‚  
+æœ€æ–°ç‰ˆã®ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‚’ä½¿ç”¨ã™ã‚‹å ´åˆã¯ã€ã‚µãƒ³ãƒ—ãƒ«ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆã‹ã‚‰ã§ã¯ãªãã€Pluginsãƒ•ã‚©ãƒ«ãƒ€ã‹ã‚‰å–å¾—ã—ã¦ä¸‹ã•ã„ã€‚  
 
 
-ŸSpriteStudio5Sample
-–{ƒvƒ‰ƒOƒCƒ“‚Ì‹@”\ƒTƒ“ƒvƒ‹‚Å‚·B
-‚Ü‚¸‚Í‚±‚¿‚ç‚ð‚²——‰º‚³‚¢B
-‘Î‰žƒo[ƒWƒ‡ƒ“FUE4.4.3
+#### SpriteStudio5Sample
+æœ¬ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã®æ©Ÿèƒ½ã‚µãƒ³ãƒ—ãƒ«ã§ã™ã€‚ã¾ãšã¯ã“ã¡ã‚‰ã‚’ã”è¦§ä¸‹ã•ã„ã€‚  
+å¯¾å¿œãƒãƒ¼ã‚¸ãƒ§ãƒ³ï¼šUE4.4.3  
 
-ŸSpriteStudioGame
-OPTPiX SpriteStudio •×‹­‰ï#10(https://atnd.org/events/60164)‚ÅŽg—p‚µ‚½ƒQ[ƒ€ƒTƒ“ƒvƒ‹‚Å‚·B
-‘Î‰žƒo[ƒWƒ‡ƒ“FUE4.4.3
+#### SpriteStudioGame
+OPTPiX SpriteStudio å‹‰å¼·ä¼š#10 ( https://atnd.org/events/60164 )ã§ä½¿ç”¨ã—ãŸã‚²ãƒ¼ãƒ ã‚µãƒ³ãƒ—ãƒ«ã§ã™ã€‚  
+å¯¾å¿œãƒãƒ¼ã‚¸ãƒ§ãƒ³ï¼šUE4.4.3  
 
