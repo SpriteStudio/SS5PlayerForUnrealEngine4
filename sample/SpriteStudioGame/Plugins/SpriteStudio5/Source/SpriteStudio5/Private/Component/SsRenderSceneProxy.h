@@ -35,7 +35,11 @@ public:
 	virtual ~FSsRenderSceneProxy();
 
 	// FPrimitiveSceneProxy interface
+#if defined(SS_UE4_4) || defined(SS_UE4_5) || defined(SS_UE4_6)
 	virtual void DrawDynamicElements(FPrimitiveDrawInterface* PDI, const FSceneView* View) override;
+#else
+	virtual void GetDynamicMeshElements(const TArray<const FSceneView*>& Views, const FSceneViewFamily& ViewFamily, uint32 VisibilityMap, FMeshElementCollector& Collector) const override;
+#endif
 	virtual FPrimitiveViewRelevance GetViewRelevance(const FSceneView* View) override;
 	virtual void OnTransformChanged() override;
 	virtual uint32 GetMemoryFootprint() const override;

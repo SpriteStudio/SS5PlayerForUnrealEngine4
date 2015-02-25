@@ -136,10 +136,13 @@ UObject* USspjFactory::FactoryCreateBinary(UClass* InClass, UObject* InParent, F
 			TArray<uint8> Data;
 			if(FFileHelper::LoadFileToArray(Data, *FileName))
 			{
+
 #if defined(SS_UE4_4) || defined(SS_UE4_5)
 				UTextureFactory* TextureFact = new UTextureFactory(FPostConstructInitializeProperties());
-#else
+#elif defined(SS_UE4_6)
 				UTextureFactory* TextureFact = new UTextureFactory(FObjectInitializer());
+#elif defined(SS_UE4_7)
+				UTextureFactory* TextureFact = NewObject<UTextureFactory>();
 #endif
 				TextureFact->AddToRoot();
 

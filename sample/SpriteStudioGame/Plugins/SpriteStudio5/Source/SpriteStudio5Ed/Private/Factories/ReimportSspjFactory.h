@@ -15,6 +15,7 @@ class UReimportSspjFactory : public USspjFactory, public FReimportHandler
 	virtual bool CanReimport(UObject* Obj, TArray<FString>& OutFilenames) override;
 	virtual void SetReimportPaths(UObject* Obj, const TArray<FString>& NewReimportPaths) override;
 	virtual EReimportResult::Type Reimport(UObject* Obj) override;
+	virtual int32 GetPriority() const { return ImportPriority; }
 
 	TMap<FString, UTexture*> ExistImages;
 };
