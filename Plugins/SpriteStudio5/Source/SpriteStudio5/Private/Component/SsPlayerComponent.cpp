@@ -94,7 +94,11 @@ void USsPlayerComponent::InitializePlayerRender()
 		// RenderTarget‚Ì‰Šú‰»
 		if((0 < CanvasResolution.X) && (0 < CanvasResolution.Y))
 		{
+#if defined(SS_UE4_4) || defined(SS_UE4_5) || defined(SS_UE4_6)
 			RenderTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(UCanvasRenderTarget2D::StaticClass(), CanvasResolution.X, CanvasResolution.Y);
+#else
+			RenderTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), CanvasResolution.X, CanvasResolution.Y);
+#endif
 			if(RenderTarget)
 			{
 				RenderTarget->SetFlags(RF_Transient);
@@ -104,7 +108,11 @@ void USsPlayerComponent::InitializePlayerRender()
 				MarkRenderStateDirty();
 			}
 
+#if defined(SS_UE4_4) || defined(SS_UE4_5) || defined(SS_UE4_6)
 			RenderTargetMask = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(UCanvasRenderTarget2D::StaticClass(), CanvasResolution.X, CanvasResolution.Y);
+#else
+			RenderTargetMask = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), CanvasResolution.X, CanvasResolution.Y);
+#endif
 			if(RenderTargetMask)
 			{
 				RenderTargetMask->SetFlags(RF_Transient);

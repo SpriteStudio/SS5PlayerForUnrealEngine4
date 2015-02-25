@@ -64,7 +64,7 @@ public:
 	UPROPERTY(VisibleAnywhere, Category=SsPart, BlueprintReadOnly)
 	int32	Locked;			//!< [編集用データ] パーツのロック状態
 
-	UPROPERTY(VisibleAnywhere, Category=SsPart, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsPart)
 	float InheritRates[(int)SsAttributeKind::Num];	///< 親の値の継承率。SS4との互換性のため残されているが0 or 1
 
 

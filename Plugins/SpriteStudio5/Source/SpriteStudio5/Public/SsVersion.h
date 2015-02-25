@@ -1,11 +1,13 @@
 #pragma once
 
 //
-// 対応UEバージョン切り替え用
+//	対応UEバージョン切り替え用
+//		現在の推奨バージョンはUE4.7になります.
 //
-#define SS_UE4_4
+//#define SS_UE4_4
 //#define SS_UE4_5
 //#define SS_UE4_6
+#define SS_UE4_7
 
 
 //
@@ -26,7 +28,7 @@
 
 
 //
-//	UE4.5以降でビルドする場合は、上の#defineだけでなく、 SpriteStudio5Ed.Build.cs 44行目のコメントアウトを外して下さい 
+//	UE4.4でビルドする場合は、上の#defineだけでなく、 SpriteStudio5Ed.Build.cs 44行目をコメントアウトして下さい 
 //
 
 

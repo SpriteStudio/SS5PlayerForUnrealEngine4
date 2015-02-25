@@ -41,7 +41,7 @@ namespace UnrealBuildTool.Rules
 					"Slate",
 					"SlateCore",
 					"EditorStyle",
-//					"AppFramework",		// UE4.5以降でビルドする場合は、この行を有効にして下さい
+					"AppFramework",		// UE4.5以降でビルドする場合は、この行を有効にして下さい
 
 					"SpriteStudio5",
 				}
