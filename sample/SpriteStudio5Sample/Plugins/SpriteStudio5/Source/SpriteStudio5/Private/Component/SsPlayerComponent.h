@@ -27,7 +27,7 @@ struct FAttachComponent
 };
 
 
-UCLASS(meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup=SpriteStudio,meta=(BlueprintSpawnableComponent))
 class USsPlayerComponent : public UMeshComponent
 {
 	GENERATED_UCLASS_BODY()
