@@ -295,10 +295,10 @@ void SsValueSeriarizer(ISsXmlArchiver* ar , FSsValue& v , const FString key = "v
 					//さらに子構造があるようだ
 					//さらに子構造があるようだ
 					//ce = 0 ;
-					SsXmlIArchiver ar(ce);
+					SsXmlIArchiver ar2(ce);
 
 					FSsValue tempv;
-					SsValueSeriarizer( &ar , tempv , "");
+					SsValueSeriarizer( &ar2 , tempv , "");
 					hash[fceName] = tempv;					
 					ce = (XMLElement*)ce->NextSibling();
 				}

@@ -8,7 +8,7 @@
 // コンストラクタ 
 USsPlayerWidget::USsPlayerWidget(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-	, FSsPlayPropertySync(SsProject, AutoPlayAnimPackName, AutoPlayAnimationName, AutoPlayAnimPackIndex, AutoPlayAnimationIndex)
+	, FSsPlayPropertySync(&SsProject, &AutoPlayAnimPackName, &AutoPlayAnimationName, &AutoPlayAnimPackIndex, &AutoPlayAnimationIndex)
 	, RenderOffScreen(NULL)
 #if WITH_EDITOR
 	, TickWorld(NULL)
@@ -240,8 +240,7 @@ bool USsPlayerWidget::IsPlaying() const
 
 int32 USsPlayerWidget::GetNumAnimPacks() const
 {
-	const TWeakObjectPtr<USsProject> SsProject = Player.GetSsProject();
-	if(SsProject.IsValid())
+	if(SsProject)
 	{
 		return SsProject->AnimeList.Num();
 	}
@@ -249,8 +248,7 @@ int32 USsPlayerWidget::GetNumAnimPacks() const
 }
 int32 USsPlayerWidget::GetNumAnimations(FName AnimPackName) const
 {
-	const TWeakObjectPtr<USsProject> SsProject = Player.GetSsProject();
-	if(SsProject.IsValid())
+	if(SsProject)
 	{
 		int32 AnimPackIndex = SsProject->FindAnimePackIndex(AnimPackName);
 		if(0 <= AnimPackIndex)
@@ -262,8 +260,7 @@ int32 USsPlayerWidget::GetNumAnimations(FName AnimPackName) const
 }
 int32 USsPlayerWidget::GetNumAnimationsByIndex(int32 AnimPackIndex) const
 {
-	const TWeakObjectPtr<USsProject> SsProject = Player.GetSsProject();
-	if(SsProject.IsValid() && (AnimPackIndex < SsProject->AnimeList.Num()))
+	if(SsProject && (AnimPackIndex < SsProject->AnimeList.Num()))
 	{
 		return SsProject->AnimeList[AnimPackIndex].AnimeList.Num();
 	}

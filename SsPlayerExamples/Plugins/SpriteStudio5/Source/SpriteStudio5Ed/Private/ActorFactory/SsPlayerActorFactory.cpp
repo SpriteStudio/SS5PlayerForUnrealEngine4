@@ -30,7 +30,7 @@ bool USsPlayerActorFactory::CanCreateActorFrom(const FAssetData& AssetData, FTex
 void USsPlayerActorFactory::PostSpawnActor(UObject* Asset, AActor* NewActor)
 {
 	USsProject* SsProject = CastChecked<USsProject>(Asset);
-	GEditor->SetActorLabelUnique(NewActor, SsProject->GetName());
+	FActorLabelUtilities::SetActorLabelUnique(NewActor, SsProject->GetName());
 
 	ASsPlayerActor* SsPlayerActor = CastChecked<ASsPlayerActor>(NewActor);
 	USsPlayerComponent* SsPlayerComponent = SsPlayerActor->GetSsPlayer();

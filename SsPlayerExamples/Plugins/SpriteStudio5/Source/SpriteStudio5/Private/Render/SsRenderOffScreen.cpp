@@ -118,7 +118,7 @@ void FSsRenderOffScreen::Initialize(uint32 InResolutionX, uint32 InResolutionY, 
 {
 	check(!bInitialized);
 
-	RenderTarget = ConstructObject<UTextureRenderTarget2D>(UTextureRenderTarget2D::StaticClass());
+	RenderTarget = NewObject<UTextureRenderTarget2D>(UTextureRenderTarget2D::StaticClass());
 	RenderTarget->AddToRoot();
 	RenderTarget->SetFlags(RF_Transient);
 	RenderTarget->bHDR = false;

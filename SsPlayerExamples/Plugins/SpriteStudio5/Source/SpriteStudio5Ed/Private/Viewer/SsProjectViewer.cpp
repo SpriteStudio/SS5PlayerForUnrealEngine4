@@ -189,9 +189,9 @@ TSharedRef<SDockTab> FSsProjectViewer::SpawnTab_Viewport(const FSpawnTabArgs& Ar
 
 }
 
-TSharedRef<SDockTab> FSsProjectViewer::SpawnTab_Details(const FSpawnTabArgs& Args)
+TSharedRef<SDockTab> FSsProjectViewer::SpawnTab_Details(const FSpawnTabArgs& InArgs)
 {
-	check( Args.GetTabId() == DetailsTabId );
+	check( InArgs.GetTabId() == DetailsTabId );
 
 	////
 	TSharedPtr<IDetailsView> PropertiesWidget;
@@ -269,7 +269,7 @@ void FSsProjectViewer::ExtendToolbar()
 					+SVerticalBox::Slot()
 					[
 						(Viewer->MaxFrameText = SNew(STextBlock)
-						.Text(FString(TEXT("  / ---")))
+						.Text(FText::FromString(TEXT("  / ---")))
 						).ToSharedRef()
 					]
 					);

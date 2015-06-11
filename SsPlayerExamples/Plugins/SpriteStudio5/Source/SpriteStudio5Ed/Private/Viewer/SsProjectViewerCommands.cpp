@@ -1,6 +1,7 @@
 ﻿#include "SpriteStudio5EdPrivatePCH.h"
 #include "SsProjectViewerCommands.h"
 
+#define LOCTEXT_NAMESPACE ""
 
 void FSsProjectViewerCommands::RegisterCommands()
 {
@@ -9,3 +10,5 @@ void FSsProjectViewerCommands::RegisterCommands()
 	UI_COMMAND(NextFrame, "NextFrame", "Forward One Frame", EUserInterfaceActionType::Button, FInputGesture());
 	UI_COMMAND(DrawGrid, "Grid", "Draw Grid", EUserInterfaceActionType::ToggleButton, FInputGesture());
 }
+
+#undef LOCTEXT_NAMESPACE

@@ -5,12 +5,20 @@
 
 
 // コンストラクタ
+FSsPlayPropertySync::FSsPlayPropertySync()
+	: RefSsProject(NULL)
+	, RefAutoPlayAnimPackName(NULL)
+	, RefAutoPlayAnimationName(NULL)
+	, RefAutoPlayAnimPackIndex(NULL)
+	, RefAutoPlayAnimationIndex(NULL)
+{
+}
 FSsPlayPropertySync::FSsPlayPropertySync(
-	USsProject*& InSsProject,
-	FName& InAutoPlayAnimPackName,
-	FName& InAutoPlayAnimationName,
-	int32& InAutoPlayAnimPackIndex,
-	int32& InAutoPlayAnimationIndex
+	USsProject** InSsProject,
+	FName* InAutoPlayAnimPackName,
+	FName* InAutoPlayAnimationName,
+	int32* InAutoPlayAnimPackIndex,
+	int32* InAutoPlayAnimationIndex
 	)
 	: RefSsProject(InSsProject)
 	, RefAutoPlayAnimPackName(InAutoPlayAnimPackName)
@@ -55,74 +63,76 @@ void FSsPlayPropertySync::OnPostEditChangeProperty(FPropertyChangedEvent& Proper
 // 名前->インデックスへ、アニメーション指定を同期
 void FSsPlayPropertySync::SyncAutoPlayAnimation_NameToIndex()
 {
-	if(NULL == RefSsProject)
+	check((NULL != RefSsProject) || (NULL != RefAutoPlayAnimPackName) || (NULL != RefAutoPlayAnimationName) || (NULL != RefAutoPlayAnimPackIndex) || (NULL != RefAutoPlayAnimationIndex));
+	if(NULL == (*RefSsProject))
 	{
 		return;
 	}
-	if(0 == RefSsProject->AnimeList.Num())	// エディタ環境で、SsProject側がロードされる前にココへ来てしまう場合がある 
+	if(0 == (*RefSsProject)->AnimeList.Num())	// エディタ環境で、SsProject側がロードされる前にココへ来てしまう場合がある 
 	{
 		return;
 	}
 
-	RefAutoPlayAnimPackIndex  = -1;
-	RefAutoPlayAnimationIndex = -1;
-	RefSsProject->FindAnimationIndex(RefAutoPlayAnimPackName, RefAutoPlayAnimationName, RefAutoPlayAnimPackIndex, RefAutoPlayAnimationIndex);
+	*RefAutoPlayAnimPackIndex  = -1;
+	*RefAutoPlayAnimationIndex = -1;
+	(*RefSsProject)->FindAnimationIndex(*RefAutoPlayAnimPackName, *RefAutoPlayAnimationName, *RefAutoPlayAnimPackIndex, *RefAutoPlayAnimationIndex);
 
-	if(RefAutoPlayAnimPackIndex < 0)
+	if(*RefAutoPlayAnimPackIndex < 0)
 	{
-		if(0 < RefSsProject->AnimeList.Num())
+		if(0 < (*RefSsProject)->AnimeList.Num())
 		{
-			RefAutoPlayAnimPackIndex = 0;
-			RefAutoPlayAnimPackName  = RefSsProject->AnimeList[RefAutoPlayAnimPackIndex].AnimePackName;
+			*RefAutoPlayAnimPackIndex = 0;
+			*RefAutoPlayAnimPackName  = (*RefSsProject)->AnimeList[*RefAutoPlayAnimPackIndex].AnimePackName;
 		}
 		else
 		{
-			RefAutoPlayAnimPackIndex = -1;
-			RefAutoPlayAnimPackName  = FName();
+			*RefAutoPlayAnimPackIndex = -1;
+			*RefAutoPlayAnimPackName  = FName();
 		}
 	}
-	if(RefAutoPlayAnimationIndex < 0)
+	if(*RefAutoPlayAnimationIndex < 0)
 	{
-		if((0 <= RefAutoPlayAnimPackIndex) && (0 < RefSsProject->AnimeList[RefAutoPlayAnimPackIndex].AnimeList.Num()))
+		if((0 <= *RefAutoPlayAnimPackIndex) && (0 < (*RefSsProject)->AnimeList[*RefAutoPlayAnimPackIndex].AnimeList.Num()))
 		{
-			RefAutoPlayAnimationIndex = 0;
-			RefAutoPlayAnimationName  = RefSsProject->AnimeList[RefAutoPlayAnimPackIndex].AnimeList[RefAutoPlayAnimationIndex].AnimationName;
+			*RefAutoPlayAnimationIndex = 0;
+			*RefAutoPlayAnimationName  = (*RefSsProject)->AnimeList[*RefAutoPlayAnimPackIndex].AnimeList[*RefAutoPlayAnimationIndex].AnimationName;
 		}
 		else
 		{
-			RefAutoPlayAnimationIndex = -1;
-			RefAutoPlayAnimationName  = FName();
+			*RefAutoPlayAnimationIndex = -1;
+			*RefAutoPlayAnimationName  = FName();
 		}
 	}
 }
 // インデックス->名前へ、アニメーション指定を同期
 void FSsPlayPropertySync::SyncAutoPlayAnimation_IndexToName()
 {
-	if(NULL == RefSsProject)
+	check((NULL != RefSsProject) || (NULL != RefAutoPlayAnimPackName) || (NULL != RefAutoPlayAnimationName) || (NULL != RefAutoPlayAnimPackIndex) || (NULL != RefAutoPlayAnimationIndex));
+	if(NULL == (*RefSsProject))
 	{
 		return;
 	}
 
-	if((0 <= RefAutoPlayAnimPackIndex) && (RefAutoPlayAnimPackIndex < RefSsProject->AnimeList.Num()))
+	if((0 <= *RefAutoPlayAnimPackIndex) && (*RefAutoPlayAnimPackIndex < (*RefSsProject)->AnimeList.Num()))
 	{
-		RefAutoPlayAnimPackName = RefSsProject->AnimeList[RefAutoPlayAnimPackIndex].AnimePackName;
+		*RefAutoPlayAnimPackName = (*RefSsProject)->AnimeList[*RefAutoPlayAnimPackIndex].AnimePackName;
 
-		const FSsAnimation* Animation = RefSsProject->FindAnimation(RefAutoPlayAnimPackIndex, RefAutoPlayAnimationIndex);
+		const FSsAnimation* Animation = (*RefSsProject)->FindAnimation(*RefAutoPlayAnimPackIndex, *RefAutoPlayAnimationIndex);
 		if(Animation)
 		{
-			RefAutoPlayAnimationName = Animation->AnimationName;
+			*RefAutoPlayAnimationName = Animation->AnimationName;
 		}
 		else
 		{
-			RefAutoPlayAnimationIndex = 0;
-			RefAutoPlayAnimationName  = RefSsProject->AnimeList[RefAutoPlayAnimPackIndex].AnimeList[RefAutoPlayAnimationIndex].AnimationName;
+			*RefAutoPlayAnimationIndex = 0;
+			*RefAutoPlayAnimationName  = (*RefSsProject)->AnimeList[*RefAutoPlayAnimPackIndex].AnimeList[*RefAutoPlayAnimationIndex].AnimationName;
 		}
 	}
 	else
 	{
-		RefAutoPlayAnimPackIndex  = 0;
-		RefAutoPlayAnimationIndex = 0;
-		RefAutoPlayAnimPackName   = RefSsProject->AnimeList[RefAutoPlayAnimPackIndex].AnimePackName;
-		RefAutoPlayAnimationName  = RefSsProject->AnimeList[RefAutoPlayAnimPackIndex].AnimeList[RefAutoPlayAnimationIndex].AnimationName;
+		*RefAutoPlayAnimPackIndex  = 0;
+		*RefAutoPlayAnimationIndex = 0;
+		*RefAutoPlayAnimPackName   = (*RefSsProject)->AnimeList[*RefAutoPlayAnimPackIndex].AnimePackName;
+		*RefAutoPlayAnimationName  = (*RefSsProject)->AnimeList[*RefAutoPlayAnimPackIndex].AnimeList[*RefAutoPlayAnimationIndex].AnimationName;
 	}
 }

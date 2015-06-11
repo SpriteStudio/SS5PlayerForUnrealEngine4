@@ -45,7 +45,7 @@ UClass* USspjFactory::ResolveSupportedClass()
 	return USsProject::StaticClass();
 }
 
-UObject* USspjFactory::FactoryCreateBinary(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, const TCHAR* Type, const uint8*& Buffer, const uint8* BufferEnd, FFeedbackContext* Warn)
+UObject* USspjFactory::FactoryCreateBinary(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, const TCHAR* Type, const uint8*& Buffer, const uint8* InBufferEnd, FFeedbackContext* Warn)
 {
 	bool bReimport = this->IsA(UReimportSspjFactory::StaticClass());
 	TMap<FString, UTexture*>* ExistImages = NULL;
@@ -72,13 +72,13 @@ UObject* USspjFactory::FactoryCreateBinary(UClass* InClass, UObject* InParent, F
 	FEditorDelegates::OnAssetPreImport.Broadcast(this, InClass, InParent, ProjectName, Type);
 
 	// sspj
-	USsProject* NewProject = FSsLoader::LoadSsProject(InParent, ProjectName, Flags, Buffer, (BufferEnd - Buffer) + 1);
+	USsProject* NewProject = FSsLoader::LoadSsProject(InParent, ProjectName, Flags, Buffer, (InBufferEnd - Buffer) + 1);
 	NewProject->SetFilepath( GetCurrentFilename() );
 	if(NewProject)
 	{
 		if(NewProject->AssetImportData == nullptr)
 		{
-			NewProject->AssetImportData = ConstructObject<UAssetImportData>(UAssetImportData::StaticClass(), NewProject);
+			NewProject->AssetImportData = NewObject<UAssetImportData>(NewProject);
 		}
 		NewProject->AssetImportData->SourceFilePath = FReimportManager::SanitizeImportFilename(CurrentFilename, NewProject);
 		NewProject->AssetImportData->SourceFileTimestamp = IFileManager::Get().GetTimeStamp(*CurrentFilename).ToString();

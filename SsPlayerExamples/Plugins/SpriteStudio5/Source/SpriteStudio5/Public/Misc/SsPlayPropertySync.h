@@ -10,12 +10,13 @@ class USsProject;
 class FSsPlayPropertySync
 {
 protected:
+	FSsPlayPropertySync();
 	FSsPlayPropertySync(
-		USsProject*& InSsProject,
-		FName& InAutoPlayAnimPackName,
-		FName& InAutoPlayAnimationName,
-		int32& InAutoPlayAnimPackIndex,
-		int32& InAutoPlayAnimationIndex
+		USsProject** InSsProject,
+		FName* InAutoPlayAnimPackName,
+		FName* InAutoPlayAnimationName,
+		int32* InAutoPlayAnimPackIndex,
+		int32* InAutoPlayAnimationIndex
 		);
 
 	void OnSerialize(FArchive& Ar);
@@ -25,9 +26,9 @@ protected:
 	void SyncAutoPlayAnimation_IndexToName();
 
 private:
-	USsProject*& RefSsProject;
-	FName& RefAutoPlayAnimPackName;
-	FName& RefAutoPlayAnimationName;
-	int32& RefAutoPlayAnimPackIndex;
-	int32& RefAutoPlayAnimationIndex;
+	USsProject** RefSsProject;
+	FName* RefAutoPlayAnimPackName;
+	FName* RefAutoPlayAnimationName;
+	int32* RefAutoPlayAnimPackIndex;
+	int32* RefAutoPlayAnimationIndex;
 };

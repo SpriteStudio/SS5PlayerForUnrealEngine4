@@ -41,7 +41,7 @@ namespace
 // コンストラクタ
 USsPlayerComponent::USsPlayerComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-	, FSsPlayPropertySync(SsProject, AutoPlayAnimPackName, AutoPlayAnimationName, AutoPlayAnimPackIndex, AutoPlayAnimationIndex)
+	, FSsPlayPropertySync(&SsProject, &AutoPlayAnimPackName, &AutoPlayAnimationName, &AutoPlayAnimPackIndex, &AutoPlayAnimationIndex)
 	, RenderOffScreen(NULL)
 	, SsProject(NULL)
 	, bAutoUpdate(true)
@@ -149,27 +149,6 @@ bool USsPlayerComponent::DoesSocketExist(FName InSocketName) const
 {
 	return (RenderMode != ESsPlayerComponentRenderMode::OffScreenOnly)
 		&& (0 <= Player.GetPartIndexFromName(InSocketName));
-}
-// 全ソケット名の取得 
-TArray<FName> USsPlayerComponent::GetAllSocketNames() const
-{
-	TArray<FName> Result;
-	if(    (RenderMode != ESsPlayerComponentRenderMode::OffScreenOnly)
-		&& (Player.GetSsProject().IsValid())
-		)
-	{
-		int32 AnimPackIndex  = Player.GetPlayingAnimPackIndex();
-		int32 AnimationIndex = Player.GetPlayingAnimationIndex();
-		if((0 <= AnimPackIndex) && (0 <= AnimationIndex))
-		{
-			FSsAnimation& Animation = Player.GetSsProject()->AnimeList[AnimPackIndex].AnimeList[AnimationIndex];
-			for(int32 i = 0; i < Animation.PartAnimes.Num(); ++i)
-			{
-				Result.Add(Animation.PartAnimes[i].PartName);
-			}
-		}
-	}
-	return Result;
 }
 // 全ソケットの情報を取得 
 void USsPlayerComponent::QuerySupportedSockets(TArray<FComponentSocketDescription>& OutSockets) const
@@ -651,8 +630,7 @@ bool USsPlayerComponent::IsPlaying() const
 
 int32 USsPlayerComponent::GetNumAnimPacks() const
 {
-	const TWeakObjectPtr<USsProject> SsProject = Player.GetSsProject();
-	if(SsProject.IsValid())
+	if(SsProject)
 	{
 		return SsProject->AnimeList.Num();
 	}
@@ -660,8 +638,7 @@ int32 USsPlayerComponent::GetNumAnimPacks() const
 }
 int32 USsPlayerComponent::GetNumAnimations(FName AnimPackName) const
 {
-	const TWeakObjectPtr<USsProject> SsProject = Player.GetSsProject();
-	if(SsProject.IsValid())
+	if(SsProject)
 	{
 		int32 AnimPackIndex = SsProject->FindAnimePackIndex(AnimPackName);
 		if(0 <= AnimPackIndex)
@@ -673,8 +650,7 @@ int32 USsPlayerComponent::GetNumAnimations(FName AnimPackName) const
 }
 int32 USsPlayerComponent::GetNumAnimationsByIndex(int32 AnimPackIndex) const
 {
-	const TWeakObjectPtr<USsProject> SsProject = Player.GetSsProject();
-	if(SsProject.IsValid() && (AnimPackIndex < SsProject->AnimeList.Num()))
+	if(SsProject && (AnimPackIndex < SsProject->AnimeList.Num()))
 	{
 		return SsProject->AnimeList[AnimPackIndex].AnimeList.Num();
 	}

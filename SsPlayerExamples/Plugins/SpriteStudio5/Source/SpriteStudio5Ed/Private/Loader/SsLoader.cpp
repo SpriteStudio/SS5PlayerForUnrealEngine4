@@ -20,7 +20,7 @@ USsProject* FSsLoader::LoadSsProject(UObject* InParent, FName InName, EObjectFla
 
 	SsXmlIArchiver ar(&xml, "SpriteStudioProject");
 
-	USsProject* Proj = CastChecked<USsProject>(StaticConstructObject(USsProject::StaticClass(), InParent, InName, Flags));
+	USsProject* Proj = NewObject<USsProject>(InParent, InName, Flags);
 	SerializeSsProject(*Proj, &ar);
 
 	return Proj;

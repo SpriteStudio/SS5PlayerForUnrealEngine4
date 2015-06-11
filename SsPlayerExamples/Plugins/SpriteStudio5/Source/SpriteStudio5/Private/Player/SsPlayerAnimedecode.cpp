@@ -963,11 +963,11 @@ int		FSsAnimeDecoder::CalcAnimeLabel2Frame(const FName& str, int offset, FSsAnim
 
         if ( ret != -1 )
         {
-			int ret2 = ret + offset;
-            if ( ret2 < 0 ) ret2 = 0;
-            if ( ret2 > maxframe ) ret2 = maxframe;
+			int ret3 = ret + offset;
+            if ( ret3 < 0 ) ret3 = 0;
+			if ( ret3 > maxframe ) ret3 = maxframe;
 
-        	return ret2;
+        	return ret3;
 		}
 		//警告など出すべき？
 	}
