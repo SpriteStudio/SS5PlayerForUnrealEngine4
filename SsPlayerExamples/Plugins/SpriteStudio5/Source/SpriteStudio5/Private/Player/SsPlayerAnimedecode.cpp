@@ -112,9 +112,17 @@ void FSsAnimeDecoder::SetAnimation(FSsModel* model, FSsAnimation* anime, FSsCell
 
 					FSsCellMapList* __cellmap = new FSsCellMapList();
 					__cellmap->Set( sspj , refpack );
+
+					// インスタンスパーツ再生用のDecoderを生成
 					FSsAnimeDecoder* animedecoder = new FSsAnimeDecoder();
 					animedecoder->SetAnimation( &refpack->Model , refanime , __cellmap , sspj );
+
+					// 描画先は親のCanvasなので、基準枠の設定はそちらに合わせる
+					animedecoder->CurAnimeCanvasSize = CurAnimeCanvasSize;
+					animedecoder->CurAnimePivot = CurAnimePivot;
+
 					PartState[i].RefAnime = animedecoder;
+
 					//親子関係を付ける
 					animedecoder->PartState[0].Parent = &PartState[i];
 				}
@@ -129,6 +137,8 @@ void FSsAnimeDecoder::SetAnimation(FSsModel* model, FSsAnimation* anime, FSsCell
 	//アニメの最大フレーム数を取得
 	CurAnimeEndFrame = anime->Settings.FrameCount;
 	CurAnimeFPS = anime->Settings.Fps;
+
+	//アニメの基準枠を取得
 	CurAnimeCanvasSize = anime->Settings.CanvasSize;
 	CurAnimePivot = anime->Settings.Pivot;
 }
