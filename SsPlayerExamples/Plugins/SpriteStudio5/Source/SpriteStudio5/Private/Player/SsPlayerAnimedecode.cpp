@@ -50,6 +50,10 @@ void FSsAnimeDecoder::SetAnimation(FSsModel* model, FSsAnimation* anime, FSsCell
 	CurCellMapManager = cellmap;
 	CurAnimation = anime;
 
+	//アニメの基準枠を取得
+	CurAnimeCanvasSize = anime->Settings.CanvasSize;
+	CurAnimePivot = anime->Settings.Pivot;
+
 	//partStateをパーツ分作成する
 	PartAnimeDic.Empty();
 
@@ -133,14 +137,9 @@ void FSsAnimeDecoder::SetAnimation(FSsModel* model, FSsAnimation* anime, FSsCell
 
 	}
 
-
 	//アニメの最大フレーム数を取得
 	CurAnimeEndFrame = anime->Settings.FrameCount;
 	CurAnimeFPS = anime->Settings.Fps;
-
-	//アニメの基準枠を取得
-	CurAnimeCanvasSize = anime->Settings.CanvasSize;
-	CurAnimePivot = anime->Settings.Pivot;
 }
 
 
