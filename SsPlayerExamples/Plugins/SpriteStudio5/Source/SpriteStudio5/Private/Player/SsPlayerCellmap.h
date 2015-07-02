@@ -40,7 +40,7 @@ public:
 	FSsCelMapLinker(FSsCellMap* cellmap, FName filePath);
 	virtual ~FSsCelMapLinker();
 
-	FSsCell* FindCell(const FName& name){ return CellDic[name]; }
+	FSsCell* FindCell(const FName& name){ return name.IsNone() ? NULL : CellDic[name]; }
 };
 
 //プロジェクト全体で保持しているセルマップ
