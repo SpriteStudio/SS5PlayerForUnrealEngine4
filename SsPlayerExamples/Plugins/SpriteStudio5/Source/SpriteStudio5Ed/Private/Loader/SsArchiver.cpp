@@ -1,5 +1,7 @@
 ﻿#include "SpriteStudio5EdPrivatePCH.h"
 
+#include "MessageLog.h"
+
 #include "SsArchiver.h"
 #include "SsString_uty.h"
 #include "SsTypes.h"
@@ -356,6 +358,20 @@ void SerializeStruct(FSsPart& Value, SsXmlIArchiver* ar)
 	SSAR_DECLARE("locked", Value.Locked);
 	SSAR_DECLARE("refAnimePack", Value.RefAnimePack);
 	SSAR_DECLARE("refAnime", Value.RefAnime);
+
+	// 未対応のパーツタイプに対する警告 
+	if(SsPartType::Invalid == Value.Type)
+	{
+		Value.Type = SsPartType::Null;
+
+		FMessageLog Message("SSPJ Import Log");
+		FString WarningMessage = FString::Printf(TEXT(
+			"\"%s\"'s Part Type is Invalid. Replace it with a NULL."),
+			*(Value.PartName.ToString())
+			);
+		Message.Warning(FText::FromString(WarningMessage));
+		Message.Open();
+	}
 
 	//継承率後に改良を実施
 	if (ar->getType() == EnumSsArchiver::in)

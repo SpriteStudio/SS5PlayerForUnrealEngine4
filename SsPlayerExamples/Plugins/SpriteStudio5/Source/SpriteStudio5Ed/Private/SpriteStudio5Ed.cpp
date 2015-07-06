@@ -1,8 +1,10 @@
 ﻿#include "SpriteStudio5EdPrivatePCH.h"
 
+#include "MessageLogModule.h"
 #include "AssetTypeActions_SsProject.h"
 
 DEFINE_LOG_CATEGORY(LogSpriteStudioEd);
+#define LOCTEXT_NAMESPACE ""
 
 class FSpriteStudio5Ed : public ISpriteStudio5Ed
 {
@@ -23,6 +25,9 @@ void FSpriteStudio5Ed::StartupModule()
 	FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get().RegisterAssetTypeActions(SspjAssetTypeActions.ToSharedRef());
 
 	Style = MakeShareable(new FSpriteStudio5EdStyle());
+
+	FMessageLogModule& MessageLogModule = FModuleManager::LoadModuleChecked<FMessageLogModule>("MessageLog");
+	MessageLogModule.RegisterLogListing("SSPJ Import Log", LOCTEXT("SspjImportLog", "SSPJ Import Log"));
 }
 
 
@@ -36,7 +41,9 @@ void FSpriteStudio5Ed::ShutdownModule()
 		}
 		SspjAssetTypeActions.Reset();
 	}
+
+	FMessageLogModule& MessageLogModule = FModuleManager::LoadModuleChecked<FMessageLogModule>("MessageLog");
+	MessageLogModule.UnregisterLogListing("SSPJ Import Log");
 }
 
-
-
+#undef LOCTEXT_NAMESPACE
