@@ -52,6 +52,12 @@ decelerating_(
 
 static float bezier_(float start, float end, float time, const FSsCurve * c)
 {
+	//値が変化しない場合は左キーを補間値とする
+	if ((start == end) && (c->StartValue == 0.0f) && (c->EndValue == 0.0f))
+	{
+		return start;
+	}
+
 	float fCurrentPos = (c->EndKeyTime - c->StartKeyTime) * time + c->StartKeyTime;
 
 	float fRet = end;
