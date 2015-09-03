@@ -3,10 +3,10 @@
 	
 	"FriendlyName" : "OPTPiX SpriteStudio5 Player for UE4",
 	"Version" : 1,
-	"VersionName" : "1.0.2",
+	"VersionName" : "1.0.3",
 	"CreatedBy" : "Web Technology Corp.",
 	"CreatedByURL" : "http://www.webtech.co.jp/",
-	"EngineVersion" : "4.8.0",
+	"EngineVersion" : "4.9.0",
 	"Description" : "OPTPiX SpriteStudio5 Player for UE4",
 	"Category" : "SpriteStudio5",
 	

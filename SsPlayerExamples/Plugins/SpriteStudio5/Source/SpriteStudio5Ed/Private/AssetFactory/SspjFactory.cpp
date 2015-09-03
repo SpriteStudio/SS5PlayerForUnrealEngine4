@@ -80,9 +80,7 @@ UObject* USspjFactory::FactoryCreateBinary(UClass* InClass, UObject* InParent, F
 		{
 			NewProject->AssetImportData = NewObject<UAssetImportData>(NewProject);
 		}
-		NewProject->AssetImportData->SourceFilePath = FReimportManager::SanitizeImportFilename(CurrentFilename, NewProject);
-		NewProject->AssetImportData->SourceFileTimestamp = IFileManager::Get().GetTimeStamp(*CurrentFilename).ToString();
-		NewProject->AssetImportData->bDirty = false;
+		NewProject->AssetImportData->Update(CurrentFilename);
 
 		FString CurPath = FPaths::GetPath(GetCurrentFilename());
 

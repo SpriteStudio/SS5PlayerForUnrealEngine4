@@ -163,7 +163,7 @@ namespace SsPartsSortMode
 		Z,				///< 描画順はＺ座標で制御する。Ｚ座標を表示し、優先度を隠す。
 		Num,
 
-		Invalid = 255
+		Invalid = 254,
 	};
 }
 FString SPRITESTUDIO5_API __EnumToString_(TEnumAsByte<SsPartsSortMode::Type> n);
@@ -182,7 +182,7 @@ namespace SsPartType
 		Instance,		///< インスタンス。他アニメ、パーツへの参照。シーン編集モードの代替になるもの
 		Num,
 
-		Invalid = 255
+		Invalid = 254
 	};
 }
 FString SPRITESTUDIO5_API __EnumToString_(TEnumAsByte<SsPartType::Type> n);
@@ -204,7 +204,7 @@ namespace SsBoundsType
 		CircleSmax,		///< 真円の半径で距離により判定する (スケールはx,yの最大値をとる）
 		Num,
 
-		Invalid = 255
+		Invalid = 254
 	};
 }
 FString SPRITESTUDIO5_API __EnumToString_(TEnumAsByte<SsBoundsType::Type> n);
@@ -222,7 +222,7 @@ namespace SsInheritType
 		Self,			///< 自身がアトリビュート別に持つ継承方法を使う
 		Num,
 
-		Invalid = 255
+		Invalid = 254
 	};
 }
 FString SPRITESTUDIO5_API __EnumToString_(TEnumAsByte<SsInheritType::Type> n);
@@ -241,7 +241,7 @@ namespace SsBlendType
 		Sub,			///< 3 減算
 		Num,
 
-		Invalid = 255
+		Invalid = 254
 	};
 }
 FString SPRITESTUDIO5_API __EnumToString_(TEnumAsByte<SsBlendType::Type> n);
@@ -257,7 +257,7 @@ namespace SsColorBlendTarget
 		Vertex,	///< 頂点単位
 		Num,
 
-		Invalid = 255
+		Invalid = 254
 	};
 }
 FString SPRITESTUDIO5_API __EnumToString_(TEnumAsByte<SsColorBlendTarget::Type> n);
@@ -277,7 +277,7 @@ namespace SsInterpolationType
 		Deceleration,	///< 減速度
 		Num,
 
-		Invalid = 255
+		Invalid = 254
 	};
 }
 FString SPRITESTUDIO5_API __EnumToString_(TEnumAsByte<SsInterpolationType::Type> n);
@@ -294,7 +294,7 @@ namespace SsTexWrapMode
 		Mirror,			/// ミラー
 		Num,
 
-		Invalid = 255
+		Invalid = 254
 	};
 }
 FString SPRITESTUDIO5_API __EnumToString_(TEnumAsByte<SsTexWrapMode::Type> n);
@@ -310,7 +310,7 @@ namespace SsTexFilterMode
 		Linear,		///< リニア、バイリニア
 		Num,
 
-		Invalid = 255
+		Invalid = 254
 	};
 }
 FString SPRITESTUDIO5_API __EnumToString_(TEnumAsByte<SsTexFilterMode::Type> n);
@@ -356,7 +356,7 @@ namespace SsAttributeKind
 		Instance,	///< [IPRM]インスタンスパーツパラメータ
 		Num,
 
-		Invalid = 255	///< 無効値。旧データからの変換時など
+		Invalid = 254	///< 無効値。旧データからの変換時など
 	};
 }
 FString SPRITESTUDIO5_API __EnumToString_(TEnumAsByte<SsAttributeKind::Type> n);
@@ -377,7 +377,7 @@ namespace SsKeyValueType
 		UserData,
 		Instance,
 
-		Unkown = 255
+		Unkown = 254
 	};
 }
 

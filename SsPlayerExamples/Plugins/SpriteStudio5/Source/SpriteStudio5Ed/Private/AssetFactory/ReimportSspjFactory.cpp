@@ -14,7 +14,7 @@ bool UReimportSspjFactory::CanReimport(UObject* Obj, TArray<FString>& OutFilenam
 	USsProject* SsProject = Cast<USsProject>(Obj);
 	if(SsProject && SsProject->AssetImportData)
 	{
-		OutFilenames.Add(FReimportManager::ResolveImportFilename(SsProject->AssetImportData->SourceFilePath, SsProject));
+		SsProject->AssetImportData->ExtractFilenames(OutFilenames);
 		return true;
 	}
 	return false;
@@ -25,7 +25,7 @@ void UReimportSspjFactory::SetReimportPaths(UObject* Obj, const TArray<FString>&
 	USsProject* SsProject = Cast<USsProject>(Obj);
 	if(SsProject && ensure(NewReimportPaths.Num() == 1))
 	{
-		SsProject->AssetImportData->SourceFilePath = FReimportManager::ResolveImportFilename(NewReimportPaths[0], SsProject);
+		SsProject->AssetImportData->UpdateFilenameOnly(NewReimportPaths[0]);
 	}
 }
 
@@ -46,7 +46,7 @@ EReimportResult::Type UReimportSspjFactory::Reimport(UObject* Obj)
 		}
 	}
 
-	const FString Filename = FReimportManager::ResolveImportFilename(SsProject->AssetImportData->SourceFilePath, SsProject);
+	const FString Filename = SsProject->AssetImportData->GetFirstFilename();
 	if(!Filename.Len() || IFileManager::Get().FileSize(*Filename) == INDEX_NONE)
 	{
 		return EReimportResult::Failed;
