@@ -166,7 +166,7 @@ void	__StringToEnum_( FString n , TEnumAsByte<SsTexWrapMode::Type> &out )
 FString	__EnumToString_( TEnumAsByte<SsTexFilterMode::Type> n )
 {
 	if ( SsTexFilterMode::Invalid )		return "invalid";
-	if ( SsTexFilterMode::Nearest )		return "nearest";
+	if ( SsTexFilterMode::Nearest )		return "nearlest";	// sspj側の誤植？
 	if ( SsTexFilterMode::Linear )		return "linear";
 
 	return "invalid";	
@@ -176,7 +176,7 @@ void	__StringToEnum_( FString n , TEnumAsByte<SsTexFilterMode::Type> &out )
 {
 	out = SsTexFilterMode::Invalid;
 	if ( n == "invalid") out = SsTexFilterMode::Invalid;
-	if ( n == "nearest") out = SsTexFilterMode::Nearest;
+	if ( n == "nearlest") out = SsTexFilterMode::Nearest;	// sspj側の誤植？
 	if ( n == "linear") out = SsTexFilterMode::Linear;
 
 }

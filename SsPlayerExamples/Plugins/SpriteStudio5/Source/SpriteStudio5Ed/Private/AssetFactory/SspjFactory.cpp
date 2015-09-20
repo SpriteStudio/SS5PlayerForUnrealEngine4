@@ -85,6 +85,8 @@ UObject* USspjFactory::FactoryCreateBinary(UClass* InClass, UObject* InParent, F
 		FString CurPath = FPaths::GetPath(GetCurrentFilename());
 
 		TArray<FString> ImagePaths;
+		TArray<SsTexWrapMode::Type> ImageWrapModes;
+		TArray<SsTexFilterMode::Type> ImageFilterModes;
 
 		// ssce
 		NewProject->CellmapList.Empty();
@@ -103,7 +105,20 @@ UObject* USspjFactory::FactoryCreateBinary(UClass* InClass, UObject* InParent, F
 					NewProject->CellmapList[i].FileName = NewProject->CellmapNames[i];
 					if(0 < NewProject->CellmapList[i].ImagePath.Len())
 					{
-						ImagePaths.AddUnique(NewProject->CellmapList[i].ImagePath);
+						if(INDEX_NONE == ImagePaths.Find(NewProject->CellmapList[i].ImagePath))
+						{
+							ImagePaths.Add(NewProject->CellmapList[i].ImagePath);
+							if(NewProject->CellmapList[i].OverrideTexSettings)
+							{
+								ImageWrapModes.Add(NewProject->CellmapList[i].WrapMode);
+								ImageFilterModes.Add(NewProject->CellmapList[i].FilterMode);
+							}
+							else
+							{
+								ImageWrapModes.Add(NewProject->Settings.WrapMode);
+								ImageFilterModes.Add(NewProject->Settings.FilterMode);
+							}
+						}
 					}
 				}
 			}
@@ -175,9 +190,34 @@ UObject* USspjFactory::FactoryCreateBinary(UClass* InClass, UObject* InParent, F
 					if(!ImportedTexture)
 					{
 						NewTexture->MipGenSettings = TMGS_NoMipmaps;
-						NewTexture->AddressX = TA_Clamp;
-						NewTexture->AddressY = TA_Clamp;
 						NewTexture->CompressionSettings = TextureCompressionSettings::TC_EditorIcon;
+					}
+
+					switch(ImageWrapModes[i])
+					{
+						case SsTexWrapMode::Clamp:
+							{
+								NewTexture->AddressX = NewTexture->AddressY = TA_Clamp;
+							} break;
+						case SsTexWrapMode::Repeat:
+							{
+								NewTexture->AddressX = NewTexture->AddressY = TA_Wrap;
+							} break;
+						case SsTexWrapMode::Mirror:
+							{
+								NewTexture->AddressX = NewTexture->AddressY = TA_Mirror;
+							} break;
+					}
+					switch(ImageFilterModes[i])
+					{
+						case SsTexFilterMode::Nearest:
+							{
+								NewTexture->Filter = TF_Nearest;
+							} break;
+						case SsTexFilterMode::Linear:
+							{
+								NewTexture->Filter = TF_Bilinear;
+							} break;
 					}
 
 					FAssetRegistryModule::AssetCreated(NewTexture);
