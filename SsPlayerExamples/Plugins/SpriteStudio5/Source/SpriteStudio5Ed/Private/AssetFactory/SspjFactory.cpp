@@ -3,6 +3,7 @@
 
 #include "AssetRegistryModule.h"
 
+#include "SsImportSettings.h"
 #include "ReimportSspjFactory.h"
 #include "SsProject.h"
 #include "SsCellMap.h"
@@ -68,7 +69,10 @@ UObject* USspjFactory::FactoryCreateBinary(UClass* InClass, UObject* InParent, F
 		InParentPackage->Rename(*ProjectPackageName);
 	}
 
-	// インポート開始
+	// インポート設定の取得 
+	const USsImportSettings* ImportSettings = GetDefault<USsImportSettings>();
+
+	// インポート開始 
 	FEditorDelegates::OnAssetPreImport.Broadcast(this, InClass, InParent, ProjectName, Type);
 
 	// sspj
@@ -187,37 +191,53 @@ UObject* USspjFactory::FactoryCreateBinary(UClass* InClass, UObject* InParent, F
 					);
 				if(NewTexture)
 				{
-					if(!ImportedTexture)
+					if(ImportSettings->bOverwriteMipGenSettings)
 					{
 						NewTexture->MipGenSettings = TMGS_NoMipmaps;
+					}
+					if(ImportSettings->bOverwriteTextureGroup)
+					{
+						NewTexture->LODGroup = ImportSettings->TextureGroup;
+					}
+					if(ImportSettings->bOverwriteCompressionSettings)
+					{
 						NewTexture->CompressionSettings = TextureCompressionSettings::TC_EditorIcon;
 					}
-
-					switch(ImageWrapModes[i])
+					if(ImportSettings->bOverwriteTilingMethodFromSspj)
 					{
-						case SsTexWrapMode::Clamp:
-							{
-								NewTexture->AddressX = NewTexture->AddressY = TA_Clamp;
-							} break;
-						case SsTexWrapMode::Repeat:
-							{
-								NewTexture->AddressX = NewTexture->AddressY = TA_Wrap;
-							} break;
-						case SsTexWrapMode::Mirror:
-							{
-								NewTexture->AddressX = NewTexture->AddressY = TA_Mirror;
-							} break;
+						switch(ImageWrapModes[i])
+						{
+							case SsTexWrapMode::Clamp:
+								{
+									NewTexture->AddressX = NewTexture->AddressY = TA_Clamp;
+								} break;
+							case SsTexWrapMode::Repeat:
+								{
+									NewTexture->AddressX = NewTexture->AddressY = TA_Wrap;
+								} break;
+							case SsTexWrapMode::Mirror:
+								{
+									NewTexture->AddressX = NewTexture->AddressY = TA_Mirror;
+								} break;
+						}
 					}
-					switch(ImageFilterModes[i])
+					if(ImportSettings->bOverwriteNeverStream)
 					{
-						case SsTexFilterMode::Nearest:
-							{
-								NewTexture->Filter = TF_Nearest;
-							} break;
-						case SsTexFilterMode::Linear:
-							{
-								NewTexture->Filter = TF_Bilinear;
-							} break;
+						NewTexture->NeverStream = true;
+					}
+					if(ImportSettings->bOverwriteFilterFromSspj)
+					{
+						switch(ImageFilterModes[i])
+						{
+							case SsTexFilterMode::Nearest:
+								{
+									NewTexture->Filter = TF_Nearest;
+								} break;
+							case SsTexFilterMode::Linear:
+								{
+									NewTexture->Filter = TF_Bilinear;
+								} break;
+						}
 					}
 
 					FAssetRegistryModule::AssetCreated(NewTexture);
