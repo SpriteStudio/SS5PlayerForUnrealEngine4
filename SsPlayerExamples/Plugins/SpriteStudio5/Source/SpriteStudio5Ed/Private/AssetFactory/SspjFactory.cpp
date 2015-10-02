@@ -240,6 +240,8 @@ UObject* USspjFactory::FactoryCreateBinary(UClass* InClass, UObject* InParent, F
 						}
 					}
 
+					NewTexture->UpdateResource();
+
 					FAssetRegistryModule::AssetCreated(NewTexture);
 					TexturePackage->SetDirtyFlag(true);
 
