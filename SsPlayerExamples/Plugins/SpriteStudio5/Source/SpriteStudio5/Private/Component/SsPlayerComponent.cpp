@@ -336,23 +336,9 @@ void USsPlayerComponent::SendRenderDynamicData_Concurrent()
 
 					uint32 MatIdx = PartsMatIndex(Part.AlphaBlendType, Part.ColorBlendType);
 					UMaterialInstanceDynamic** ppMID = PartsMIDMap[MatIdx].Find(Part.Texture);
-					if(ppMID && *ppMID)
-					{
-						Part.Material = *ppMID;
-					}
-					else
-					{
-						UMaterialInstanceDynamic* NewMID = UMaterialInstanceDynamic::Create(BasePartsMaterials[MatIdx], this);
-						if(NewMID)
-						{
-							NewMID->AddToRoot();
-							NewMID->SetFlags(RF_Transient);
-							NewMID->SetTextureParameterValue(FName(TEXT("SsCellTexture")), Part.Texture);
-							
-							Part.Material = NewMID;
-							PartsMIDMap[MatIdx].Add(Part.Texture, NewMID);
-						}
-					}
+					
+					Part.Material = (ppMID && *ppMID) ? *ppMID : NULL;
+
 					NewRenderParts.Add(Part);
 				}
 
@@ -492,6 +478,29 @@ void USsPlayerComponent::UpdatePlayer(float DeltaSeconds)
 	switch(RenderMode)
 	{
 		case ESsPlayerComponentRenderMode::Default:
+			{
+				// パーツ描画用MIDの確保 
+				const TArray<FSsRenderPart> RenderParts = Player.GetRenderParts();
+				for(int32 i = 0; i < RenderParts.Num(); ++i)
+				{
+					FSsRenderPartWithMaterial Part;
+					FMemory::Memcpy(&Part, &(RenderParts[i]), sizeof(FSsRenderPart));
+
+					uint32 MatIdx = PartsMatIndex(RenderParts[i].AlphaBlendType, RenderParts[i].ColorBlendType);
+					UMaterialInstanceDynamic** ppMID = PartsMIDMap[MatIdx].Find(RenderParts[i].Texture);
+					if((NULL == ppMID) || (NULL == *ppMID))
+					{
+						UMaterialInstanceDynamic* NewMID = UMaterialInstanceDynamic::Create(BasePartsMaterials[MatIdx], this);
+						if(NewMID)
+						{
+							NewMID->AddToRoot();
+							NewMID->SetFlags(RF_Transient);
+							NewMID->SetTextureParameterValue(FName(TEXT("SsCellTexture")), RenderParts[i].Texture);
+							PartsMIDMap[MatIdx].Add(RenderParts[i].Texture, NewMID);
+						}
+					}
+				}
+			} // not break
 		case ESsPlayerComponentRenderMode::OffScreenPlane:
 			{
 				// 描画更新 
