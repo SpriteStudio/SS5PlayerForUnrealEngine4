@@ -81,9 +81,9 @@ inline const unsigned char unsignize(const char X) {
 	return (const unsigned char)X;
 }
 #else
-inline const unsigned char & unsignize(const char & X) {
-	return (const unsigned char &)X;
-}
+//inline const unsigned char & unsignize(const char & X) {
+//	return (const unsigned char &)X;
+//}
 #endif
 //inline unsigned int & unsignize(int & X) {
 //	return (unsigned int &)X;
@@ -93,9 +93,9 @@ inline const unsigned int unsignize(const int X) {
 	return (const unsigned int)X;
 }
 #else
-inline const unsigned int & unsignize(const int & X) {
-	return (const unsigned int &)X;
-}
+//inline const unsigned int & unsignize(const int & X) {
+//	return (const unsigned int &)X;
+//}
 #endif
 //inline wchar_t & unsignize(wchar_t & X) {
 //	return (wchar_t &)X;
