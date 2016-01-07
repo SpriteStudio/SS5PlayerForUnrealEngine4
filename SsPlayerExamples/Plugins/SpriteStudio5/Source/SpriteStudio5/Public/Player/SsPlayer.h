@@ -50,6 +50,9 @@ public:
 	// パーツのTransformを取得 
 	bool GetPartTransform(int32 PartIndex, FVector2D& OutPosition, float& OutRotate, FVector2D& OutScale) const;
 
+	// パーツのColorLabelを取得 
+	FName GetPartColorLabel(int32 PartIndex);
+
 private:
 	void TickAnimation(float DeltaSeconds, FSsPlayerTickResult& Result);
 	void FindUserDataInInterval(FSsPlayerTickResult& Result, float Start, float End);

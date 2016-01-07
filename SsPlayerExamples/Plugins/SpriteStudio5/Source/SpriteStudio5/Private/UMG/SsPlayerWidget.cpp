@@ -351,3 +351,17 @@ void USsPlayerWidget::RemoveTextureReplacementAll()
 {
 	Player.TextureReplacements.Empty();
 }
+
+FName USsPlayerWidget::GetPartColorLabel(FName PartName)
+{
+	int32 PartIndex = Player.GetPartIndexFromName(PartName);
+	if (0 <= PartIndex)
+	{
+		return Player.GetPartColorLabel(PartIndex);
+	}
+	return FName();
+}
+FName USsPlayerWidget::GetPartColorLabelByIndex(int32 PartIndex)
+{
+	return Player.GetPartColorLabel(PartIndex);
+}

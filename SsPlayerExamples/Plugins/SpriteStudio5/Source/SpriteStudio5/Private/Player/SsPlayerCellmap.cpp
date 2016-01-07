@@ -1,9 +1,6 @@
 ﻿#include "SpriteStudio5PrivatePCH.h"
 #include "SsPlayerCellmap.h"
 
-#include <stdio.h>
-#include <cstdlib>
-
 #include "SsProject.h"
 #include "SsAnimePack.h"
 #include "SsCellMap.h"
@@ -75,20 +72,37 @@ void FSsCellMapList::Set(USsProject* proj , FSsAnimePack* animepack)
 		}
 	}
 
+	for(int32 i = 0; i < animepack->Model.PartList.Num(); ++i)
+	{
+		if(SsPartType::Effect == animepack->Model.PartList[i].Type)
+		{
+			int32 EffectIndex = proj->FindEffectIndex(animepack->Model.PartList[i].RefEffectName);
+			if(0 <= EffectIndex)
+			{
+				for(int32 j = 0; j < proj->EffectList[EffectIndex].EffectData.NodeList.Num(); ++j)
+				{
+					int32 CellmapIndex = proj->FindCellMapIndex(proj->EffectList[EffectIndex].EffectData.NodeList[j].Behavior.CellMapName);
+					if(0 <= CellmapIndex)
+					{
+						Add(&(proj->CellmapList[CellmapIndex]));
+					}
+				}
+			}
+		}
+	}
+
 }
 
 void FSsCellMapList::Add(FSsCellMap* cellmap)
 {
 	FName CellMapNameEx = FName( *(cellmap->CellMapName.ToString() + TEXT(".ssce")) );
-
-	FSsCelMapLinker* linker = new FSsCelMapLinker(cellmap , this->CellMapPath);
 	if(!CellMapDic.Contains(CellMapNameEx))
 	{
+		FSsCelMapLinker* linker = new FSsCelMapLinker(cellmap , this->CellMapPath);
 		CellMapDic.Add(CellMapNameEx);
+		CellMapDic[ CellMapNameEx ] = linker ;
+		CellMapList.Add( linker );
 	}
-	CellMapDic[ CellMapNameEx ] = linker ;
-	CellMapList.Add( linker );
-
 }
 
 FSsCelMapLinker* FSsCellMapList::GetCellMapLink( const FName& name )
@@ -99,6 +113,35 @@ FSsCelMapLinker* FSsCellMapList::GetCellMapLink( const FName& name )
 	return 0;
 }
 
+
+void GetCellValue(FSsCelMapLinker* l, FName& cellName, FSsCellValue& v)
+{
+	v.Cell = l->FindCell( cellName );
+
+	v.FilterMode = l->CellMap->FilterMode;
+	v.WrapMode = l->CellMap->WrapMode;
+
+	if ( l->Tex )
+	{
+		v.Texture = l->Tex;
+	}
+	else
+	{
+		v.Texture = 0;
+	}
+
+	CalcUvs( &v );
+}
+void GetCellValue(FSsCellMapList* cellList, FName& cellMapName, FName& cellName, FSsCellValue& v)
+{
+	FSsCelMapLinker* l = cellList->GetCellMapLink( cellMapName );
+	GetCellValue( l , cellName , v );
+}
+void GetCellValue(FSsCellMapList* cellList, int32 cellMapid, FName& cellName, FSsCellValue& v)
+{
+	FSsCelMapLinker* l = cellList->GetCellMapLink( cellMapid );
+	GetCellValue( l , cellName , v );
+}
 
 void CalcUvs( FSsCellValue* cellv )
 {

@@ -268,6 +268,7 @@ namespace
 
 
 		// 頂点バッファへ書き込み 
+		if(0 < RenderParts.RenderParts.Num())
 		{
 			void* VerticesPtr = RHILockVertexBuffer(
 					RenderParts.VertexBuffer->VertexBufferRHI,
@@ -294,23 +295,30 @@ namespace
 					Vert.TexCoord = RenderPart.Vertices[v].TexCoord;
 					
 					// カラーブレンドモードの設定 
-					if(RenderPart.ColorBlendType != SsBlendType::Invalid)
+					switch(RenderPart.ColorBlendType)
 					{
-						// 0～3: Mix/Mul/Add/Sub 
-						Vert.ColorBlend.X = (float)(RenderPart.ColorBlendType + 0.01f);
-					}
-					else
-					{
-						if(RenderPart.AlphaBlendType == SsBlendType::Mix)
-						{
-							// AlphaBlend が Mix の場合だけ、ColorBlend がInvalidの時の挙動が違う 
-							Vert.ColorBlend.X = 5.01f;
-						}
-						else
-						{
-							Vert.ColorBlend.X = 4.01f;
-						}
-						
+						case SsBlendType::Invalid:
+							{
+								if (RenderPart.AlphaBlendType == SsBlendType::Mix)
+								{
+									// AlphaBlend が Mix の場合だけ、ColorBlend がInvalidの時の挙動が違う 
+									Vert.ColorBlend.X = 5.01f;
+								}
+								else
+								{
+									Vert.ColorBlend.X = 4.01f;
+								}
+							} break;
+						case SsBlendType::Effect:
+							{
+								// Effect
+								Vert.ColorBlend.X = 6.01f;
+							} break;
+						default:
+							{
+								// 0～3: Mix/Mul/Add/Sub 
+								Vert.ColorBlend.X = (float)(RenderPart.ColorBlendType + 0.01f);
+							} break;
 					}
 					Vert.ColorBlend.Y = RenderPart.Vertices[v].ColorBlendRate;
 				
@@ -467,13 +475,10 @@ void FSsRenderOffScreen::Render(const TArray<FSsRenderPart>& InRenderParts)
 		}
 	}
 
-	if(0 < RenderParts.RenderParts.Num())
-	{
-		ENQUEUE_UNIQUE_RENDER_COMMAND_ONEPARAMETER(
-			FSsRenderOffScreenRunner,
-			FSsRenderPartsForSendingRenderThread, InRenderParts, RenderParts,
-			{
-				RenderPartsToRenderTarget(RHICmdList, InRenderParts);
-			});
-	}
+	ENQUEUE_UNIQUE_RENDER_COMMAND_ONEPARAMETER(
+		FSsRenderOffScreenRunner,
+		FSsRenderPartsForSendingRenderThread, InRenderParts, RenderParts,
+		{
+			RenderPartsToRenderTarget(RHICmdList, InRenderParts);
+		});
 }

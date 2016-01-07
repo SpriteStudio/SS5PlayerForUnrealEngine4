@@ -40,7 +40,15 @@ public:
 	FSsCelMapLinker(FSsCellMap* cellmap, FName filePath);
 	virtual ~FSsCelMapLinker();
 
-	FSsCell* FindCell(const FName& name){ return name.IsNone() ? NULL : CellDic[name]; }
+	FSsCell* FindCell(const FName& name)
+	{
+		if(name.IsNone())
+		{
+			return NULL;
+		}
+		FSsCell** Ret = CellDic.Find(name);
+		return (nullptr == Ret) ? NULL : *Ret;
+	}
 };
 
 //プロジェクト全体で保持しているセルマップ
@@ -87,6 +95,9 @@ public:
 	
 
 };
+
+void GetCellValue(FSsCellMapList* cellList, int32 cellMapid, FName& cellName, FSsCellValue& v);
+void GetCellValue(FSsCellMapList* cellList, FName& cellMapName, FName& cellName, FSsCellValue& v);
 
 void CalcUvs( FSsCellValue* cellv );
 

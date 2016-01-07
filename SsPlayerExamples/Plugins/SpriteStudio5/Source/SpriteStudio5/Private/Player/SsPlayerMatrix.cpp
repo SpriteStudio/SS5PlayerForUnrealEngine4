@@ -1,11 +1,6 @@
 ﻿#include "SpriteStudio5PrivatePCH.h"
 #include "SsPlayerMatrix.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <memory.h>
-#include <math.h>
-
 void	IdentityMatrix( float* matrix )
 {
 

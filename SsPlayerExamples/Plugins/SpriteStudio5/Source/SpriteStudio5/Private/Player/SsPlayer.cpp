@@ -71,6 +71,9 @@ void FSsPlayer::TickAnimation(float DeltaSeconds, FSsPlayerTickResult& Result)
 		BkAnimeFrame -= (.0f <= PlayRate) ? .1f : -.1f;
 	}
 
+	// 0フレームを跨いだか 
+	bool bBeyondZeroFrame = false;
+
 	// 最終フレーム以降で順方向再生
 	if((Decoder->GetAnimeEndFrame() <= AnimeFrame) && (0.f < PlayRate))
 	{
@@ -106,6 +109,7 @@ void FSsPlayer::TickAnimation(float DeltaSeconds, FSsPlayerTickResult& Result)
 				FindUserDataInInterval(Result, -.1f, AnimeFrame);
 			}
 		}
+		bBeyondZeroFrame = true;
 	}
 	// 0フレーム以前で逆方向再生
 	else if((AnimeFrame < 0.f) && (PlayRate < 0.f))
@@ -141,6 +145,7 @@ void FSsPlayer::TickAnimation(float DeltaSeconds, FSsPlayerTickResult& Result)
 				FindUserDataInInterval(Result, (float)Decoder->GetAnimeEndFrame()+.1f, AnimeFrame);
 			}
 		}
+		bBeyondZeroFrame = true;
 	}
 	else
 	{
@@ -149,9 +154,13 @@ void FSsPlayer::TickAnimation(float DeltaSeconds, FSsPlayerTickResult& Result)
 
 	Decoder->SetPlayFrame( AnimeFrame );
 	Decoder->SetDeltaForIndependentInstance( DeltaSeconds );
+	if(bBeyondZeroFrame)
+	{
+		Decoder->ReloadEffects();
+	}
 	Decoder->Update();
 
-	RenderParts.Empty(RenderParts.GetSlack());
+	RenderParts.Empty();
 	Decoder->CreateRenderParts(RenderParts);
 
 	// 水平反転 
@@ -385,4 +394,14 @@ bool FSsPlayer::GetPartTransform(int32 PartIndex, FVector2D& OutPosition, float&
 		return Decoder->GetPartTransform(PartIndex, OutPosition, OutRotate, OutScale);
 	}
 	return false;
+}
+
+// パーツのColorLabelを取得 
+FName FSsPlayer::GetPartColorLabel(int32 PartIndex)
+{
+	if(Decoder.IsValid())
+	{
+		return Decoder->GetPartColorLabel(PartIndex);
+	}
+	return FName();
 }

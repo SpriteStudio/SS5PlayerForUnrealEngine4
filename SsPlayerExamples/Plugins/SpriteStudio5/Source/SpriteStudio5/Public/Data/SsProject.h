@@ -3,6 +3,7 @@
 #include "SsTypes.h"
 #include "SsAnimePack.h"
 #include "SsCellMap.h"
+#include "SsEffectFile.h"
 
 #include "SsProject.generated.h"
 
@@ -39,6 +40,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category=SsProjectSetting, BlueprintReadOnly)
 	FString		ImageBaseDirectory;			//!< 画像データの読み込み元先基準ディレクトリ。
+
+	UPROPERTY(VisibleAnywhere, Category=SsProjectSetting, BlueprintReadOnly)
+	FString		EffectBaseDirectory;		//!< エフェクトデータの読み込み元先基準ディレクトリ。
 
 	UPROPERTY(VisibleAnywhere, Category=SsProjectSetting, BlueprintReadOnly)
 	FString		ExportBaseDirectory;		//!< エクスポート先の基準ディレクトリ。
@@ -79,10 +83,16 @@ public:
 	TArray<FName>		AnimepackNames;		//!< アニメファイルのリスト
 
 	UPROPERTY(VisibleAnywhere, Category=SsProject, BlueprintReadOnly)
+	TArray<FName>		EffectFileNames;	//!< エフェクトファイルのリスト
+
+	UPROPERTY(VisibleAnywhere, Category=SsProject, BlueprintReadOnly)
 	TArray<FSsCellMap>		CellmapList;	//!< セルマップリスト
 
 	UPROPERTY(VisibleAnywhere, Category=SsProject, BlueprintReadOnly)
 	TArray<FSsAnimePack>	AnimeList;		//!< アニメーションのリスト	
+
+	UPROPERTY(VisibleAnywhere, Category=SsProject, BlueprintReadOnly)
+	TArray<FSsEffectFile>	EffectList;		//!< エフェクトリスト	
 
 #if WITH_EDITORONLY_DATA
 	UPROPERTY(EditAnywhere, Instanced, Category = Reimport)
@@ -97,17 +107,21 @@ public:
 	///プロジェクトの設定情報の取得
 	const FSsProjectSetting& GetProjectSetting(){ return Settings; }
 
-	//アニメパック名からアニメーションインデックスを取得する
+	// アニメパック名からアニメーションインデックスを取得する
 	int32 FindAnimePackIndex(const FName& AnimePackName) const;
 
-	//セルマップ名からセルマップインデックスを取得する
+	// セルマップ名からセルマップインデックスを取得する
 	int32 FindCellMapIndex(const FName& CellMapName) const;
 
-	// アニメーション名からインデックスを取得
+	// アニメーション名からインデックスを取得する
 	bool FindAnimationIndex(const FName& InAnimPackName, const FName& InAnimationName, int32& OutAnimPackIndex, int32& OutAnimationIndex) const;
 
-	///インデックスからアニメーションを取得する
+	// インデックスからアニメーションを取得する
 	const FSsAnimation* FindAnimation(int32 AnimPackIndex, int32 AnimationIndex) const;
+
+	// エフェクト名からインデックスを取得する
+	int32 FindEffectIndex(const FName& EffectName) const;
+
 
 	
 	///自身のファイルパスを設定する
@@ -122,25 +136,11 @@ public:
 	///ssaeデータの読み込み元の基準パスを取得する。 
 	FString GetSsaeBasepath() const;
 
+	///エフェクトデータの読み込み元の基準パスを取得する。 
+	FString GetSseeBasepath() const;
+
 	///テクスチャデータの読み込み元の基準パスを取得する。 
 	FString GetImageBasepath() const;
-
-
-	///AnimePack(ssae)のファイル名をパス付きで取得する
-	FString GetAnimePackFilePath(int32 index)
-	{
-		if (AnimepackNames.Num() <= index) return TEXT("");
-		return GetSsaeBasepath() + AnimepackNames[index].ToString();
-	}
-
-	///CellMap(ssce)のファイル名をパス付きで取得する
-	FString GetCellMapFilePath(int32 index)
-	{
-		if (CellmapNames.Num() <= index) return TEXT("");
-		FString str = GetSsceBasepath();
-		str = str + CellmapNames[index].ToString();
-		return str;
-	}
 
 	///最大描画パーツ数を計算
 	uint32 CalcMaxRenderPartsNum() const;

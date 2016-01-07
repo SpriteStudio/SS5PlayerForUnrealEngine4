@@ -144,6 +144,22 @@ UObject* USspjFactory::FactoryCreateBinary(UClass* InClass, UObject* InParent, F
 			}
 		}
 
+		// ssee
+		NewProject->EffectList.Empty();
+		NewProject->EffectList.AddZeroed(NewProject->EffectFileNames.Num());
+		for(int i = 0; i < NewProject->EffectFileNames.Num(); ++i)
+		{
+			FString FileName = GetFilePath(CurPath, NewProject->Settings.EffectBaseDirectory, NewProject->EffectFileNames[i].ToString());
+
+			TArray<uint8> Data;
+			if(FFileHelper::LoadFileToArray(Data, *FileName))
+			{
+				const uint8* BufferBegin = Data.GetData();
+				const uint8* BufferEnd = BufferBegin + Data.Num() - 1;
+				FSsLoader::LoadSsEffectFile(&(NewProject->EffectList[i]), BufferBegin, (BufferEnd - BufferBegin) + 1);
+			}
+		}
+
 		// texture
 		for(int i = 0; i < ImagePaths.Num(); ++i)
 		{

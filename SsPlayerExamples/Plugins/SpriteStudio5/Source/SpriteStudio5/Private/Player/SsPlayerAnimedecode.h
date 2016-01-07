@@ -31,8 +31,6 @@ public:
 		bool bFlipV;	// 上下反転
 		TMap<int32, TWeakObjectPtr<UTexture>>* TextureReplacements;	// パーツ毎のテクスチャ差し替え
 
-		bool bDrawMask;	// 問題対処用の臨時メンバ. 詳細はSsPlayerComponent.hのRenderTargetMask宣言辺りのMEMOにて. 
-
 		DrawOption()
 			: CenterLocation(0.f, 0.f)
 			, Rotation(0.f)
@@ -64,6 +62,8 @@ private:
 	FVector2D		CurAnimePivot;
 	FSsAnimation*	CurAnimation;
 
+	float			EffectUntreatedDeltaTime;	/// SetPlayFrameによるエフェクトの未処理累積時間 
+
 private:
 	void	UpdateState( int nowTime , FSsPart* part , FSsPartAnime* part_anime , FSsPartState* state );
 	void	UpdateInstance( int nowTime , FSsPart* part , FSsPartAnime* part_anime , FSsPartState* state );
@@ -87,7 +87,7 @@ public:
 	void	SetAnimation(struct FSsModel* model, FSsAnimation* anime, FSsCellMapList* cellmap, USsProject* sspj=0);
 	bool	IsAnimationValid() const { return (NULL != CurAnimation); }
 
-	void	SetPlayFrame(float time) { NowPlatTime = time; FrameDelta = 0.f; }
+	void	SetPlayFrame(float time);
 	float	GetPlayFrame() const { return NowPlatTime; }
 	int		GetAnimeEndFrame() { return CurAnimeEndFrame; }
 	int		GetAnimeFPS() { return CurAnimeFPS; }
@@ -99,9 +99,12 @@ public:
 	// パーツのTransformを取得 
 	bool GetPartTransform(int PartIndex, FVector2D& OutPosition, float& OutRotate, FVector2D& OutScale) const;
 
+	void ReloadEffects();
+
 
 	TArray<FSsPartState*>& GetPartSortList(){return SortList;}
 	const TArray<FSsPartAndAnime>& GetPartAnime(){return PartAnime;}
+	FName GetPartColorLabel(int32 PartIndex);
 	
 	template<typename mytype> int	SsGetKeyValue(int time , FSsAttribute* attr , mytype&  value);
 	template<typename mytype> void	SsInterpolationValue(int time , const FSsKeyframe* leftkey , const FSsKeyframe* rightkey , mytype& v);

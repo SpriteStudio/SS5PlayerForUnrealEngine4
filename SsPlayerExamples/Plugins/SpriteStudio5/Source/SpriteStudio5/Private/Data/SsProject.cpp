@@ -21,6 +21,10 @@ void USsProject::Serialize(FArchive& Ar)
 		{
 			AnimeList[i].Serialize(Ar);
 		}
+		for(int32 i = 0; i < EffectList.Num(); ++i)
+		{
+			EffectList[i].Serialize(Ar);
+		}
 	}
 }
 
@@ -71,6 +75,19 @@ const FSsAnimation* USsProject::FindAnimation(int32 AnimPackIndex, int32 Animati
 	return NULL;
 }
 
+int32 USsProject::FindEffectIndex(const FName& EffectName) const
+{
+	for(int32 i = 0; i < EffectList.Num(); ++i)
+	{
+		if(EffectName == EffectList[i].Name)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+
 FString USsProject::GetSsceBasepath() const
 {
 	return getFullPath(ProjFilepath, Settings.CellMapBaseDirectory);
@@ -87,6 +104,45 @@ FString USsProject::GetImageBasepath() const
 
 namespace
 {
+	uint32 CalcMaxRenderPartsNum_Effect_Recursice(const FSsEffectFile& Effect, const FSsEffectNode* Node, uint32 DrawCount)
+	{
+		if (nullptr == Node)
+		{
+			return 0;
+		}
+
+		uint32 Result = 0;
+		switch (Node->Type)
+		{
+			case SsEffectNodeType::Root:
+				{} break;
+			case SsEffectNodeType::Emmiter:
+				{
+					for (int32 i = 0; i < Node->Behavior.PList.Num(); ++i)
+					{
+						if (SsEffectFunctionType::Basic == Node->Behavior.PList[i]->MyType)
+						{
+							DrawCount *= (uint32)(static_cast<FSsParticleElementBasic*>(Node->Behavior.PList[i].Get())->MaximumParticle);
+							break;
+						}
+					}
+				} break;
+			case SsEffectNodeType::Particle:
+				{
+					Result += DrawCount;
+				} break;
+		}
+
+		for(int32 i = 0; i < Effect.EffectData.NodeList.Num(); ++i)
+		{
+			if(Node->ArrayIndex == Effect.EffectData.NodeList[i].ParentIndex)
+			{
+				Result += CalcMaxRenderPartsNum_Effect_Recursice(Effect, &(Effect.EffectData.NodeList[i]), DrawCount);
+			}
+		}
+
+		return Result;
+	}
 	uint32 CalcMaxRenderPartsNum_Recursive(const USsProject& Proj, const FSsAnimePack& AnimePack)
 	{
 		uint32 Result = AnimePack.Model.PartList.Num();
@@ -96,6 +152,11 @@ namespace
 			if(0 < RefAnimePackIndex)
 			{
 				Result += CalcMaxRenderPartsNum_Recursive(Proj, Proj.AnimeList[RefAnimePackIndex]);
+			}
+			int32 RefEffectIndex = Proj.FindEffectIndex(AnimePack.Model.PartList[i].RefEffectName);
+			if(0 < RefEffectIndex)
+			{
+				Result += CalcMaxRenderPartsNum_Effect_Recursice(Proj.EffectList[RefEffectIndex], Proj.EffectList[RefEffectIndex].EffectData.Root, 1);
 			}
 		}
 		return Result;

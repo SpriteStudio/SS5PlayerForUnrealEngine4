@@ -18,8 +18,8 @@ public:
 	UPROPERTY(VisibleAnywhere, Category=SsAnimationSettings, BlueprintReadOnly)
 	int32	FrameCount;		//!< フレーム数
 
-	UPROPERTY(VisibleAnywhere, Category=SsAnimationSettings, BlueprintReadOnly)
-	TEnumAsByte<SsPartsSortMode::Type>	SortMode;		//!< パーツのソートモード
+//	UPROPERTY(VisibleAnywhere, Category=SsAnimationSettings, BlueprintReadOnly)
+//	TEnumAsByte<SsPartsSortMode::Type>	SortMode;		//!< パーツのソートモード
 
 	UPROPERTY(VisibleAnywhere, Category=SsAnimationSettings, BlueprintReadOnly)
 	FVector2D	CanvasSize;				//!< キャンバスサイズ(元基準枠)。ビューポートのサイズとイコールではない。
@@ -73,6 +73,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category=SsPart, BlueprintReadOnly)
 	FName	RefAnime;       ///< 参照アニメ名
+
+	UPROPERTY(VisibleAnywhere, Category=SsPart, BlueprintReadOnly)
+	FName	RefEffectName;	///< 割り当てたパーティクル名
+
+	UPROPERTY(VisibleAnywhere, Category = SsPart, BlueprintReadOnly)
+	FName	ColorLabel;
 
 public:
 	FSsPart()

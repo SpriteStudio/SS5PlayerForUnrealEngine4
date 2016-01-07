@@ -1,9 +1,6 @@
 ﻿#include "SpriteStudio5PrivatePCH.h"
 #include "SsPlayerAnimedecode.h"
 
-#include <stdio.h>
-#include <cstdlib>
-
 #include "SsProject.h"
 #include "SsCellMap.h"
 #include "SsAnimePack.h"
@@ -12,14 +9,29 @@
 #include "SsPlayerMatrix.h"
 #include "SsPlayerPartState.h"
 #include "SsPlayerCellmap.h"
+#include "SsPlayerEffect.h"
 
-
-
-#define __PI__	(3.14159265358979323846f)
-#define RadianToDegree(Radian) ((double)Radian * (180.0f / __PI__))
-#define DegreeToRadian(Degree) ((double)Degree * (__PI__ / 180.0f))
 
 #define USE_TRIANGLE_FIN (0)
+
+
+namespace
+{
+	//乱数シードに利用するユニークIDを作成します。 
+	uint32 SeedMakeID = 123456;
+
+	//エフェクトに与えるシードを取得する関数 
+	//こちらを移植してください。 
+	uint32 GetRandomSeed()
+	{
+		SeedMakeID++;	//ユニークIDを更新します。 
+						//時間＋ユニークIDにする事で毎回シードが変わるようにします。 
+		uint32 rc = (uint32)(FDateTime::Now().ToUnixTimestamp() + SeedMakeID);
+
+		return(rc);
+	}
+}
+
 
 FSsAnimeDecoder::FSsAnimeDecoder()
 	: CurCellMapManager(0)
@@ -31,6 +43,7 @@ FSsAnimeDecoder::FSsAnimeDecoder()
 	, CurAnimeCanvasSize(0, 0)
 	, CurAnimePivot(0, 0)
 	, CurAnimation(NULL)
+	, EffectUntreatedDeltaTime(0.f)
 {
 }
 
@@ -102,10 +115,10 @@ void FSsAnimeDecoder::SetAnimation(FSsModel* model, FSsAnimation* anime, FSsCell
 		PartState[i].Index = i;
 
 
-		//インスタンスパーツの場合の初期設定
-		if ( p->Type == SsPartType::Instance )
+		if (sspj)
 		{
-			if (sspj)
+			//インスタンスパーツの場合の初期設定
+			if ( p->Type == SsPartType::Instance )
 			{
 				//参照アニメーションを取得
 				int32 AnimPackIndex, AnimationIndex;
@@ -131,6 +144,25 @@ void FSsAnimeDecoder::SetAnimation(FSsModel* model, FSsAnimation* anime, FSsCell
 					animedecoder->PartState[0].Parent = &PartState[i];
 				}
 			}
+
+			//エフェクトデータの初期設定
+			if ( p->Type == SsPartType::Effect )
+			{
+				int32 EffectIndex = sspj->FindEffectIndex( p->RefEffectName );
+				if(0 <= EffectIndex)
+				{
+					FSsEffectFile* f = &(sspj->EffectList[EffectIndex]);
+ 					FSsEffectRenderer* er = new FSsEffectRenderer();
+					er->SetParentAnimeState( &PartState[i] );
+					er->SetCellmapManager( this->CurCellMapManager );
+					er->SetEffectData( &f->EffectData );
+					er->SetSeed(GetRandomSeed());
+					er->Reload();
+					er->Stop();
+
+					PartState[i].RefEffect = er;
+				}
+			}
 		}
 
 		SortList.Add( &PartState[i] );
@@ -142,6 +174,12 @@ void FSsAnimeDecoder::SetAnimation(FSsModel* model, FSsAnimation* anime, FSsCell
 	CurAnimeFPS = anime->Settings.Fps;
 }
 
+void FSsAnimeDecoder::SetPlayFrame(float time)
+{
+	EffectUntreatedDeltaTime += (time - NowPlatTime);
+	NowPlatTime = time;
+	FrameDelta = 0.f;
+}
 
 // パーツ名からインデックスを取得
 int FSsAnimeDecoder::GetPartIndexFromName(FName PartName) const
@@ -184,6 +222,27 @@ bool FSsAnimeDecoder::GetPartTransform(int PartIndex, FVector2D& OutPosition, fl
 	return true;
 }
 
+
+void FSsAnimeDecoder::ReloadEffects()
+{
+	for(int i = 0; i < PartAnime.Num(); ++i)
+	{
+		if(PartState[i].RefEffect)
+		{
+			PartState[i].RefEffect->Stop();
+			PartState[i].RefEffect->Reload();
+		}
+	}
+}
+
+FName FSsAnimeDecoder::GetPartColorLabel(int32 PartIndex)
+{
+	if((PartIndex < 0) || (PartAnime.Num() <= PartIndex))
+	{
+		return FName();
+	}
+	return PartAnime[PartIndex].Key->ColorLabel;
+}
 
 
 //頂点変形アニメデータの取得
@@ -500,7 +559,6 @@ static FVector2D GetLocalScale( float matrix[16] )
 ///現在の時間からパーツのアトリビュートの補間値を計算する
 void	FSsAnimeDecoder::UpdateState( int nowTime , FSsPart* part , FSsPartAnime* anime , FSsPartState* state )
 {
-
 	//ステートの初期値を設定
 	state->Init();
 	state->InheritRates = part->InheritRates;
@@ -714,7 +772,29 @@ void	FSsAnimeDecoder::UpdateState( int nowTime , FSsPart* part , FSsPartAnime* a
 		UpdateVertices(part , anime , state);
 	}
 
+	if(part->Type == SsPartType::Effect)
+	{
+		bool reload = false;
+		FSsEffectRenderer * effectRender = state->RefEffect;
 
+		if(effectRender)
+		{
+			if(state->Hide)
+			{
+				if(effectRender->GetPlayStatus())
+				{
+					effectRender->Stop();
+					effectRender->Reload();
+				}
+			}
+			else
+			{
+				effectRender->SetSeed(GetRandomSeed());
+				effectRender->SetLoop(false);
+				effectRender->Play();
+			}
+		}
+	}
 
 }
 
@@ -737,7 +817,7 @@ void	FSsAnimeDecoder::UpdateMatrix(FSsPart* part , FSsPartAnime* anime , FSsPart
 	}
 
 	TranslationMatrixM( state->Matrix , state->Position.X, state->Position.Y, state->Position.Z );//
-	RotationXYZMatrixM( state->Matrix , DegreeToRadian(state->Rotation.X) , DegreeToRadian(state->Rotation.Y) , DegreeToRadian( state->Rotation.Z) );
+	RotationXYZMatrixM( state->Matrix , FMath::DegreesToRadians(state->Rotation.X) , FMath::DegreesToRadians(state->Rotation.Y) , FMath::DegreesToRadians( state->Rotation.Z) );
 	ScaleMatrixM(  state->Matrix , state->Scale.X, state->Scale.Y, 1.0f );
 }
 
@@ -843,8 +923,6 @@ void	FSsAnimeDecoder::UpdateVertices(FSsPart* part , FSsPartAnime* anime , FSsPa
 
 
 }
-
-
 
 void	FSsAnimeDecoder::UpdateInstance( int nowTime , FSsPart* part , FSsPartAnime* partanime , FSsPartState* state )
 {
@@ -994,21 +1072,57 @@ int		FSsAnimeDecoder::CalcAnimeLabel2Frame(const FName& str, int offset, FSsAnim
 ///なっているためそのまま木構造を作らずUpdateを行う
 void FSsAnimeDecoder::Update()
 {
-	int	time = (int)NowPlatTime;
+	int32 time = (int32)NowPlatTime;
+
+	if(EffectUntreatedDeltaTime < 0.f)
+	{
+		ReloadEffects();
+		EffectUntreatedDeltaTime = NowPlatTime;
+	}
+
+	int32 EffectUpdateTimes = (int32)EffectUntreatedDeltaTime;
+	int32 EffectBaseTime = time - EffectUpdateTimes + 1;
 
 	for(int i = 0; i < PartAnime.Num(); ++i)
 	{
 		FSsPart* part = PartAnime[i].Key;
 		FSsPartAnime* anime = PartAnime[i].Value;
-		UpdateState(time , part , anime , &PartState[i]);
-		UpdateMatrix(part , anime , &PartState[i]);
 
-		if(part->Type == SsPartType::Instance)
+		if((part->Type == SsPartType::Effect) && (PartState[i].RefEffect))
 		{
-			UpdateInstance(time , part , anime , &PartState[i]);
-			UpdateVertices(part , anime , &PartState[i]);
+			// エフェクトは1フレーム単位でしか更新しない 
+			// (1フレーム == 0.5フレームずつ2回更新) 
+			if(0 == EffectUpdateTimes)
+			{
+				UpdateState(time, part, anime, &PartState[i]);
+				UpdateMatrix(part, anime, &PartState[i]);
+				PartState[i].RefEffect->Update(0.f);
+			}
+			else
+			{
+				for (int32 j = 0; j < (EffectUpdateTimes*2); ++j)
+				{
+					UpdateState(EffectBaseTime + j, part, anime, &PartState[i]);
+					UpdateMatrix(part, anime, &PartState[i]);
+					PartState[i].RefEffect->Update(
+						PartState[i].RefEffect->GetFirstUpdated() ? .5f : 0.f
+						);
+				}
+			}
+		}
+		else
+		{
+			UpdateState(time, part, anime, &PartState[i]);
+			UpdateMatrix(part, anime, &PartState[i]);
+
+			if (part->Type == SsPartType::Instance)
+			{
+				UpdateInstance(time, part, anime, &PartState[i]);
+				UpdateVertices(part, anime, &PartState[i]);
+			}
 		}
 	}
+	EffectUntreatedDeltaTime -= EffectUpdateTimes;
 
 	SortList.Sort();
 
@@ -1028,6 +1142,13 @@ void FSsAnimeDecoder::CreateRenderParts(TArray<FSsRenderPart>& OutRenderParts)
 				State->RefAnime->CreateRenderParts(OutRenderParts);
 			}
 		}
+		else if(State->RefEffect)
+		{
+			if(!State->Hide)
+			{
+				State->RefEffect->CreateRenderParts(OutRenderParts, State, CurAnimeCanvasSize, CurAnimePivot);
+			}
+		}
 		else
 		{
 			FSsRenderPart RenderPart;
@@ -1044,6 +1165,7 @@ void FSsAnimeDecoder::CreateRenderParts(TArray<FSsRenderPart>& OutRenderParts)
 bool FSsAnimeDecoder::CreateRenderPart(FSsRenderPart& OutRenderPart, FSsPartState* State)
 {
 	// 各種非表示チェック
+	if(!State){ return false; }
 	if(State->Hide){ return false; }
 	if(State->NoCells){ return false; }
 	if(0.0f == State->Alpha){ return false; }
@@ -1113,8 +1235,8 @@ bool FSsAnimeDecoder::CreateRenderPart(FSsRenderPart& OutRenderPart, FSsPartStat
 	if(0.f != State->UvRotation)
 	{
 		FVector2D UVCenter((UVs[1].X - UVs[0].X) / 2.f + UVs[0].X, (UVs[2].Y - UVs[0].Y) / 2.f + UVs[0].Y);
-		float S = FMath::Sin(DegreeToRadian(State->UvRotation));
-		float C = FMath::Cos(DegreeToRadian(State->UvRotation));
+		float S = FMath::Sin(FMath::DegreesToRadians(State->UvRotation));
+		float C = FMath::Cos(FMath::DegreesToRadians(State->UvRotation));
 		for(int i = 0; i < 4; ++i)
 		{
 			UVs[i] -= UVCenter;

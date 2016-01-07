@@ -9,6 +9,8 @@
 #include "SsValue.h"
 #include "SsAnimePack.h"
 #include "SsCellMap.h"
+#include "SsEffectFile.h"
+#include "SsEffectElement.h"
 #include "SsProject.h"
 
 
@@ -136,18 +138,21 @@ bool SsXmlIArchiver::dc(const char* name, TArray<FString>& list)
 	AR_SELF_CHECK();
 	list.Empty();
 	XMLElement* e = getxml()->FirstChildElement(name);
-	e = e->FirstChildElement("value");
-	while(e)
+	if(e)
 	{
-		const char* txt = e->GetText();
-		FString sjis_str( babel::utf8_to_sjis( txt ).c_str() );
-		CheckReplaceJapaneseString(txt, sjis_str);
+		e = e->FirstChildElement("value");
+		while(e)
+		{
+			const char* txt = e->GetText();
+			FString sjis_str( babel::utf8_to_sjis( txt ).c_str() );
+			CheckReplaceJapaneseString(txt, sjis_str);
 
-		list.Add( sjis_str );
-		e = e->NextSiblingElement();
+			list.Add( sjis_str );
+			e = e->NextSiblingElement();
+		}
+		return true;
 	}
-
-	return true;
+	return false;
 }
 
 bool SsXmlIArchiver::dc(const char* name, TArray<FName>& list)
@@ -155,18 +160,21 @@ bool SsXmlIArchiver::dc(const char* name, TArray<FName>& list)
 	AR_SELF_CHECK();
 	list.Empty();
 	XMLElement* e = getxml()->FirstChildElement(name);
-	e = e->FirstChildElement("value");
-	while(e)
+	if(e)
 	{
-		const char* txt = e->GetText();
-		FString sjis_str( babel::utf8_to_sjis( txt ).c_str() );
-		CheckReplaceJapaneseString(txt, sjis_str);
+		e = e->FirstChildElement("value");
+		while(e)
+		{
+			const char* txt = e->GetText();
+			FString sjis_str( babel::utf8_to_sjis( txt ).c_str() );
+			CheckReplaceJapaneseString(txt, sjis_str);
 
-		list.Add( FName(*sjis_str) );
-		e = e->NextSiblingElement();
+			list.Add( FName(*sjis_str) );
+			e = e->NextSiblingElement();
+		}
+		return true;
 	}
-
-	return true;
+	return false;
 }
 
 bool SsXmlIArchiver::dc(const char* name, FVector2D& member)
@@ -359,6 +367,13 @@ void SerializeStruct(FSsPart& Value, SsXmlIArchiver* ar)
 	SSAR_DECLARE("refAnimePack", Value.RefAnimePack);
 	SSAR_DECLARE("refAnime", Value.RefAnime);
 
+	if(SsPartType::Effect == Value.Type)
+	{
+		SSAR_DECLARE("refEffectName", Value.RefEffectName);
+	}
+
+	SSAR_DECLARE("colorLabel", Value.ColorLabel);
+
 	// 未対応のパーツタイプに対する警告 
 	if(SsPartType::Invalid == Value.Type)
 	{
@@ -413,11 +428,221 @@ void SerializeStruct(FSsAnimation& Value, SsXmlIArchiver* ar)
 	SSAR_DECLARE_LISTEX("labels", Value.Labels, "value");
 	SSAR_DECLARE_LISTEX("partAnimes", Value.PartAnimes, "partAnime");
 }
+void SerializeStruct(FSsVarianceValueFloat& Value, SsXmlIArchiver* ar)
+{
+	// MEMO: "type"はxml上には記述されていない. 各FSsEffectElementBase派生クラスのコンストラクタ依存. 
+
+	FString ValueStr, SubValueStr;
+	SSAR_DECLARE_ATTRIBUTE("value", ValueStr);
+	SSAR_DECLARE_ATTRIBUTE("subvalue", SubValueStr);
+
+	if(0 < ValueStr.Len())
+	{
+		Value.Value = FCString::Atof(*ValueStr);
+	}
+	if(0 < SubValueStr.Len())
+	{
+		Value.SubValue = FCString::Atof(*SubValueStr);
+	}
+}
+void SerializeStruct(FSsVarianceValueInt& Value, SsXmlIArchiver* ar)
+{
+	FString ValueStr, SubValueStr;
+	SSAR_DECLARE_ATTRIBUTE("value", ValueStr);
+	SSAR_DECLARE_ATTRIBUTE("subvalue", SubValueStr);
+
+	if(0 < ValueStr.Len())
+	{
+		Value.Value = FCString::Atoi(*ValueStr);
+	}
+	if(0 < SubValueStr.Len())
+	{
+		Value.SubValue = FCString::Atoi(*SubValueStr);
+	}
+}
+void SerializeStruct(FSsVarianceValueColor& Value, SsXmlIArchiver* ar)
+{
+	FString ValueStr, SubValueStr;
+	SSAR_DECLARE_ATTRIBUTE("value", ValueStr);
+	SSAR_DECLARE_ATTRIBUTE("subvalue", SubValueStr);
+
+	if(0 < ValueStr.Len())
+	{
+		SsColor ValueCol;
+		ConvertStringToSsColor(ValueStr, ValueCol);
+
+		Value.Value.R = (uint8)ValueCol.R;
+		Value.Value.G = (uint8)ValueCol.G;
+		Value.Value.B = (uint8)ValueCol.B;
+		Value.Value.A = (uint8)ValueCol.A;
+	}
+	if(0 < SubValueStr.Len())
+	{
+		SsColor SubValueCol;
+		ConvertStringToSsColor(SubValueStr, SubValueCol);
+
+		Value.SubValue.R = (uint8)SubValueCol.R;
+		Value.SubValue.G = (uint8)SubValueCol.G;
+		Value.SubValue.B = (uint8)SubValueCol.B;
+		Value.SubValue.A = (uint8)SubValueCol.A;
+	}
+}
+void SerializeStruct(FSsParticleElementBasic& Value, SsXmlIArchiver* ar)
+{
+	SSAR_DECLARE("maximumParticle", Value.MaximumParticle);
+	SSAR_STRUCT_DECLARE("speed", Value.Speed);
+	SSAR_STRUCT_DECLARE("lifespan", Value.Lifespan);
+	SSAR_DECLARE("angle", Value.Angle);
+	SSAR_DECLARE("angleVariance", Value.AngleVariance);
+	SSAR_DECLARE("interval", Value.Interval);
+	SSAR_DECLARE("lifetime", Value.Lifetime);
+	SSAR_DECLARE("attimeCreate",Value. AttimeCreate);
+	SSAR_DECLARE("priority", Value.Priority);
+}
+void SerializeStruct(FSsParticleElementRndSeedChange& Value, SsXmlIArchiver* ar)
+{
+	SSAR_DECLARE("Seed", Value.Seed);
+}
+void SerializeStruct(FSsParticleElementDelay& Value, SsXmlIArchiver* ar)
+{
+	SSAR_DECLARE("DelayTime", Value.DelayTime);
+}
+void SerializeStruct(FSsParticleElementGravity& Value, SsXmlIArchiver* ar)
+{
+	SSAR_DECLARE("Gravity", Value.Gravity);
+}
+void SerializeStruct(FSsParticleElementPosition& Value, SsXmlIArchiver* ar)
+{
+	SSAR_STRUCT_DECLARE("OffsetX", Value.OffsetX);
+	SSAR_STRUCT_DECLARE("OffsetY", Value.OffsetY);
+}
+void SerializeStruct(FSsParticleElementRotation& Value, SsXmlIArchiver* ar)
+{
+	SSAR_STRUCT_DECLARE("Rotation", Value.Rotation);
+	SSAR_STRUCT_DECLARE("RotationAdd", Value.RotationAdd);
+}
+void SerializeStruct(FSsParticleElementRotationTrans& Value, SsXmlIArchiver* ar)
+{
+	SSAR_DECLARE("RotationFactor", Value.RotationFactor);
+	SSAR_DECLARE("EndLifeTimePer", Value.EndLifeTimePer);
+}
+void SerializeStruct(FSsParticleElementTransSpeed& Value, SsXmlIArchiver* ar)
+{
+	SSAR_STRUCT_DECLARE("Speed", Value.Speed);
+}
+void SerializeStruct(FSsParticleElementTangentialAcceleration& Value, SsXmlIArchiver* ar)
+{
+	SSAR_STRUCT_DECLARE("Acceleration", Value.Acceleration);
+}
+void SerializeStruct(FSsParticleElementInitColor& Value, SsXmlIArchiver* ar)
+{
+	SSAR_STRUCT_DECLARE("Color", Value.Color);
+}
+void SerializeStruct(FSsParticleElementTransColor& Value, SsXmlIArchiver* ar)
+{
+	SSAR_STRUCT_DECLARE("Color", Value.Color);
+}
+void SerializeStruct(FSsParticleElementAlphaFade& Value, SsXmlIArchiver* ar)
+{
+	SSAR_STRUCT_DECLARE("disprange", Value.Disprange);
+}
+void SerializeStruct(FSsParticleElementSize& Value, SsXmlIArchiver* ar)
+{
+	SSAR_STRUCT_DECLARE("SizeX", Value.SizeX);
+	SSAR_STRUCT_DECLARE("SizeY", Value.SizeY);
+	SSAR_STRUCT_DECLARE("ScaleFactor", Value.ScaleFactor);
+}
+void SerializeStruct(FSsParticleElementTransSize& Value, SsXmlIArchiver* ar)
+{
+	SSAR_STRUCT_DECLARE("SizeX", Value.SizeX);
+	SSAR_STRUCT_DECLARE("SizeY", Value.SizeY);
+	SSAR_STRUCT_DECLARE("ScaleFactor", Value.ScaleFactor);
+}
+void SerializeStruct(FSsParticlePointGravity& Value, SsXmlIArchiver* ar)
+{
+	SSAR_DECLARE("Position", Value.Position);
+	SSAR_DECLARE("Power", Value.Power);
+}
+void SerializeStruct(FSsParticleTurnToDirectionEnabled& Value, SsXmlIArchiver* ar)
+{
+}
+void SerializeStruct(FSsEffectBehavior& Value, SsXmlIArchiver* ar)
+{
+	SSAR_DECLARE("CellName", Value.CellName);
+	SSAR_DECLARE("CellMapName", Value.CellMapName);
+	SSAR_DECLARE_ENUM("BlendType", Value.BlendType);
+
+	if(ar->getxml())
+	{
+		SsXmlIArchiver list_ar(ar, "list");
+		
+		XMLElement* e = list_ar.getxml()->FirstChildElement();
+
+		while(e)
+		{
+			const char* name = e->Attribute("name");
+
+			FSsEffectElementBase* v = NULL;
+
+#define SS_SERIALIZE_PARTICLE_ELEMENT(_key, _type) if(0 == strcmp(name , _key)){ _type* p = new _type(); SerializeStruct(*p, &ar2); v = p; }
+			{
+				SsXmlIArchiver ar2(e);
+				SS_SERIALIZE_PARTICLE_ELEMENT("Basic", FSsParticleElementBasic)
+				SS_SERIALIZE_PARTICLE_ELEMENT("OverWriteSeed", FSsParticleElementRndSeedChange)
+				SS_SERIALIZE_PARTICLE_ELEMENT("Delay", FSsParticleElementDelay)
+				SS_SERIALIZE_PARTICLE_ELEMENT("Gravity", FSsParticleElementGravity)
+				SS_SERIALIZE_PARTICLE_ELEMENT("init_position", FSsParticleElementPosition)
+				SS_SERIALIZE_PARTICLE_ELEMENT("init_rotation", FSsParticleElementRotation)
+				SS_SERIALIZE_PARTICLE_ELEMENT("trans_rotation", FSsParticleElementRotationTrans)
+				SS_SERIALIZE_PARTICLE_ELEMENT("trans_speed", FSsParticleElementTransSpeed)
+				SS_SERIALIZE_PARTICLE_ELEMENT("add_tangentiala", FSsParticleElementTangentialAcceleration)
+				SS_SERIALIZE_PARTICLE_ELEMENT("init_vertexcolor", FSsParticleElementInitColor)
+				SS_SERIALIZE_PARTICLE_ELEMENT("trans_vertexcolor", FSsParticleElementTransColor)
+				SS_SERIALIZE_PARTICLE_ELEMENT("trans_colorfade", FSsParticleElementAlphaFade)
+				SS_SERIALIZE_PARTICLE_ELEMENT("init_size", FSsParticleElementSize)
+				SS_SERIALIZE_PARTICLE_ELEMENT("trans_size", FSsParticleElementTransSize)
+				SS_SERIALIZE_PARTICLE_ELEMENT("add_pointgravity", FSsParticlePointGravity)
+				SS_SERIALIZE_PARTICLE_ELEMENT("TurnToDirection", FSsParticleTurnToDirectionEnabled)
+			}
+#undef SS_SERIALIZE_PARTICLE_ELEMENT
+
+			if(v)
+			{
+				Value.PList.Add(MakeShareable(v));
+			}
+			e = e->NextSiblingElement();
+		}
+	}
+}
+void SerializeStruct(FSsEffectNode& Value, SsXmlIArchiver* ar)
+{
+	SSAR_DECLARE("arrayIndex", Value.ArrayIndex);
+	SSAR_DECLARE("parentIndex", Value.ParentIndex);
+	SSAR_DECLARE_ENUM("type", Value.Type);
+	SSAR_DECLARE("visible", Value.Visible);
+	SSAR_STRUCT_DECLARE("behavior", Value.Behavior);	
+}
+void SerializeStruct(FSsEffectNode*& Value, SsXmlIArchiver* ar)
+{
+	Value = new FSsEffectNode();
+	SerializeStruct(*Value, ar);
+}
+void SerializeStruct(FSsEffectModel& Value, SsXmlIArchiver* ar)
+{
+	SSAR_DECLARE("lockRandSeed", Value.LockRandSeed);
+	SSAR_DECLARE("isLockRandSeed", Value.IsLockRandSeed);
+	SSAR_DECLARE("fps", Value.FPS);
+	SSAR_DECLARE("bgcolor", Value.BgColor);
+	SSAR_DECLARE_LISTEX("nodeList", Value.NodeList, "node");
+
+	Value.BuildTree();
+}
 void SerializeStruct(FSsProjectSetting& Value, SsXmlIArchiver* ar)
 {
 	SSAR_DECLARE("animeBaseDirectory", Value.AnimeBaseDirectory);
 	SSAR_DECLARE("cellMapBaseDirectory", Value.CellMapBaseDirectory);
 	SSAR_DECLARE("imageBaseDirectory", Value.ImageBaseDirectory);
+	SSAR_DECLARE("effectBaseDirectory", Value.EffectBaseDirectory);
 	SSAR_DECLARE("exportBaseDirectory", Value.ExportBaseDirectory);
 	SSAR_DECLARE("queryExportBaseDirectory", Value.QueryExportBaseDirectory);
 	SSAR_DECLARE_ENUM("wrapMode", Value.WrapMode);
@@ -446,11 +671,18 @@ void SerializeSsAnimePack(FSsAnimePack& AnimePack, SsXmlIArchiver* ar)
 	SSAR_DECLARE("cellmapNames", AnimePack.CellmapNames);
 	SSAR_DECLARE_LISTEX("animeList", AnimePack.AnimeList, "anime");
 }
+void SerializeSsEffectFile(FSsEffectFile& EffectFile, SsXmlIArchiver* ar)
+{
+	SSAR_DECLARE("name", EffectFile.Name);
+	SSAR_STRUCT_DECLARE("effectData", EffectFile.EffectData);
+	EffectFile.EffectData.EffectName = EffectFile.Name;
+}
 void SerializeSsProject(USsProject& Proj, SsXmlIArchiver* ar)
 {
 	SSAR_DECLARE_ATTRIBUTE("version", Proj.Version);
 	SSAR_STRUCT_DECLARE("settings", Proj.Settings);
 	SSAR_DECLARE("cellmapNames", Proj.CellmapNames);
 	SSAR_DECLARE("animepackNames", Proj.AnimepackNames);
+	SSAR_DECLARE("effectFileNames", Proj.EffectFileNames);
 }
 

@@ -9,6 +9,7 @@ FString	__EnumToString_( TEnumAsByte<SsPartType::Type> n )
 	if ( SsPartType::Normal ) return "normal";
 	if ( SsPartType::Text ) return "text";
 	if ( SsPartType::Instance ) return "instance";
+	if ( SsPartType::Effect ) return "effect";
 	return "invalid";	
 }
 
@@ -20,6 +21,7 @@ void 	__StringToEnum_( FString n , TEnumAsByte<SsPartType::Type>& out)
 	if ( n == "normal") out = SsPartType::Normal;
 	if ( n == "text") out = SsPartType::Text;
 	if ( n == "instance") out = SsPartType::Instance;
+	if ( n == "effect") out = SsPartType::Effect;
 }
 
 //---------------------------------------------------------------
@@ -283,3 +285,52 @@ void	__StringToEnum_( FString n , TEnumAsByte<SsAttributeKind::Type> &out )
 }
 
 
+//---------------------------------------------------------------
+//相互変換 SsPartType
+FString	__EnumToString_( TEnumAsByte<SsEffectNodeType::Type> n )
+{
+	if ( n == SsEffectNodeType::Invalid )	return "invalid";
+	if ( n == SsEffectNodeType::Root )		return "root";
+	if ( n == SsEffectNodeType::Emmiter )	return "emmiter";
+	if ( n == SsEffectNodeType::Particle )	return "particle";
+
+	return "invalid";	
+}
+
+void 	__StringToEnum_( FString n , TEnumAsByte<SsEffectNodeType::Type>& out)
+{
+	out =  SsEffectNodeType::Invalid;
+	if ( n == "invalid")	out = SsEffectNodeType::Invalid;
+	if ( n == "root")		out = SsEffectNodeType::Root;
+	if ( n == "emmiter")	out = SsEffectNodeType::Emmiter;
+	if ( n == "particle")	out = SsEffectNodeType::Particle;
+}
+
+//---------------------------------------------------------------
+//相互変換 SsPartType
+FString	__EnumToString_( TEnumAsByte<SsRenderBlendType::Type> n )
+{
+	if ( n == SsRenderBlendType::Invalid )	return "invalid";
+	if ( n == SsRenderBlendType::Mix )		return "Mix";
+	if ( n == SsRenderBlendType::Add )		return "Add";
+
+	return "invalid";	
+}
+
+void 	__StringToEnum_( FString n , TEnumAsByte<SsRenderBlendType::Type>& out)
+{
+	out =  SsRenderBlendType::Invalid;
+	if ( n == "invalid")	out = SsRenderBlendType::Invalid;
+	if ( n == "Mix")		out = SsRenderBlendType::Mix;
+	if ( n == "Add")		out = SsRenderBlendType::Add;
+}
+
+TEnumAsByte<SsBlendType::Type> SsRenderBlendTypeToBlendType(TEnumAsByte<SsRenderBlendType::Type> n)
+{
+	switch(n)
+	{
+	case SsRenderBlendType::Mix: return SsBlendType::Mix;
+	case SsRenderBlendType::Add: return SsBlendType::Add;
+	}
+	return SsBlendType::Mix;
+}

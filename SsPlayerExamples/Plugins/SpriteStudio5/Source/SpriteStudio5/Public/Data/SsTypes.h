@@ -93,12 +93,65 @@ template<> inline uint32 TSsColor<uint32>::ToARGB() const
 	return c;
 }
 
+
+template<> inline TSsColor<uint8>::TSsColor(): R(255), G(255), B(255), A(255) {}
+template<> inline void TSsColor<uint8>::FromARGB(uint32 c)
+{
+	A = (c >> 24);
+	R = ((c >> 16) & 0xff);
+	G = ((c >> 8) & 0xff);
+	B = (c & 0xff);
+}
+template<> inline void TSsColor<uint8>::FromBGRA(uint32 c)
+{
+	B = (c >> 24) ;
+	G = ((c >> 16) & 0xff) ;
+	R = ((c >> 8) & 0xff) ;
+	A = (c & 0xff) ;
+}
+template<> inline uint32 TSsColor<uint8>::ToARGB() const
+{
+	uint32 c = (uint8)(A) << 24 | (uint8)(R) << 16 | (uint8)(G) << 8 | (uint8)(B);
+	return c;
+}
+
 /// floatでのカラー値定義
 typedef TSsColor<float> SsFColor;
 
-
 /// unsigned intでのカラー値定義
 typedef TSsColor<uint32> SsColor;
+
+/// uisigned charでのカラー値定義
+//typedef TSsColor<uint8> SsU8Color;
+USTRUCT()
+struct FSsU8Color
+{
+	GENERATED_USTRUCT_BODY()
+
+	FSsU8Color()
+		: R(0), G(0), B(0), A(0)
+	{}
+	FSsU8Color(uint8 rr, uint8 gg, uint8 bb, uint8 aa)
+		: R(rr), G(gg), B(bb), A(aa)
+	{}
+
+	inline uint32 ToARGB() const
+	{
+		return A << 24 | R << 16 | G << 8 | B;
+	}
+
+	UPROPERTY(EditAnyWhere, Category="SsU8Color")
+	uint8 R;
+
+	UPROPERTY(EditAnyWhere, Category="SsU8Color")
+	uint8 G;
+
+	UPROPERTY(EditAnyWhere, Category="SsU8Color")
+	uint8 B;
+
+	UPROPERTY(EditAnyWhere, Category="SsU8Color")
+	uint8 A;
+};
 
 
 struct FToLower
@@ -180,6 +233,7 @@ namespace SsPartType
 		Normal,			///< 通常パーツ。領域を持つ。画像は無くてもいい。
 		Text,			///< テキスト(予約　未実装）
 		Instance,		///< インスタンス。他アニメ、パーツへの参照。シーン編集モードの代替になるもの
+		Effect,			///< エフェクト
 		Num,
 
 		Invalid = 254
@@ -239,6 +293,7 @@ namespace SsBlendType
 		Mul,			///< 1 乗算
 		Add,			///< 2 加算
 		Sub,			///< 3 減算
+		Effect,			///    エフェクト用カラーブレンドタイプ
 		Num,
 
 		Invalid = 254
@@ -410,6 +465,43 @@ struct FSsColorAnime
 };
 
 
+// エフェクトのノードタイプ
+UENUM()
+namespace SsEffectNodeType
+{
+	enum Type
+	{
+		Root = 0,
+		Emmiter,
+		Particle,
+		Num,
+
+		Invalid = 254,
+	};
+}
+FString SPRITESTUDIO5_API __EnumToString_(TEnumAsByte<SsEffectNodeType::Type> n);
+void SPRITESTUDIO5_API __StringToEnum_(FString n , TEnumAsByte<SsEffectNodeType::Type>& out);
+
+
+//エフェクトのブレンドタイプ
+UENUM()
+namespace SsRenderBlendType
+{
+	enum Type
+	{
+		Mix,
+		Add,
+		Num,
+
+		Invalid = 254,
+	};
+}
+FString SPRITESTUDIO5_API __EnumToString_(TEnumAsByte<SsRenderBlendType::Type> n);
+void SPRITESTUDIO5_API __StringToEnum_(FString n , TEnumAsByte<SsRenderBlendType::Type>& out);
+
+TEnumAsByte<SsBlendType::Type> SsRenderBlendTypeToBlendType(TEnumAsByte<SsRenderBlendType::Type> n);
+
+
 ///頂点変形キーの４頂点変形値
 struct FSsVertexAnime
 {
@@ -510,4 +602,3 @@ struct FSsRenderPart
 	SsBlendType::Type AlphaBlendType;
 	SsBlendType::Type ColorBlendType;
 };
-

@@ -108,8 +108,8 @@ private:
 	FSsRenderOffScreen* RenderOffScreen;
 
 	UPROPERTY(Transient)
-	UMaterialInterface* BasePartsMaterials[6];
-	TMap<UTexture*, UMaterialInstanceDynamic*> PartsMIDMap[6];
+	UMaterialInterface* BasePartsMaterials[7];
+	TMap<UTexture*, UMaterialInstanceDynamic*> PartsMIDMap[7];
 
 
 public:
@@ -331,4 +331,12 @@ public:
 	// 全ての置き換えテクスチャの登録解除 
 	UFUNCTION(Category=SpriteStudio, BlueprintCallable)
 	void RemoveTextureReplacementAll();
+
+	// パーツのカラーラベルを取得 
+	UFUNCTION(Category = SpriteStudio, BlueprintCallable)
+	FName GetPartColorLabel(FName PartName);
+
+	// パーツのカラーラベルを取得(インデックス指定) 
+	UFUNCTION(Category = SpriteStudio, BlueprintCallable)
+	FName GetPartColorLabelByIndex(int32 PartIndex);
 };

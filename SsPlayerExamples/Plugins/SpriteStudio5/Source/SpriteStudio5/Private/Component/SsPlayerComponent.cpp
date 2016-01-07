@@ -32,6 +32,7 @@ namespace
 					return 4;
 				}
 			}
+			case SsBlendType::Effect: { return 6; }
 		}
 		check(false);
 		return 0;
@@ -85,6 +86,7 @@ USsPlayerComponent::USsPlayerComponent(const FObjectInitializer& ObjectInitializ
 		ConstructorHelpers::FObjectFinder<UMaterialInterface> PartSub;
 		ConstructorHelpers::FObjectFinder<UMaterialInterface> PartInv;
 		ConstructorHelpers::FObjectFinder<UMaterialInterface> PartInvMix;
+		ConstructorHelpers::FObjectFinder<UMaterialInterface> PartEffect;
 
 		FConstructorStatics()
 			: MeshBase(TEXT("/SpriteStudio5/SsMaterial_MeshDefault"))
@@ -94,6 +96,7 @@ USsPlayerComponent::USsPlayerComponent(const FObjectInitializer& ObjectInitializ
 			, PartSub(TEXT("/SpriteStudio5/PartMaterials/SsPart_Sub"))
 			, PartInv(TEXT("/SpriteStudio5/PartMaterials/SsPart_Inv"))
 			, PartInvMix(TEXT("/SpriteStudio5/PartMaterials/SsPart_InvMix"))
+			, PartEffect(TEXT("/SpriteStudio5/PartMaterials/SsPart_Effect"))
 		{}
 	};
 	static FConstructorStatics CS;
@@ -106,6 +109,7 @@ USsPlayerComponent::USsPlayerComponent(const FObjectInitializer& ObjectInitializ
 	BasePartsMaterials[3] = CS.PartSub.Object;
 	BasePartsMaterials[4] = CS.PartInv.Object;
 	BasePartsMaterials[5] = CS.PartInvMix.Object;
+	BasePartsMaterials[6] = CS.PartEffect.Object;
 }
 
 // シリアライズ 
@@ -224,7 +228,7 @@ void USsPlayerComponent::OnRegister()
 {
 	Super::OnRegister();
 
-	if(SsProject)
+	if(FApp::CanEverRender() && SsProject)	// FApp::CanEverRender() : コマンドラインからのCook時にも呼び出され、テクスチャリソースが確保されていない状態で処理が流れてしまうのを防ぐため 
 	{
 		// Playerの初期化
 		Player.SetSsProject(SsProject);
@@ -490,7 +494,7 @@ void USsPlayerComponent::UpdatePlayer(float DeltaSeconds)
 					UMaterialInstanceDynamic** ppMID = PartsMIDMap[MatIdx].Find(RenderParts[i].Texture);
 					if((NULL == ppMID) || (NULL == *ppMID))
 					{
-						UMaterialInstanceDynamic* NewMID = UMaterialInstanceDynamic::Create(BasePartsMaterials[MatIdx], this);
+						UMaterialInstanceDynamic* NewMID = UMaterialInstanceDynamic::Create(BasePartsMaterials[MatIdx], GetTransientPackage());
 						if(NewMID)
 						{
 							NewMID->AddToRoot();
@@ -764,6 +768,20 @@ void USsPlayerComponent::RemoveTextureReplacementByIndex(int32 PartIndex)
 void USsPlayerComponent::RemoveTextureReplacementAll()
 {
 	Player.TextureReplacements.Empty();
+}
+
+FName USsPlayerComponent::GetPartColorLabel(FName PartName)
+{
+	int32 PartIndex = Player.GetPartIndexFromName(PartName);
+	if (0 <= PartIndex)
+	{
+		return Player.GetPartColorLabel(PartIndex);
+	}
+	return FName();
+}
+FName USsPlayerComponent::GetPartColorLabelByIndex(int32 PartIndex)
+{
+	return Player.GetPartColorLabel(PartIndex);
 }
 
 void USsPlayerComponent::RenderToCanvas(UCanvas* Canvas, FVector2D Location, float Rotation, FVector2D Scale)

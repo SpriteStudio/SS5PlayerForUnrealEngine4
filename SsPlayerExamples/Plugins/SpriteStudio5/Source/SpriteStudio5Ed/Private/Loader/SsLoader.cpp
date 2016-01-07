@@ -53,3 +53,17 @@ bool FSsLoader::LoadSsCellMap(FSsCellMap* CellMap, const uint8*& Buffer, size_t 
 
 	return true;
 }
+
+bool FSsLoader::LoadSsEffectFile(struct FSsEffectFile* EffectFile, const uint8*& Buffer, size_t Size)
+{
+	XMLDocument xml;
+	if( XML_SUCCESS != xml.Parse((const char*)Buffer, Size) )
+	{
+		return false;
+	}
+
+	SsXmlIArchiver ar(&xml, "SpriteStudioEffect");
+	SerializeSsEffectFile(*EffectFile, &ar);
+
+	return true;
+}

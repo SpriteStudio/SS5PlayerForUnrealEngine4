@@ -3,6 +3,7 @@
 #include "SsPlayerCellmap.h"
 
 class FSsAnimeDecoder;
+class FSsEffectRenderer;
 
 
 ///パーツの状態を保持するクラスです。
@@ -51,6 +52,7 @@ struct FSsPartState
 	SsBlendType::Type	AlphaBlendType;
 		
 	FSsAnimeDecoder*	RefAnime;
+	FSsEffectRenderer*	RefEffect;
 
 	FSsPartState();
 

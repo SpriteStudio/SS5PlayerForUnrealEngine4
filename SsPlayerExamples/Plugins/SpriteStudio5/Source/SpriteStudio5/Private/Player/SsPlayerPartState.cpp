@@ -2,24 +2,36 @@
 #include "SsPlayerPartState.h"
 
 #include "SsPlayerAnimedecode.h"
+#include "SsPlayerEffect.h"
 
-FSsPartState::FSsPartState() : RefAnime(NULL) {Init();}
+FSsPartState::FSsPartState()
+	: RefAnime(nullptr)
+	, RefEffect(nullptr)
+{
+	Init();
+}
 
-FSsPartState::~FSsPartState(){
+FSsPartState::~FSsPartState()
+{
 	Destroy();
 }
 
 
-void	FSsPartState::Destroy()
+void FSsPartState::Destroy()
 {
 	if(RefAnime)
 	{
 		delete RefAnime;
-		RefAnime = 0;
+		RefAnime = nullptr;
+	}
+	if(RefEffect)
+	{
+		delete RefEffect;
+		RefEffect = nullptr;
 	}
 }
 
-void	FSsPartState::Init()
+void FSsPartState::Init()
 {
 	memset( Vertices , 0 , sizeof( Vertices ) );
 	memset( Colors , 0 , sizeof( Colors ) );
@@ -48,8 +60,7 @@ void	FSsPartState::Init()
 
 	IsColorBlend = false;
 	IsVertexTransform = false;
-	InheritRates = 0; 
-		
+	InheritRates = 0;
 }
 
 
