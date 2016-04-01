@@ -144,7 +144,7 @@ void FSsRenderPlaneProxy::GetDynamicMeshElements(const TArray<const FSceneView*>
 	}
 }
 
-FPrimitiveViewRelevance FSsRenderPlaneProxy::GetViewRelevance(const FSceneView* View)
+FPrimitiveViewRelevance FSsRenderPlaneProxy::GetViewRelevance(const FSceneView* View) const
 {
 	// どこかでちゃんと精査しないと・・・
 	FPrimitiveViewRelevance Result;

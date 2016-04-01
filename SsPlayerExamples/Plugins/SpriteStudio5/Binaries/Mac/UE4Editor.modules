@@ -1,0 +1,9 @@
+{
+	"Changelist" : 2927265,
+	"BuildId" : "",
+	"Modules" : 
+	{
+		"SpriteStudio5" : "UE4Editor-SpriteStudio5.dylib",
+		"SpriteStudio5Ed" : "UE4Editor-SpriteStudio5Ed.dylib"
+	}
+}
