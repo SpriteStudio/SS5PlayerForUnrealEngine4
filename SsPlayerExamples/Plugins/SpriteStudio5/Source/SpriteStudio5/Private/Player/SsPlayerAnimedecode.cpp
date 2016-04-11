@@ -1129,8 +1129,11 @@ void FSsAnimeDecoder::Update()
 }
 
 // 描画用パーツデータの作成
-void FSsAnimeDecoder::CreateRenderParts(TArray<FSsRenderPart>& OutRenderParts)
+void FSsAnimeDecoder::CreateRenderParts(TArray<FSsRenderPart>& OutRenderParts, const FVector2D* InCanvasSize, const FVector2D* InPivot)
 {
+	FVector2D CanvasSize = (NULL != InCanvasSize) ? *InCanvasSize : CurAnimeCanvasSize;
+	FVector2D Pivot = (NULL != InPivot) ? *InPivot : CurAnimePivot;
+
 	for(int i = 0; i < SortList.Num(); ++i)
 	{
 		FSsPartState* State = SortList[i];
@@ -1139,20 +1142,20 @@ void FSsAnimeDecoder::CreateRenderParts(TArray<FSsRenderPart>& OutRenderParts)
 		{
 			if(!State->Hide)
 			{
-				State->RefAnime->CreateRenderParts(OutRenderParts);
+				State->RefAnime->CreateRenderParts(OutRenderParts, &CanvasSize, &Pivot);
 			}
 		}
 		else if(State->RefEffect)
 		{
 			if(!State->Hide)
 			{
-				State->RefEffect->CreateRenderParts(OutRenderParts, State, CurAnimeCanvasSize, CurAnimePivot);
+				State->RefEffect->CreateRenderParts(OutRenderParts, State, CanvasSize, Pivot);
 			}
 		}
 		else
 		{
 			FSsRenderPart RenderPart;
-			if(CreateRenderPart(RenderPart, State))
+			if(CreateRenderPart(RenderPart, State, CanvasSize, Pivot))
 			{
 				OutRenderParts.Add(RenderPart);
 			}
@@ -1162,7 +1165,7 @@ void FSsAnimeDecoder::CreateRenderParts(TArray<FSsRenderPart>& OutRenderParts)
 
 
 // 描画用パーツデータの作成、１パーツ分
-bool FSsAnimeDecoder::CreateRenderPart(FSsRenderPart& OutRenderPart, FSsPartState* State)
+bool FSsAnimeDecoder::CreateRenderPart(FSsRenderPart& OutRenderPart, FSsPartState* State, const FVector2D& CanvasSize, const FVector2D& Pivot)
 {
 	// 各種非表示チェック
 	if(!State){ return false; }
@@ -1173,8 +1176,8 @@ bool FSsAnimeDecoder::CreateRenderPart(FSsRenderPart& OutRenderPart, FSsPartStat
 	if(NULL == State->CellValue.Texture){ return false; }
 
 	// RenderTargetに対する描画基準位置
-	float OffX = (float)(CurAnimeCanvasSize.X /2) + (CurAnimePivot.X * CurAnimeCanvasSize.X);
-	float OffY = (float)(CurAnimeCanvasSize.Y /2) - (CurAnimePivot.Y * CurAnimeCanvasSize.Y);
+	float OffX = (float)(CurAnimeCanvasSize.X /2) + (Pivot.X * CanvasSize.X);
+	float OffY = (float)(CurAnimeCanvasSize.Y /2) - (Pivot.Y * CanvasSize.Y);
 
 	// 頂点座標
 	FMatrix ViewMatrix(
@@ -1329,7 +1332,7 @@ bool FSsAnimeDecoder::CreateRenderPart(FSsRenderPart& OutRenderPart, FSsPartStat
 	OutRenderPart.AlphaBlendType = State->AlphaBlendType;
 	for(int32 i = 0; i < 4; ++i)
 	{
-		OutRenderPart.Vertices[i].Position = FVector2D(Vertices2D[i].X/CurAnimeCanvasSize.X, Vertices2D[i].Y/CurAnimeCanvasSize.Y);
+		OutRenderPart.Vertices[i].Position = FVector2D(Vertices2D[i].X/CanvasSize.X, Vertices2D[i].Y/CanvasSize.Y);
 		OutRenderPart.Vertices[i].TexCoord = UVs[i];
 		OutRenderPart.Vertices[i].Color = VertexColors[i];
 		OutRenderPart.Vertices[i].ColorBlendRate = ColorBlendRate[i];

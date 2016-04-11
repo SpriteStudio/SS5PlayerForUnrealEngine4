@@ -73,14 +73,14 @@ private:
 	int		CalcAnimeLabel2Frame(const FName& str, int offset, FSsAnimation* Animation);
 	int		FindAnimetionLabel(const FName& str, FSsAnimation* Animation);
 
-	bool	CreateRenderPart(FSsRenderPart& OutRenderPart, FSsPartState* State);
+	bool	CreateRenderPart(FSsRenderPart& OutRenderPart, FSsPartState* State, const FVector2D& CanvasSize, const FVector2D& Pivot);
 
 public:
 	FSsAnimeDecoder();
 	virtual ~FSsAnimeDecoder();
 
 	void	Update();
-	void	CreateRenderParts(TArray<FSsRenderPart>& OutRenderParts);
+	void	CreateRenderParts(TArray<FSsRenderPart>& OutRenderParts, const FVector2D* InCanvasSize=NULL, const FVector2D* InPivot=NULL);
 
 	void	SetDeltaForIndependentInstance(float Delta) { FrameDelta = Delta * CurAnimeFPS; }
 
