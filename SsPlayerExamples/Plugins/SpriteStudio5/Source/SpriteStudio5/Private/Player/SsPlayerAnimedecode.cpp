@@ -1176,8 +1176,8 @@ bool FSsAnimeDecoder::CreateRenderPart(FSsRenderPart& OutRenderPart, FSsPartStat
 	if(NULL == State->CellValue.Texture){ return false; }
 
 	// RenderTargetに対する描画基準位置
-	float OffX = (float)(CurAnimeCanvasSize.X /2) + (Pivot.X * CanvasSize.X);
-	float OffY = (float)(CurAnimeCanvasSize.Y /2) - (Pivot.Y * CanvasSize.Y);
+	float OffX = (float)(CanvasSize.X /2) + (Pivot.X * CanvasSize.X);
+	float OffY = (float)(CanvasSize.Y /2) - (Pivot.Y * CanvasSize.Y);
 
 	// 頂点座標
 	FMatrix ViewMatrix(
