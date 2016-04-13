@@ -232,10 +232,10 @@ bool SsNeedsCurveParams(SsInterpolationType::Type type)
 }
 
 
-FSsValue SsValueSeriarizer__MakeValue(const char* v)
+FSsValue SsValueSeriarizer__MakeValue(const char* v, bool bForceString = false)
 {
 	FString temp(v);
-	if(temp.IsNumeric())
+	if(temp.IsNumeric() && !bForceString)
 	{
 		return FSsValue((float)atof(v));
 	}
@@ -299,7 +299,7 @@ void SsValueSeriarizer(ISsXmlArchiver* ar , FSsValue& v , const FString key = "v
 				const char* str = ce->GetText();
 				if ( str != 0 )
 				{
-					hash[fceName] = SsValueSeriarizer__MakeValue( str );
+					hash[fceName] = SsValueSeriarizer__MakeValue( str, (fceName == FName("rgba")) );
 					ce = (XMLElement*)ce->NextSibling();
 				}else{
 					//さらに子構造があるようだ
