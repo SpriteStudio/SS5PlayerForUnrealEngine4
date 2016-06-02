@@ -25,7 +25,7 @@ void FSsPlaneVertexFactory::Init(const FSsPlaneVertexBuffer* VertexBuffer)
 {
 	if(IsInRenderingThread())
 	{
-		FLocalVertexFactory::DataType Data;
+		FLocalVertexFactory::FDataType Data;
 		Data.PositionComponent = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FDynamicMeshVertex, Position, VET_Float3);
 		Data.TextureCoordinates.Add(
 			FVertexStreamComponent(VertexBuffer, STRUCT_OFFSET(FDynamicMeshVertex,TextureCoordinate), sizeof(FDynamicMeshVertex), VET_Float2)
@@ -43,7 +43,7 @@ void FSsPlaneVertexFactory::Init(const FSsPlaneVertexBuffer* VertexBuffer)
 			const FSsPlaneVertexBuffer*, VertexBuffer, VertexBuffer,
 		{
 			// Initialize the vertex factory's stream components.
-			DataType Data;
+			FDataType Data;
 			Data.PositionComponent = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer,FDynamicMeshVertex,Position,VET_Float3);
 			Data.TextureCoordinates.Add(
 				FVertexStreamComponent(VertexBuffer, STRUCT_OFFSET(FDynamicMeshVertex,TextureCoordinate), sizeof(FDynamicMeshVertex), VET_Float2)

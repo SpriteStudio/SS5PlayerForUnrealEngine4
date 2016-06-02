@@ -104,7 +104,7 @@ void FSsPartsVertexFactory::Init(const FSsPartsVertexBuffer* VertexBuffer)
 {
 	if(IsInRenderingThread())
 	{
-		FLocalVertexFactory::DataType Data;
+		FLocalVertexFactory::FDataType Data;
 		Data.PositionComponent = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, Position, VET_Float3);
 		Data.TextureCoordinates.Add(FVertexStreamComponent(VertexBuffer, STRUCT_OFFSET(FSsPartVertex,TexCoord), sizeof(FSsPartVertex), VET_Float2));
 		Data.ColorComponent = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, Color, VET_Color);
@@ -120,7 +120,7 @@ void FSsPartsVertexFactory::Init(const FSsPartsVertexBuffer* VertexBuffer)
 			FSsPartsVertexFactory*, VertexFactory, this,
 			const FSsPartsVertexBuffer*, VertexBuffer, VertexBuffer,
 		{
-			DataType Data;
+			FDataType Data;
 			Data.PositionComponent = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, Position, VET_Float3);
 			Data.TextureCoordinates.Add(FVertexStreamComponent(VertexBuffer, STRUCT_OFFSET(FSsPartVertex,TexCoord), sizeof(FSsPartVertex), VET_Float2));
 			Data.ColorComponent = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, Color, VET_Color);
