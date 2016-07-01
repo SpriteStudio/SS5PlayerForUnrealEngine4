@@ -9,7 +9,7 @@
 #include "SsPlayerMatrix.h"
 #include "SsPlayerPartState.h"
 #include "SsPlayerCellmap.h"
-#include "SsPlayerEffect.h"
+#include "SsPlayerEffect2.h"
 
 
 #define USE_TRIANGLE_FIN (0)
@@ -36,6 +36,7 @@ namespace
 FSsAnimeDecoder::FSsAnimeDecoder()
 	: CurCellMapManager(0)
 	, PartState(0)
+	, SeedOffset(0)
 	, NowPlatTime(0)
 	, FrameDelta(0)
 	, CurAnimeEndFrame(0)
@@ -43,7 +44,7 @@ FSsAnimeDecoder::FSsAnimeDecoder()
 	, CurAnimeCanvasSize(0, 0)
 	, CurAnimePivot(0, 0)
 	, CurAnimation(NULL)
-	, EffectUntreatedDeltaTime(0.f)
+	, bCalcHideParts(false)
 {
 }
 
@@ -152,13 +153,14 @@ void FSsAnimeDecoder::SetAnimation(FSsModel* model, FSsAnimation* anime, FSsCell
 				if(0 <= EffectIndex)
 				{
 					FSsEffectFile* f = &(sspj->EffectList[EffectIndex]);
- 					FSsEffectRenderer* er = new FSsEffectRenderer();
+					FSsEffectRenderV2* er = new FSsEffectRenderV2();
 					er->SetParentAnimeState( &PartState[i] );
 					er->SetCellmapManager( this->CurCellMapManager );
 					er->SetEffectData( &f->EffectData );
 					er->SetSeed(GetRandomSeed());
 					er->Reload();
 					er->Stop();
+					er->SetLoop(false);
 
 					PartState[i].RefEffect = er;
 				}
@@ -176,7 +178,6 @@ void FSsAnimeDecoder::SetAnimation(FSsModel* model, FSsAnimation* anime, FSsCell
 
 void FSsAnimeDecoder::SetPlayFrame(float time)
 {
-	EffectUntreatedDeltaTime += (time - NowPlatTime);
 	NowPlatTime = time;
 	FrameDelta = 0.f;
 }
@@ -230,6 +231,7 @@ void FSsAnimeDecoder::ReloadEffects()
 		if(PartState[i].RefEffect)
 		{
 			PartState[i].RefEffect->Stop();
+			PartState[i].RefEffect->SetSeed(GetRandomSeed());
 			PartState[i].RefEffect->Reload();
 		}
 	}
@@ -439,6 +441,12 @@ void FSsAnimeDecoder::SsInterpolationValue(int time, const FSsKeyframe* leftkey,
 	GetSsInstparamAnime(leftkey, v);
 }
 
+void FSsAnimeDecoder::SsInterpolationValue(int time, const FSsKeyframe* leftkey, const FSsKeyframe* rightkey, FSsEffectAttr& v)
+{
+	//補間は行わないので、常に左のキーを出力する
+	GetSsEffectParamAnime(leftkey, v);
+}
+
 //float , int 基本型はこれで値の補間を行う
 template<typename mytype>
 void	FSsAnimeDecoder::SsInterpolationValue( int time , const FSsKeyframe* leftkey , const FSsKeyframe* rightkey , mytype& v )
@@ -564,6 +572,7 @@ void	FSsAnimeDecoder::UpdateState( int nowTime , FSsPart* part , FSsPartAnime* a
 	state->InheritRates = part->InheritRates;
 	if ( anime == 0 ){
 		IdentityMatrix( state->Matrix );
+		state->Hide = true;
 		return ;
 	}
 
@@ -707,8 +716,36 @@ void	FSsAnimeDecoder::UpdateState( int nowTime , FSsPart* part , FSsPartAnime* a
 				case SsAttributeKind::User:		///< Ver.4 互換ユーザーデータ
 					break;
 				case SsAttributeKind::Instance:	///インスタンスパラメータ
-					SsGetKeyValue(nowTime, attr, state->InstanceValue);
-					break;
+					{
+						int t = SsGetKeyValue(nowTime, attr, state->InstanceValue);
+						//先頭にキーが無い場合
+						if(t > nowTime)
+						{
+							FSsInstanceAttr d;
+							state->InstanceValue = d;
+						}
+					} break;
+				case SsAttributeKind::Effect:
+					{
+						int t = SsGetKeyValue(nowTime, attr, state->EffectValue);
+
+						//先頭にキーが無い場合
+						if(t > nowTime)
+						{
+							FSsEffectAttr d;
+							state->EffectValue = d;
+						}
+						else
+						{
+							state->EffectTime = t;
+							if(!state->EffectValue.AttrInitialized)
+							{
+								state->EffectValue.AttrInitialized = true;
+								state->EffectTimeTotal = state->EffectValue.StartTime;
+								state->EffectTime = t;
+							}
+						}
+					} break;
 			}
 		}
 	}
@@ -771,31 +808,6 @@ void	FSsAnimeDecoder::UpdateState( int nowTime , FSsPart* part , FSsPartAnime* a
 		}
 		UpdateVertices(part , anime , state);
 	}
-
-	if(part->Type == SsPartType::Effect)
-	{
-		bool reload = false;
-		FSsEffectRenderer * effectRender = state->RefEffect;
-
-		if(effectRender)
-		{
-			if(state->Hide)
-			{
-				if(effectRender->GetPlayStatus())
-				{
-					effectRender->Stop();
-					effectRender->Reload();
-				}
-			}
-			else
-			{
-				effectRender->SetSeed(GetRandomSeed());
-				effectRender->SetLoop(false);
-				effectRender->Play();
-			}
-		}
-	}
-
 }
 
 void	FSsAnimeDecoder::UpdateMatrix(FSsPart* part , FSsPartAnime* anime , FSsPartState* state)
@@ -959,8 +971,9 @@ void	FSsAnimeDecoder::UpdateInstance( int nowTime , FSsPart* part , FSsPartAnime
     int	selfTopKeyframe = instanceValue.CurKeyframe;
 
 
-    int	reftime = (time*instanceValue.Speed) - selfTopKeyframe; //開始から現在の経過時間
+    int reftime = (time - selfTopKeyframe) * instanceValue.Speed;
     if ( reftime < 0 ) return ; //そもそも生存時間に存在していない
+	if (selfTopKeyframe > time ) return ;
 
     int inst_scale = (endframe - startframe) + 1; //インスタンスの尺
 
@@ -1014,6 +1027,45 @@ void	FSsAnimeDecoder::UpdateInstance( int nowTime , FSsPart* part , FSsPartAnime
 
 	state->RefAnime->SetPlayFrame( _time );
 	state->RefAnime->Update();
+}
+
+void FSsAnimeDecoder::UpdateEffect(float frameDelta, int nowTime, FSsPart* part, FSsPartAnime* part_anime, FSsPartState* state)
+{
+	if(state->Hide)
+	{
+		return;
+	}
+
+	if(state->EffectValue.Independent)
+	{
+		if(state->RefEffect && state->EffectValue.AttrInitialized)
+		{
+			state->EffectTimeTotal += frameDelta * state->EffectValue.Speed;
+			state->RefEffect->SetLoop(true);
+			state->RefEffect->SetFrame(state->EffectTimeTotal);
+			state->RefEffect->Play();
+			state->RefEffect->Update();
+		}
+	}
+	else
+	{
+		if(state->RefEffect)
+		{
+			float _time = nowTime - state->EffectTime;
+			if (_time < 0)
+			{
+				return;
+			}
+
+			_time *= state->EffectValue.Speed;
+			_time += state->EffectValue.StartTime;
+
+			state->RefEffect->SetSeedOffset(SeedOffset);
+			state->RefEffect->SetFrame(_time);
+			state->RefEffect->Play();
+			state->RefEffect->Update();
+		}
+	}
 }
 
 int		FSsAnimeDecoder::FindAnimetionLabel(const FName& str, FSsAnimation* Animation)
@@ -1074,55 +1126,24 @@ void FSsAnimeDecoder::Update()
 {
 	int32 time = (int32)NowPlatTime;
 
-	if(EffectUntreatedDeltaTime < 0.f)
-	{
-		ReloadEffects();
-		EffectUntreatedDeltaTime = NowPlatTime;
-	}
-
-	int32 EffectUpdateTimes = (int32)EffectUntreatedDeltaTime;
-	int32 EffectBaseTime = time - EffectUpdateTimes + 1;
-
 	for(int i = 0; i < PartAnime.Num(); ++i)
 	{
 		FSsPart* part = PartAnime[i].Key;
 		FSsPartAnime* anime = PartAnime[i].Value;
 
-		if((part->Type == SsPartType::Effect) && (PartState[i].RefEffect))
-		{
-			// エフェクトは1フレーム単位でしか更新しない 
-			// (1フレーム == 0.5フレームずつ2回更新) 
-			if(0 == EffectUpdateTimes)
-			{
-				UpdateState(time, part, anime, &PartState[i]);
-				UpdateMatrix(part, anime, &PartState[i]);
-				PartState[i].RefEffect->Update(0.f);
-			}
-			else
-			{
-				for (int32 j = 0; j < (EffectUpdateTimes*2); ++j)
-				{
-					UpdateState(EffectBaseTime + j, part, anime, &PartState[i]);
-					UpdateMatrix(part, anime, &PartState[i]);
-					PartState[i].RefEffect->Update(
-						PartState[i].RefEffect->GetFirstUpdated() ? .5f : 0.f
-						);
-				}
-			}
-		}
-		else
-		{
-			UpdateState(time, part, anime, &PartState[i]);
-			UpdateMatrix(part, anime, &PartState[i]);
+		UpdateState(time, part, anime, &PartState[i]);
+		UpdateMatrix(part, anime, &PartState[i]);
 
-			if (part->Type == SsPartType::Instance)
-			{
-				UpdateInstance(time, part, anime, &PartState[i]);
-				UpdateVertices(part, anime, &PartState[i]);
-			}
+		if(part->Type == SsPartType::Instance)
+		{
+			UpdateInstance(time, part, anime, &PartState[i]);
+			UpdateVertices(part, anime, &PartState[i]);
+		}
+		if(part->Type == SsPartType::Effect)
+		{
+			UpdateEffect(FrameDelta, time, part, anime, &PartState[i]);
 		}
 	}
-	EffectUntreatedDeltaTime -= EffectUpdateTimes;
 
 	SortList.Sort();
 
@@ -1169,11 +1190,23 @@ bool FSsAnimeDecoder::CreateRenderPart(FSsRenderPart& OutRenderPart, FSsPartStat
 {
 	// 各種非表示チェック
 	if(!State){ return false; }
-	if(State->Hide){ return false; }
 	if(State->NoCells){ return false; }
-	if(0.0f == State->Alpha){ return false; }
-	if(NULL == State->CellValue.Cell){ return false; }
-	if(NULL == State->CellValue.Texture){ return false; }
+	if(NULL == State->CellValue.Cell) { return false; }
+	if(NULL == State->CellValue.Texture) { return false; }
+	float HideAlpha = 1.f;
+	if(!bCalcHideParts)
+	{
+		if(State->Hide) { return false; }
+		if(0.0f == State->Alpha){ return false; }
+	}
+	else
+	{
+		if(State->Hide)
+		{
+			HideAlpha = 0.f;
+		}
+	}
+
 
 	// RenderTargetに対する描画基準位置
 	float OffX = (float)(CanvasSize.X /2) + (Pivot.X * CanvasSize.X);
@@ -1294,7 +1327,7 @@ bool FSsAnimeDecoder::CreateRenderPart(FSsRenderPart& OutRenderPart, FSsPartStat
 			VertexColors[0].R = cbv.Rgba.R;
 			VertexColors[0].G = cbv.Rgba.G;
 			VertexColors[0].B = cbv.Rgba.B;
-			VertexColors[0].A = (uint8)(cbv.Rgba.A * State->Alpha);
+			VertexColors[0].A = (uint8)(cbv.Rgba.A * State->Alpha * HideAlpha);
 			ColorBlendRate[0] = cbv.Rate;
 
 			for(int32 i = 1; i < 4; ++i)
@@ -1311,7 +1344,7 @@ bool FSsAnimeDecoder::CreateRenderPart(FSsRenderPart& OutRenderPart, FSsPartStat
 				VertexColors[i].R = cbv.Rgba.R;
 				VertexColors[i].G = cbv.Rgba.G;
 				VertexColors[i].B = cbv.Rgba.B;
-				VertexColors[i].A = (uint8)(cbv.Rgba.A * State->Alpha);
+				VertexColors[i].A = (uint8)(cbv.Rgba.A * State->Alpha * HideAlpha);
 				ColorBlendRate[i] = cbv.Rate;
 			}
 		}
@@ -1321,7 +1354,7 @@ bool FSsAnimeDecoder::CreateRenderPart(FSsRenderPart& OutRenderPart, FSsPartStat
 		const FSsColorBlendValue& cbv = State->ColorValue.Color;
 		for(int32 i = 0; i < 4; ++i)
 		{
-			VertexColors[i] = FColor(255, 255, 255, (uint8)(255 * State->Alpha));
+			VertexColors[i] = FColor(255, 255, 255, (uint8)(255 * State->Alpha * HideAlpha));
 			ColorBlendRate[i] = 1.f;
 		}
 	}

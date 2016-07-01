@@ -3,7 +3,7 @@
 #include "SsPlayerCellmap.h"
 
 class FSsAnimeDecoder;
-class FSsEffectRenderer;
+class FSsEffectRenderV2;
 
 
 ///パーツの状態を保持するクラスです。
@@ -41,6 +41,10 @@ struct FSsPartState
 	FSsCellValue	CellValue;		///< セルアニメの値
 	FSsColorAnime	ColorValue;		///< カラーアニメの値
 	FSsVertexAnime	VertexValue;	///< 頂点アニメの値
+	FSsEffectAttr	EffectValue;	///< エフェクトの値
+	int32			EffectTime;
+	float			EffectTimeTotal;
+	int32			EffectSpeed;
 
 	bool			NoCells;				/// セル参照が見つからない
 	bool			IsColorBlend;			/// カラーブレンドが使用される (描画コストが高いシェーダが使われるためフラグ化)
@@ -52,7 +56,7 @@ struct FSsPartState
 	SsBlendType::Type	AlphaBlendType;
 		
 	FSsAnimeDecoder*	RefAnime;
-	FSsEffectRenderer*	RefEffect;
+	FSsEffectRenderV2*	RefEffect;
 
 	FSsPartState();
 
@@ -60,6 +64,7 @@ struct FSsPartState
 	void	Destroy();
 	void	Init();
 	bool	Inherits_(SsAttributeKind::Type kind) const {return InheritRates[(int)kind] != 0.f;}
+	void	Reset();
 
 
 	// ソート用. ssplayer_animedecode.h SsPartStateLessより 

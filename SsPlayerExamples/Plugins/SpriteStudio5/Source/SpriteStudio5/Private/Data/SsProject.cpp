@@ -15,6 +15,8 @@ void USsProject::Serialize(FArchive& Ar)
 {
 	Super::Serialize(Ar);
 
+	Ar.UsingCustomVersion(SSPJ_GUID);
+
 	if(Ar.IsLoading() || Ar.IsSaving())
 	{
 		for(int32 i = 0; i < AnimeList.Num(); ++i)
@@ -149,12 +151,12 @@ namespace
 		for(int32 i = 0; i < AnimePack.Model.PartList.Num(); ++i)
 		{
 			int32 RefAnimePackIndex = Proj.FindAnimePackIndex(AnimePack.Model.PartList[i].RefAnimePack);
-			if(0 < RefAnimePackIndex)
+			if(0 <= RefAnimePackIndex)
 			{
 				Result += CalcMaxRenderPartsNum_Recursive(Proj, Proj.AnimeList[RefAnimePackIndex]);
 			}
 			int32 RefEffectIndex = Proj.FindEffectIndex(AnimePack.Model.PartList[i].RefEffectName);
-			if(0 < RefEffectIndex)
+			if(0 <= RefEffectIndex)
 			{
 				Result += CalcMaxRenderPartsNum_Effect_Recursice(Proj.EffectList[RefEffectIndex], Proj.EffectList[RefEffectIndex].EffectData.Root, 1);
 			}

@@ -105,12 +105,20 @@ void FSsCellMapList::Add(FSsCellMap* cellmap)
 	}
 }
 
-FSsCelMapLinker* FSsCellMapList::GetCellMapLink( const FName& name )
+FSsCelMapLinker* FSsCellMapList::GetCellMapLink(const FName& name)
 {
-	FSsCelMapLinker* l = CellMapDic[name];
-	if ( l != 0 ) return l;
+	if(name.IsNone())
+	{
+		return nullptr;
+	}
 
-	return 0;
+	FSsCelMapLinker* l = CellMapDic[name];
+	if(l)
+	{
+		return l;
+	}
+
+	return nullptr;
 }
 
 
@@ -147,8 +155,11 @@ void CalcUvs( FSsCellValue* cellv )
 {
 	//SsCellMap* map = cellv->cellmapl->cellMap;
 	FSsCell* cell = cellv->Cell;
+	if(cellv->Texture == nullptr)
+	{
+		return;
+	}
 
-//	if ( cell == 0 || map == 0)
 	if ( cell == 0 )
 	{
 		cellv->Uvs[0].X = cellv->Uvs[0].Y = 0;

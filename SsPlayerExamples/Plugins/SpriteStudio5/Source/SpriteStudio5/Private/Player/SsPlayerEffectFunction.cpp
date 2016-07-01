@@ -2,64 +2,17 @@
 #include "SsPlayerEffectFunction.h"
 
 #include "SsPlayerAnimedecode.h"
-#include "SsPlayerEffect.h"
 #include "SsEffectElement.h"
 #include "SsEffectBehavior.h"
 
 
 namespace
 {
-	//二つの値の範囲から値をランダムで得る
-	static uint8 GetRandamNumberRange(FSsEffectRenderEmitter* e, uint8 a, uint8 b)
+	static void GetRange(uint8 a, uint8 b, uint8& OutMin, uint8& OutDiff)
 	{
-		uint8 min = a < b ? a : b;
-		uint8 max = a < b ? b : a;
-
-		uint8 diff = ( max - min );
-
-
-		if ( diff == 0 ) { return min; }
-		return min + (e->MT->genrand_uint32() % diff);
-	}
-
-	static void VarianceCalcColor(FSsEffectRenderEmitter* e, FSsU8Color& out, FSsU8Color color1, FSsU8Color color2)
-	{
-		out.R = GetRandamNumberRange(e, color1.R, color2.R);
-		out.G = GetRandamNumberRange(e, color1.G, color2.G);
-		out.B = GetRandamNumberRange(e, color1.B, color2.B);
-		out.A = GetRandamNumberRange(e, color1.A, color2.A);
-	}
-
-	static float FRand(uint32 v)
-	{
-		uint32 res = (v>>9) | 0x3f800000;
-		return (*(float*)&res) - 1.0f;
-	}
-
-	static float VarianceCalc(FSsEffectRenderEmitter* e, float base, float variance)
-	{
-		uint32  r = e->MT->genrand_uint32();
-
-		float len = variance - base;
-
-		return base + len * FRand( r );
-	}
-
-	static float VarianceCalcFin(FSsEffectRenderEmitter* e, float base, float variance)
-	{
-		uint32 r = e->MT->genrand_uint32();
-
-		return base + (-variance + variance* ( FRand(r) * 2.0f ));
-	}
-
-	static uint8 BlendNumber(uint8 a, uint8 b, float rate)
-	{
-		return ( a + ( b - a ) * rate );
-	}
-
-	static float BlendFloat(float a, float b, float rate)
-	{
-		return ( a + ( b - a ) * rate );
+		OutMin = a < b ? a : b;
+		uint8 TmpMax = a < b ? b : a;
+		OutDiff = (TmpMax - OutMin);
 	}
 }
 
@@ -68,10 +21,7 @@ namespace
 class FEffectFuncBase
 {
 public:
-	virtual void InitalizeEmmiter (FSsEffectElementBase* ele, FSsEffectRenderEmitter* emmiter){}
-	virtual void UpdateEmmiter(FSsEffectElementBase* ele, FSsEffectRenderEmitter* emmiter){}
-	virtual void InitializeParticle(FSsEffectElementBase* ele, FSsEffectRenderEmitter* e, FSsEffectRenderParticle* particle){}
-	virtual void UpdateParticle(FSsEffectElementBase* ele, FSsEffectRenderEmitter* e, FSsEffectRenderParticle* particle ){}
+	virtual void InitializeEffect(FSsEffectElementBase* ele, FSsEffectEmitter* e){}
 };
 
 //-----------------------------------------------------------------
@@ -80,64 +30,66 @@ public:
 class FFuncParticleElementBasic : public FEffectFuncBase
 {
 public:
-	virtual void InitalizeEmmiter(FSsEffectElementBase* ele, FSsEffectRenderEmitter* e) override
+	virtual void InitializeEffect(FSsEffectElementBase* ele, FSsEffectEmitter* e) override
 	{
 		FSsParticleElementBasic* source = static_cast<FSsParticleElementBasic*>(ele);
+		e->Priority = source->Priority;
 
-		e->MaxParticle = source->MaximumParticle;
-		e->Interval = source->Interval;
-		e->Lifetime = source->Lifetime;
-		e->Life = source->Lifetime;
-		e->Burst = source->AttimeCreate;
-
-		e->bUndead = false;
-		e->DrawPriority = source->Priority;
-
-		if(e->Lifetime == 0) { e->bUndead = true; }
-	}
-
-	virtual void InitializeParticle(FSsEffectElementBase* ele, FSsEffectRenderEmitter* e, FSsEffectRenderParticle* p) override
-	{
-		FSsParticleElementBasic* source = static_cast<FSsParticleElementBasic*>(ele);
-		FVector eVec = e->GetPosition();
-		float eAngle = 0;
-
-		p->BaseEmiterPosition.X = eVec.X;
-		p->BaseEmiterPosition.Y = eVec.Y;
-		p->ParticlePosition.X = p->BaseEmiterPosition.X;
-		p->ParticlePosition.Y = p->BaseEmiterPosition.Y;
-		p->Size = FVector2D(1.0f , 1.0f);
+		//エミッターパラメータ
+		e->Emitter.Emitmax = source->MaximumParticle;
+		e->Emitter.Interval = source->Interval;
+		e->Emitter.Life = source->Lifetime;
+		e->Emitter.Emitnum = source->AttimeCreate;
+		e->Emitter.ParticleLife = 10;//
+		e->Emitter.bInfinite = false;
+		e->Emitter.LoopGen = 0;
 
 
-		p->Color = FSsU8Color(255,255,255,255);
-		p->Startcolor = FSsU8Color(255,255,255,255);
-		p->Endcolor = p->Startcolor;
+		//パーティクルパラメータ
+		e->Emitter.ParticleLife = source->Lifespan.GetMinValue();
+		e->Emitter.ParticleLife2 = source->Lifespan.GetMaxValue() - source->Lifespan.GetMinValue();
+
+		e->Particle.Scale = FVector2D(1.0f, 1.0f);
+		e->Particle.StartColor = FSsU8Color(255, 255, 255, 255);
+		e->Particle.EndColor = FSsU8Color(255, 255, 255, 255);
+
+		e->Particle.Speed = source->Speed.GetMinValue();
+		e->Particle.Speed2 = source->Speed.GetMaxValue() - source->Speed.GetMinValue();
+
+		e->Particle.Angle = FMath::DegreesToRadians((source->Angle + 90.0f));
+		e->Particle.AngleVariance = FMath::DegreesToRadians(source->AngleVariance);
+
+		e->Particle.bUseTanAccel = false;
+
+		//重力
+		e->Particle.bUseGravity = false;
+		e->Particle.Gravity = FVector2D(0, 0);
+
+		//オフセット
+		e->Particle.bUseOffset = false;
+		e->Particle.Offset = FVector2D(0, 0);
+		e->Particle.Offset2 = FVector2D(0, 0);
 
 
-		p->Backposition = p->ParticlePosition;
+		//回転
+		e->Particle.bUseRotation = false;
+		e->Particle.bUseRotationTrans = false;
 
-		p->Lifetime = VarianceCalc(e , source->Lifespan.GetMinValue(), source->Lifespan.GetMaxValue());
-		p->Life = source->Lifetime;
-		float temp_angle = VarianceCalcFin(e,  source->Angle+eAngle, source->AngleVariance/2.0f);
+		//カラー
+		e->Particle.bUseColor = false;
 
-		float angle_rad = FMath::DegreesToRadians( (temp_angle+90.0f) );
-		float lspeed = VarianceCalc(e, source->Speed.GetMinValue(), source->Speed.GetMaxValue());
+		//スケール
+		e->Particle.bUseTransScale = false;
 
-		p->Speed = lspeed;
-		p->Firstspeed = lspeed;
-		p->Vector.X = FMath::Cos(angle_rad);
-		p->Vector.Y = FMath::Sin(angle_rad);
+		e->Particle.Delay = 0;
 
-		p->Force = FVector2D::ZeroVector;
-		p->Direction = 0;
-		p->bIsTurnDirection = false;
-
-		p->Rotation = 0;
-		p->RotationAdd = 0;
-		p->RotationAddDst = 0;
-		p->RotationAddOrg = 0;
-
-		p->Rotation = 0;
+		e->Particle.bUseTransColor = false;
+		e->Particle.bUseInitScale = false;
+		e->Particle.bUsePGravity = false;
+		e->Particle.bUseAlphaFade = false;
+		e->Particle.bUseTransSpeed = false;
+		e->Particle.bUseTurnDirec = false;
+		e->Particle.bUserOverrideRSeed = false;
 	}
 };
 static FFuncParticleElementBasic FuncBasic;
@@ -148,10 +100,13 @@ static FFuncParticleElementBasic FuncBasic;
 class FFuncParticleElementRndSeedChange : public FEffectFuncBase
 {
 public:
-	virtual void InitalizeEmmiter(FSsEffectElementBase* ele, FSsEffectRenderEmitter* emmiter) override
+	virtual void InitializeEffect(FSsEffectElementBase* ele, FSsEffectEmitter* e) override
 	{
 		FSsParticleElementRndSeedChange* source = static_cast<FSsParticleElementRndSeedChange*>(ele);
-		emmiter->SetMySeed(source->Seed);
+		e->Particle.bUserOverrideRSeed = true;
+
+		e->Particle.OverrideRSeed = source->Seed + SS_EFFECT_SEED_MAGIC;
+		e->EmitterSeed = source->Seed + SS_EFFECT_SEED_MAGIC;
 	}
 };
 static FFuncParticleElementRndSeedChange FuncRndSeedChange;
@@ -162,23 +117,10 @@ static FFuncParticleElementRndSeedChange FuncRndSeedChange;
 class FFuncParticleElementDelay : public FEffectFuncBase
 {
 public:
-	virtual void InitalizeEmmiter(FSsEffectElementBase* ele, FSsEffectRenderEmitter* emmiter) override
+	virtual void InitializeEffect(FSsEffectElementBase* ele, FSsEffectEmitter* e) override
 	{
 		FSsParticleElementDelay* source = static_cast<FSsParticleElementDelay*>(ele);
-		emmiter->Delay = source->DelayTime;
-		emmiter->Lifetime = emmiter->Lifetime + source->DelayTime;
-		emmiter->Life = emmiter->Lifetime;
-		emmiter->GenerateOK = false;
-	}
-
-	virtual void UpdateEmmiter(FSsEffectElementBase* ele, FSsEffectRenderEmitter* emmiter) override
-	{
-		FSsParticleElementDelay* source = static_cast<FSsParticleElementDelay*>(ele);
-		//既定の時間までストップ？
-		if(emmiter->ExsitTime >= source->DelayTime)
-		{
-			emmiter->GenerateOK = true;
-		}	
+		e->Particle.Delay = source->DelayTime;
 	}
 };
 static FFuncParticleElementDelay FuncDelay;
@@ -189,15 +131,11 @@ static FFuncParticleElementDelay FuncDelay;
 class FFuncParticleElementGravity : public FEffectFuncBase
 {
 public:
-	virtual void InitializeParticle(FSsEffectElementBase* ele, FSsEffectRenderEmitter* e, FSsEffectRenderParticle* p) override
+	virtual void InitializeEffect(FSsEffectElementBase* ele, FSsEffectEmitter* e) override
 	{
 		FSsParticleElementGravity* source = static_cast<FSsParticleElementGravity*>(ele);
-		p->Gravity = source->Gravity;
-	}
-	virtual void UpdateParticle(FSsEffectElementBase* ele, FSsEffectRenderEmitter* e, FSsEffectRenderParticle* particle) override
-	{
-		FSsParticleElementGravity* source = static_cast<FSsParticleElementGravity*>(ele);
-		particle->Gravity = source->Gravity * particle->ExsitTime;
+		e->Particle.bUseGravity = true;
+		e->Particle.Gravity = source->Gravity;
 	}
 };
 static FFuncParticleElementGravity FuncGravity;
@@ -208,11 +146,12 @@ static FFuncParticleElementGravity FuncGravity;
 class FFuncParticleElementPosition : public FEffectFuncBase
 {
 public:
-	virtual void InitializeParticle(FSsEffectElementBase* ele, FSsEffectRenderEmitter* e, FSsEffectRenderParticle* p) override
+	virtual void InitializeEffect(FSsEffectElementBase* ele, FSsEffectEmitter* e) override
 	{
 		FSsParticleElementPosition* source = static_cast<FSsParticleElementPosition*>(ele);
-		p->ParticlePosition.X = p->BaseEmiterPosition.X + VarianceCalc(e , source->OffsetX.GetMinValue(), source->OffsetX.GetMaxValue() );
-		p->ParticlePosition.Y = p->BaseEmiterPosition.Y + VarianceCalc(e , source->OffsetY.GetMinValue(), source->OffsetY.GetMaxValue() );
+		e->Particle.bUseOffset = true;
+		e->Particle.Offset = FVector2D(source->OffsetX.GetMinValue(), source->OffsetY.GetMinValue());
+		e->Particle.Offset2 = FVector2D(source->OffsetX.GetMaxValue() - source->OffsetX.GetMinValue(), source->OffsetY.GetMaxValue() - source->OffsetY.GetMinValue());
 	}
 };
 static FFuncParticleElementPosition FuncPosition;
@@ -223,13 +162,15 @@ static FFuncParticleElementPosition FuncPosition;
 class FFuncParticleElementRotation: public FEffectFuncBase
 {
 public:
-	virtual void InitializeParticle(FSsEffectElementBase* ele, FSsEffectRenderEmitter* e, FSsEffectRenderParticle* p) override
+	virtual void InitializeEffect(FSsEffectElementBase* ele, FSsEffectEmitter* e) override
 	{
 		FSsParticleElementRotation* source = static_cast<FSsParticleElementRotation*>(ele);
+		e->Particle.bUseRotation = true;
+		e->Particle.Rotation = source->Rotation.GetMinValue();
+		e->Particle.Rotation2 = source->Rotation.GetMaxValue() - source->Rotation.GetMinValue();
 
-		p->Rotation = VarianceCalc(e, source->Rotation.GetMinValue(), source->Rotation.GetMaxValue());
-		p->RotationAdd =  VarianceCalc(e, source->RotationAdd.GetMinValue(), source->RotationAdd.GetMaxValue());
-		p->RotationAddDst = p->RotationAdd;
+		e->Particle.RotationAdd = source->RotationAdd.GetMinValue();
+		e->Particle.RotationAdd2 = source->RotationAdd.GetMaxValue() - source->RotationAdd.GetMinValue();
 	}
 };
 static FFuncParticleElementRotation FuncRotation;
@@ -240,33 +181,12 @@ static FFuncParticleElementRotation FuncRotation;
 class FFuncParticleElementRotationTrans : public FEffectFuncBase
 {
 public:
-	virtual void InitializeParticle(FSsEffectElementBase* ele, FSsEffectRenderEmitter* e, FSsEffectRenderParticle* p) override
+	virtual void InitializeEffect(FSsEffectElementBase* ele, FSsEffectEmitter* e) override
 	{
 		FSsParticleElementRotationTrans* source = static_cast<FSsParticleElementRotationTrans*>(ele);
-		if(p->Lifetime == 0) { return; }
-		if(source->EndLifeTimePer == 0)
-		{
-			p->RotationAddDst = p->RotationAdd * source->RotationFactor;
-			p->RotationAddOrg = p->RotationAdd;
-			return;
-		}
-		p->RotationAddDst = p->RotationAdd * source->RotationFactor;
-		p->RotationAddOrg = p->RotationAdd;
-	}
-	virtual void UpdateParticle(FSsEffectElementBase* ele, FSsEffectRenderEmitter* e, FSsEffectRenderParticle* p) override
-	{
-		FSsParticleElementRotationTrans* source = static_cast<FSsParticleElementRotationTrans*>(ele);
-
-		if((p->Lifetime*source->EndLifeTimePer) == 0)
-		{
-			p->RotationAdd = BlendFloat(p->RotationAddOrg, p->RotationAddDst, 1.0f);
-			return;
-		}
-		float per = ((float)p->ExsitTime / ((float)p->Lifetime*( source->EndLifeTimePer / 100.0f)));
-
-		if(per > 1.0f) { per = 1.0f; }
-
-		p->RotationAdd = BlendFloat(p->RotationAddOrg, p->RotationAddDst, per);
+		e->Particle.bUseRotationTrans = true;
+		e->Particle.RotationFactor = source->RotationFactor;
+		e->Particle.EndLifeTimePer = source->EndLifeTimePer / 100.0f;
 	}
 };
 static FFuncParticleElementRotationTrans FuncRotationTrans ;
@@ -277,16 +197,12 @@ static FFuncParticleElementRotationTrans FuncRotationTrans ;
 class FFuncParticleElementTransSpeed : public FEffectFuncBase
 {
 public:
-	virtual void InitializeParticle(FSsEffectElementBase* ele, FSsEffectRenderEmitter* e, FSsEffectRenderParticle* p) override
+	virtual void InitializeEffect(FSsEffectElementBase* ele, FSsEffectEmitter* e) override
 	{
 		FSsParticleElementTransSpeed* source = static_cast<FSsParticleElementTransSpeed*>(ele);
-		p->Lastspeed = VarianceCalc(e, source->Speed.GetMinValue(), source->Speed.GetMaxValue());
-	}
-
-	virtual void UpdateParticle(FSsEffectElementBase* ele, FSsEffectRenderEmitter* e, FSsEffectRenderParticle* p) override
-	{
-		float per = ((float)p->ExsitTime / (float)p->Lifetime);
-		p->Speed = (p->Firstspeed + (p->Lastspeed - p->Firstspeed ) * per);
+		e->Particle.bUseTransSpeed = true;
+		e->Particle.TransSpeed = source->Speed.GetMinValue();
+		e->Particle.TransSpeed2 = source->Speed.GetMaxValue() - source->Speed.GetMinValue();
 	}
 };
 static FFuncParticleElementTransSpeed FuncTransSpeed;
@@ -297,10 +213,12 @@ static FFuncParticleElementTransSpeed FuncTransSpeed;
 class FFuncParticleElementTangentialAcceleration : public FEffectFuncBase
 {
 public:
-	virtual void InitializeParticle(FSsEffectElementBase* ele, FSsEffectRenderEmitter* e, FSsEffectRenderParticle* p) override
+	virtual void InitializeEffect(FSsEffectElementBase* ele, FSsEffectEmitter* e) override
 	{
 		FSsParticleElementTangentialAcceleration* source = static_cast<FSsParticleElementTangentialAcceleration*>(ele);
-		p->TangentialAccel = VarianceCalc(e , source->Acceleration.GetMinValue(), source->Acceleration.GetMaxValue());
+		e->Particle.bUseTanAccel = true;
+		e->Particle.TangentialAccel = source->Acceleration.GetMinValue();
+		e->Particle.TangentialAccel2 = (source->Acceleration.GetMaxValue() - source->Acceleration.GetMinValue());
 	}
 };
 static FFuncParticleElementTangentialAcceleration FuncTangentialAcceleration;
@@ -311,12 +229,18 @@ static FFuncParticleElementTangentialAcceleration FuncTangentialAcceleration;
 class FFuncParticleElementInitColor : public FEffectFuncBase
 {
 public:
-	virtual void InitializeParticle(FSsEffectElementBase* ele, FSsEffectRenderEmitter* e, FSsEffectRenderParticle* p) override
+	virtual void InitializeEffect(FSsEffectElementBase* ele, FSsEffectEmitter* e) override
 	{
 		FSsParticleElementInitColor* source = static_cast<FSsParticleElementInitColor*>(ele);
-		VarianceCalcColor(e , p->Startcolor, source->Color.GetMinValue(), source->Color.GetMaxValue());
-		p->Color = p->Startcolor;
-		p->bUseColor = true;
+		e->Particle.bUseColor = true;
+
+		FSsU8Color color1 = source->Color.GetMinValue();
+		FSsU8Color color2 = source->Color.GetMaxValue();
+
+		GetRange(color1.A, color2.A, e->Particle.InitColor.A, e->Particle.InitColor2.A);
+		GetRange(color1.R, color2.R, e->Particle.InitColor.R, e->Particle.InitColor2.R);
+		GetRange(color1.G, color2.G, e->Particle.InitColor.G, e->Particle.InitColor2.G);
+		GetRange(color1.B, color2.B, e->Particle.InitColor.B, e->Particle.InitColor2.B);
 	}
 };
 static FFuncParticleElementInitColor FuncInitColor;
@@ -327,24 +251,19 @@ static FFuncParticleElementInitColor FuncInitColor;
 class FFuncParticleElementTransColor : public FEffectFuncBase
 {
 public:
-	virtual void InitializeParticle(FSsEffectElementBase* ele, FSsEffectRenderEmitter* e, FSsEffectRenderParticle* p) override
+	virtual void InitializeEffect(FSsEffectElementBase* ele, FSsEffectEmitter* e) override
 	{
 		FSsParticleElementTransColor* source = static_cast<FSsParticleElementTransColor*>(ele);
-		VarianceCalcColor(e , p->Endcolor, source->Color.GetMinValue(), source->Color.GetMaxValue());
-		p->bUseColor = true;
-	}
 
-	virtual void UpdateParticle(FSsEffectElementBase* ele, FSsEffectRenderEmitter* e, FSsEffectRenderParticle* p) override
-	{
-		float per = ((float)p->ExsitTime / (float)p->Lifetime);
+		e->Particle.bUseTransColor = true;
 
-		if(per > 1.0f) { per = 1.0f; }
+		FSsU8Color color1 = source->Color.GetMinValue();
+		FSsU8Color color2 = source->Color.GetMaxValue();
 
-		p->Color.A = BlendNumber(p->Startcolor.A, p->Endcolor.A, per);
-		p->Color.R = BlendNumber(p->Startcolor.R, p->Endcolor.R, per);
-		p->Color.G = BlendNumber(p->Startcolor.G, p->Endcolor.G, per);
-		p->Color.B = BlendNumber(p->Startcolor.B, p->Endcolor.B, per);
-		p->bUseColor = true;
+		GetRange(color1.A, color2.A, e->Particle.TransColor.A, e->Particle.TransColor2.A);
+		GetRange(color1.R, color2.R, e->Particle.TransColor.R, e->Particle.TransColor2.R);
+		GetRange(color1.G, color2.G, e->Particle.TransColor.G, e->Particle.TransColor2.G);
+		GetRange(color1.B, color2.B, e->Particle.TransColor.B, e->Particle.TransColor2.B);
 	}
 };
 static FFuncParticleElementTransColor FuncTransColor;
@@ -355,35 +274,12 @@ static FFuncParticleElementTransColor FuncTransColor;
 class FFuncParticleElementAlphaFade : public FEffectFuncBase
 {
 public:
-	virtual void UpdateParticle(FSsEffectElementBase* ele, FSsEffectRenderEmitter* e, FSsEffectRenderParticle* particle) override
+	virtual void InitializeEffect(FSsEffectElementBase* ele, FSsEffectEmitter* e) override
 	{
 		FSsParticleElementAlphaFade* source = static_cast<FSsParticleElementAlphaFade*>(ele);
-	
-		if(particle->Lifetime == 0) { return; }
-
-		float per = ((float)particle->ExsitTime / (float)particle->Lifetime) * 100.0f;
-
-		float start = source->Disprange.GetMinValue();
-		float end = source->Disprange.GetMaxValue();
-
-		if(per < start)
-		{
-			float alpha = (start - per) / start;
-			particle->Color.A *= 1.0f - alpha;
-			return;
-		}
-
-		if(per > end)
-		{
-			if(end >= 100.0f)
-			{
-				particle->Color.A = 0;
-				return;
-			}
-			float alpha = (per-end) / (100.0f-end);
-			particle->Color.A *= 1.0f - alpha;
-			return;
-		}
+		e->Particle.bUseAlphaFade = true;
+		e->Particle.AlphaFade = source->Disprange.GetMinValue();
+		e->Particle.AlphaFade2 = source->Disprange.GetMaxValue();
 	}
 };
 static FFuncParticleElementAlphaFade FuncAlphaFade;
@@ -394,16 +290,20 @@ static FFuncParticleElementAlphaFade FuncAlphaFade;
 class FFuncParticleElementSize : public FEffectFuncBase
 {
 public:
-	virtual void InitializeParticle(FSsEffectElementBase* ele, FSsEffectRenderEmitter* e, FSsEffectRenderParticle* p) override
+	virtual void InitializeEffect(FSsEffectElementBase* ele, FSsEffectEmitter* e) override
 	{
 		FSsParticleElementSize* source = static_cast<FSsParticleElementSize*>(ele);
 
-		p->Size.X = VarianceCalc(e, source->SizeX.GetMinValue(), source->SizeX.GetMaxValue());
-		p->Size.Y = VarianceCalc(e, source->SizeY.GetMinValue(), source->SizeY.GetMaxValue());
-		float sf = VarianceCalc(e, source->ScaleFactor.GetMinValue(), source->ScaleFactor.GetMaxValue());
+		e->Particle.bUseInitScale = true;
 
-		p->Size = p->Size * sf;
-		p->StartSize = p->Size;
+		e->Particle.Scale.X = source->SizeX.GetMinValue();
+		e->Particle.ScaleRange.X = source->SizeX.GetMaxValue() - source->SizeX.GetMinValue();
+
+		e->Particle.Scale.Y = source->SizeY.GetMinValue();
+		e->Particle.ScaleRange.Y = source->SizeY.GetMaxValue() - source->SizeY.GetMinValue();
+
+		e->Particle.ScaleFactor = source->ScaleFactor.GetMinValue();
+		e->Particle.ScaleFactor2 = source->ScaleFactor.GetMaxValue() - source->ScaleFactor.GetMinValue();
 	}
 };
 static FFuncParticleElementSize FuncSize;
@@ -414,22 +314,19 @@ static FFuncParticleElementSize FuncSize;
 class FFuncParticleElementTransSize : public FEffectFuncBase
 {
 public:
-	virtual void InitializeParticle(FSsEffectElementBase* ele, FSsEffectRenderEmitter* e, FSsEffectRenderParticle* p) override
+	virtual void InitializeEffect(FSsEffectElementBase* ele, FSsEffectEmitter* e) override
 	{
 		FSsParticleElementTransSize* source = static_cast<FSsParticleElementTransSize*>(ele);
-		FVector2D endsize;
-		endsize.X = VarianceCalc(e, source->SizeX.GetMinValue(), source->SizeX.GetMaxValue());
-		endsize.Y = VarianceCalc(e, source->SizeY.GetMinValue(), source->SizeY.GetMaxValue());
+		e->Particle.bUseTransScale = true;
 
-		float sf = VarianceCalc(e, source->ScaleFactor.GetMinValue(), source->ScaleFactor.GetMaxValue());
+		e->Particle.Transscale.X = source->SizeX.GetMinValue();
+		e->Particle.TransscaleRange.X = source->SizeX.GetMaxValue() - source->SizeX.GetMinValue();
 
-		endsize = endsize * sf;
+		e->Particle.Transscale.Y = source->SizeY.GetMinValue();
+		e->Particle.TransscaleRange.Y = source->SizeY.GetMaxValue() - source->SizeY.GetMinValue();
 
-		p->Divsize = (endsize - p->StartSize) / p->Lifetime;
-	}
-	virtual void UpdateParticle(FSsEffectElementBase* ele, FSsEffectRenderEmitter* e, FSsEffectRenderParticle* p) override
-	{
-		p->Size = p->StartSize + (p->Divsize * (p->ExsitTime));
+		e->Particle.TransscaleFactor = source->ScaleFactor.GetMinValue();
+		e->Particle.TransscaleFactor2 = source->ScaleFactor.GetMaxValue() - source->ScaleFactor.GetMinValue();
 	}
 };
 static FFuncParticleElementTransSize FuncTransSize;
@@ -440,22 +337,12 @@ static FFuncParticleElementTransSize FuncTransSize;
 class FFuncParticlePointGravity : public FEffectFuncBase
 {
 public:
-	virtual void UpdateParticle(FSsEffectElementBase* ele, FSsEffectRenderEmitter* e, FSsEffectRenderParticle* p) override
+	virtual void InitializeEffect(FSsEffectElementBase* ele, FSsEffectEmitter* e) override
 	{
 		FSsParticlePointGravity* source = static_cast<FSsParticlePointGravity*>(ele);
-
-		FVector2D Target;
-		Target.X = source->Position.X + p->ParentEmitter->Position.X;
-		Target.Y = source->Position.Y + p->ParentEmitter->Position.Y;
-
-		//現在地点から指定された点に対してのベクトル*パワーを与える
-		FVector2D v2 = Target - p->ParticlePosition;
-		FVector2D v2_temp = v2;
-
-		v2.Normalize();
-		v2 = v2 * source->Power;
-
-		p->Gravity = p->Gravity + v2;
+		e->Particle.bUsePGravity = true;
+		e->Particle.GravityPos = source->Position;
+		e->Particle.GravityPower = source->Power;
 	}
 };
 static FFuncParticlePointGravity FuncPointGravity;
@@ -466,12 +353,27 @@ static FFuncParticlePointGravity FuncPointGravity;
 class FFuncParticleTurnToDirectionEnabled : public FEffectFuncBase
 {
 public:
-	virtual void InitializeParticle(FSsEffectElementBase* ele, FSsEffectRenderEmitter* e, FSsEffectRenderParticle* particle) override
+	virtual void InitializeEffect(FSsEffectElementBase* ele, FSsEffectEmitter* e) override
 	{
-		particle->bIsTurnDirection = true;
+		FSsParticleTurnToDirectionEnabled* source = static_cast<FSsParticleTurnToDirectionEnabled*>(ele);
+		e->Particle.bUseTurnDirec = true;
+		e->Particle.DirecRotAdd = source->Rotation;
 	}
 };
 static FFuncParticleTurnToDirectionEnabled FuncTurnToDirectionEnabled;
+
+//-----------------------------------------------------------------
+//
+//-----------------------------------------------------------------
+class FFuncParticleInfiniteEmitEnabled : public FEffectFuncBase
+{
+public:
+	virtual void InitializeEffect(FSsEffectElementBase* ele, FSsEffectEmitter* e) override
+	{
+		e->Emitter.bInfinite = true;
+	}
+};
+static FFuncParticleInfiniteEmitEnabled FuncParticleInfiniteEmitEnabled;
 
 //-------------------------------------------------------------------
 //挙動反映クラスの呼び出しテーブル
@@ -496,45 +398,18 @@ static FEffectFuncBase* callTable[] =
 	&FuncTransSize,
 	&FuncPointGravity,
 	&FuncTurnToDirectionEnabled,
+	&FuncParticleInfiniteEmitEnabled,
 };
 
 
 ///----------------------------------------------------------------------------------------------------
 //
 ///----------------------------------------------------------------------------------------------------
-void FSsEffectFunctionExecuter::Initalize(FSsEffectBehavior* beh, FSsEffectRenderEmitter* emmiter)
+void FSsEffectFunctionExecuter::InitializeEffect(FSsEffectBehavior* beh, FSsEffectEmitter* e)
 {
 	for(int32 i = 0; i < beh->PList.Num(); ++i)
 	{
 		FEffectFuncBase* cf = callTable[beh->PList[i]->MyType];
-		cf->InitalizeEmmiter(beh->PList[i].Get() , emmiter);
+		cf->InitializeEffect(beh->PList[i].Get(), e);
 	}
 }
-
-void FSsEffectFunctionExecuter::UpdateEmmiter(FSsEffectBehavior* beh, FSsEffectRenderEmitter* emmiter)
-{
-	for(int32 i = 0; i < beh->PList.Num(); ++i)
-	{
-		FEffectFuncBase* cf = callTable[beh->PList[i]->MyType];
-		cf->UpdateEmmiter(beh->PList[i].Get(), emmiter);
-	}
-}
-
-void FSsEffectFunctionExecuter::InitializeParticle(FSsEffectBehavior* beh, FSsEffectRenderEmitter* emmiter, FSsEffectRenderParticle* particle)
-{
-	for(int32 i = 0; i < beh->PList.Num(); ++i)
-	{
-		FEffectFuncBase* cf = callTable[beh->PList[i]->MyType];
-		cf->InitializeParticle(beh->PList[i].Get(), emmiter, particle);
-	}
-}
-
-void FSsEffectFunctionExecuter::UpdateParticle(FSsEffectBehavior* beh, FSsEffectRenderEmitter* emmiter, FSsEffectRenderParticle* particle)
-{
-	for(int32 i = 0; i < beh->PList.Num(); ++i)
-	{
-		FEffectFuncBase* cf = callTable[beh->PList[i]->MyType];
-		cf->UpdateParticle(beh->PList[i].Get(), emmiter, particle);
-	}
-}
-

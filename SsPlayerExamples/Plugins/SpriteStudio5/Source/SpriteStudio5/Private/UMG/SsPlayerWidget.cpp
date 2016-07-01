@@ -11,8 +11,7 @@ USsPlayerWidget::USsPlayerWidget(const FObjectInitializer& ObjectInitializer)
 	, FSsPlayPropertySync(&SsProject, &AutoPlayAnimPackName, &AutoPlayAnimationName, &AutoPlayAnimPackIndex, &AutoPlayAnimationIndex)
 	, RenderOffScreen(NULL)
 #if WITH_EDITOR
-	, TickWorld(NULL)
-	, BackWorldTime(0.f)
+	, BackWorldTime(-1.f)
 #endif
 	, SsProject(NULL)
 	, bAutoUpdate(true)
@@ -22,7 +21,6 @@ USsPlayerWidget::USsPlayerWidget(const FObjectInitializer& ObjectInitializer)
 	, AutoPlayLoopCount(0)
 	, bAutoPlayRoundTrip(false)
 	, OffScreenRenderResolution(512, 512)
-
 {
 	// UMG用マテリアル参照の取得
 	struct FConstructorStatics
@@ -69,10 +67,6 @@ void USsPlayerWidget::SynchronizeProperties()
 {
 	Super::SynchronizeProperties();
 
-#if WITH_EDITOR
-	TickWorld = GWorld;
-#endif
-
 	if(SsProject)
 	{
 		// Playerの初期化 
@@ -110,23 +104,17 @@ void USsPlayerWidget::SynchronizeProperties()
 // 更新 
 void USsPlayerWidget::Tick(float DeltaTime)
 {
-	if(NULL == GetWorld())
-	{
-		return;
-	}
-
 #if WITH_EDITOR
 	// １フレームに複数回の呼び出しが来てしまうのに対処. 
 	// UObject と FTickableGameObject を併用した際のバグらしい？ 
-	if(TickWorld != GWorld)
+	if(GetWorld())
 	{
-		return;
+		if((GetWorld()->TimeSeconds - BackWorldTime + 0.01f) < DeltaTime)
+		{
+			return;
+		}
+		BackWorldTime = this->GetWorld()->TimeSeconds;
 	}
-	if((GWorld->TimeSeconds - BackWorldTime + 0.01f) < DeltaTime)
-	{
-		return;
-	}
-	BackWorldTime = GWorld->TimeSeconds;
 #endif
 
 	if(bAutoUpdate)

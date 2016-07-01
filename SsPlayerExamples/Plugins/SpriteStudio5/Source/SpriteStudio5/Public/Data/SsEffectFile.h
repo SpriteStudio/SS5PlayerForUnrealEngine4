@@ -114,9 +114,17 @@ public:
 	UPROPERTY(VisibleAnywhere, Category=SsEffectModel, BlueprintReadOnly)
 	FName		EffectName;
 
+	UPROPERTY(VisibleAnywhere, Category = SsEffectModel, BlueprintReadOnly)
+	int32		LayoutScaleX;
+
+	UPROPERTY(VisibleAnywhere, Category = SsEffectModel, BlueprintReadOnly)
+	int32		LayoutScaleY;
+
 public:
 	FSsEffectModel()
 		: Root(nullptr)
+		, LayoutScaleX(100)
+		, LayoutScaleY(100)
 	{}
 
 	void BuildTree();

@@ -47,7 +47,9 @@ private:
 	void OnAnimePackChanged(TSharedPtr<FString> NewSelection, ESelectInfo::Type);
 	void OnAnimationChanged(TSharedPtr<FString> NewSelection, ESelectInfo::Type);
 	void OnSetFrame(int32 Frame, ETextCommit::Type);
+	void OnSetFrame(int32 Frame);
 	TOptional<int32> GetNowFrame() const;
+	TOptional<int32> GetMaxFrame() const;
 	void OnChangeDrawGrid();
 	bool IsDrawGrid() const;
 	void OnSetGridSize(int32 Size, ETextCommit::Type);

@@ -409,6 +409,7 @@ namespace SsAttributeKind
 		Boundr,		///< [BNDR]当たり判定用の半径
 		User,		///< [USER]ユーザーデータ
 		Instance,	///< [IPRM]インスタンスパーツパラメータ
+		Effect,		///< [EFCT]エフェクトパラメータ
 		Num,
 
 		Invalid = 254	///< 無効値。旧データからの変換時など
@@ -502,6 +503,37 @@ void SPRITESTUDIO5_API __StringToEnum_(FString n , TEnumAsByte<SsRenderBlendType
 TEnumAsByte<SsBlendType::Type> SsRenderBlendTypeToBlendType(TEnumAsByte<SsRenderBlendType::Type> n);
 
 
+class FSsEffectAttr
+{
+public:
+	int32	StartTime;		///<開始フレーム
+	float	Speed;			///<再生速度
+	bool	Independent;	///<独立動作
+	int32	LoopFlag;		///<ループ時の動作フラグをビット対応でまとめたもの
+	bool	AttrInitialized;
+	int32	CurKeyframe;	///<キーが配置されたフレーム
+
+	FSsEffectAttr()
+		: StartTime(0)
+		, Speed(1.f)
+		, Independent(false)
+		, LoopFlag(0)
+		, AttrInitialized(false)
+		, CurKeyframe(0)
+	{}
+
+	void Init()
+	{
+		StartTime = 0;
+		Speed = 1.f;
+		Independent = false;
+		LoopFlag = 0;
+		AttrInitialized = false;
+		CurKeyframe = 0;
+	}
+};
+
+
 ///頂点変形キーの４頂点変形値
 struct FSsVertexAnime
 {
@@ -550,6 +582,7 @@ public:
 	bool	Reverse;		///逆再生フラグ
 	bool	Pingpong;		///往復再生フラグ
 	bool	Independent;	///独立動作フラグ
+	int		LoopFlag;		///ループフラグをビット対応でまとめたもの
 	int		LoopNum;		///ループ回数　無限ループフラグ=trueの時には無効
 	FName	StartLabel;		///再生開始位置 ラベル名称
 	int		StartOffset;	///再生開始位置 ラベル名称からのオフセット
@@ -569,6 +602,7 @@ public:
 		Reverse( false ),
 		Pingpong( false ),
 		Independent( false ),
+		LoopFlag(0),
 		LoopNum( 1 ),
 		StartLabel("_start"),
 		StartOffset(0),
@@ -582,6 +616,26 @@ public:
 	{}
 };
 
+// インスタンスアトリビュートのループフラグ 
+namespace SsInstanceLoopFlag
+{
+	enum
+	{
+		INSTANCE_LOOP_FLAG_INFINITY    = 1 << 0,
+		INSTANCE_LOOP_FLAG_REVERSE     = 1 << 1,
+		INSTANCE_LOOP_FLAG_PINGPONG    = 1 << 2,
+		INSTANCE_LOOP_FLAG_INDEPENDENT = 1 << 3,
+	};
+}
+
+// エフェクトアトリビュートのループフラグ 
+namespace SsEffectLoopFlag
+{
+	enum
+	{
+		EFFECT_LOOP_FLAG_INFINITY = 1 << 0,
+	};
+}
 
 //---------------------------------------------------------------
 // 描画用の頂点情報
@@ -601,4 +655,10 @@ struct FSsRenderPart
 	UTexture* Texture;
 	SsBlendType::Type AlphaBlendType;
 	SsBlendType::Type ColorBlendType;
+};
+
+// マテリアル付き描画用のパーツ情報
+struct FSsRenderPartWithMaterial : public FSsRenderPart
+{
+	UMaterialInterface* Material;
 };

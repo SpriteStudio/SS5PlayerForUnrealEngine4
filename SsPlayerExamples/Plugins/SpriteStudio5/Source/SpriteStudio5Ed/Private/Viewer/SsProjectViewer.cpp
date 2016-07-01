@@ -262,8 +262,13 @@ void FSsProjectViewer::ExtendToolbar()
 					.VAlign(VAlign_Center)
 					[
 						SNew(SNumericEntryBox<int32>)
+						.AllowSpin(true)
 						.MinValue(0)
+						.MinSliderValue(0)
+						.MaxValue(Viewer, &FSsProjectViewer::GetMaxFrame)
+						.MaxSliderValue(Viewer, &FSsProjectViewer::GetMaxFrame)
 						.Value(Viewer, &FSsProjectViewer::GetNowFrame)
+						.OnValueChanged(Viewer, &FSsProjectViewer::OnSetFrame)
 						.OnValueCommitted(Viewer, &FSsProjectViewer::OnSetFrame)
 					]
 					+SVerticalBox::Slot()
@@ -538,7 +543,7 @@ void FSsProjectViewer::OnAnimationChanged(TSharedPtr<FString> NewSelection, ESel
 					Player.Pause();
 				}
 
-				FString Text = FString::Printf(TEXT("  / %3d"), (int)Player.GetAnimeEndFrame());
+				FString Text = FString::Printf(TEXT("                    / %3d   "), (int)Player.GetAnimeEndFrame());
 				MaxFrameText->SetText(Text);
 
 				if(RenderOffScreen)
@@ -551,6 +556,10 @@ void FSsProjectViewer::OnAnimationChanged(TSharedPtr<FString> NewSelection, ESel
 }
 
 void FSsProjectViewer::OnSetFrame(int32 Frame, ETextCommit::Type)
+{
+	OnSetFrame(Frame);
+}
+void FSsProjectViewer::OnSetFrame(int32 Frame)
 {
 	if(Frame < Player.GetAnimeEndFrame())
 	{
@@ -571,6 +580,10 @@ void FSsProjectViewer::OnSetFrame(int32 Frame, ETextCommit::Type)
 TOptional<int32> FSsProjectViewer::GetNowFrame() const
 {
 	return FMath::FloorToInt(Player.GetPlayFrame());
+}
+TOptional<int32> FSsProjectViewer::GetMaxFrame() const
+{
+	return (int32)Player.GetAnimeEndFrame() - 1;
 }
 
 void FSsProjectViewer::OnChangeDrawGrid()

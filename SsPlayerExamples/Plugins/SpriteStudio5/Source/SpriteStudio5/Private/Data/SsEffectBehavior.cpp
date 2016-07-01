@@ -34,6 +34,7 @@ void FSsEffectBehavior::Serialize(FArchive& Ar)
 			case SsEffectFunctionType::TransSize:				NewElement = new FSsParticleElementTransSize();					break;
 			case SsEffectFunctionType::PointGravity:			NewElement = new FSsParticlePointGravity();						break;
 			case SsEffectFunctionType::TurnToDirectionEnabled:	NewElement = new FSsParticleTurnToDirectionEnabled();			break;
+			case SsEffectFunctionType::InfiniteEmitEnabled:		NewElement = new FSsParticleInfiniteEmitEnabled();				break;
 			}
 			if(NewElement)
 			{

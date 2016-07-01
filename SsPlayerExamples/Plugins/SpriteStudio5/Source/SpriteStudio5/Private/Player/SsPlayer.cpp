@@ -21,6 +21,7 @@ FSsPlayer::FSsPlayer()
 	, AnimPivot(0.f,0.f)
 	, PlayingAnimPackIndex(-1)
 	, PlayingAnimationIndex(-1)
+	, bCalcHideParts(false)
 {
 }
 
@@ -38,6 +39,8 @@ void FSsPlayer::SetSsProject(TWeakObjectPtr<USsProject> InSsProject)
 
 	PlayingAnimPackIndex = -1;
 	PlayingAnimationIndex = -1;
+
+	Decoder->SetCalcHideParts(bCalcHideParts);
 }
 
 // 更新
@@ -404,4 +407,14 @@ FName FSsPlayer::GetPartColorLabel(int32 PartIndex)
 		return Decoder->GetPartColorLabel(PartIndex);
 	}
 	return FName();
+}
+
+// 非表示パーツの計算を行うかを設定 
+void FSsPlayer::SetCalcHideParts(bool bInCalcHideParts)
+{
+	bCalcHideParts = bInCalcHideParts;
+	if(Decoder.IsValid())
+	{
+		Decoder->SetCalcHideParts(bInCalcHideParts);
+	}
 }

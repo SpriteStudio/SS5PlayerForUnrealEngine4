@@ -565,6 +565,10 @@ void SerializeStruct(FSsParticlePointGravity& Value, SsXmlIArchiver* ar)
 }
 void SerializeStruct(FSsParticleTurnToDirectionEnabled& Value, SsXmlIArchiver* ar)
 {
+	SSAR_DECLARE("Rotation", Value.Rotation);
+}
+void SerializeStruct(FSsParticleInfiniteEmitEnabled& Value, SsXmlIArchiver* ar)
+{
 }
 void SerializeStruct(FSsEffectBehavior& Value, SsXmlIArchiver* ar)
 {
@@ -603,6 +607,7 @@ void SerializeStruct(FSsEffectBehavior& Value, SsXmlIArchiver* ar)
 				SS_SERIALIZE_PARTICLE_ELEMENT("trans_size", FSsParticleElementTransSize)
 				SS_SERIALIZE_PARTICLE_ELEMENT("add_pointgravity", FSsParticlePointGravity)
 				SS_SERIALIZE_PARTICLE_ELEMENT("TurnToDirection", FSsParticleTurnToDirectionEnabled)
+				SS_SERIALIZE_PARTICLE_ELEMENT("InfiniteEmit", FSsParticleInfiniteEmitEnabled)
 			}
 #undef SS_SERIALIZE_PARTICLE_ELEMENT
 
@@ -633,6 +638,8 @@ void SerializeStruct(FSsEffectModel& Value, SsXmlIArchiver* ar)
 	SSAR_DECLARE("isLockRandSeed", Value.IsLockRandSeed);
 	SSAR_DECLARE("fps", Value.FPS);
 	SSAR_DECLARE("bgcolor", Value.BgColor);
+	SSAR_DECLARE("layoutScaleX", Value.LayoutScaleX); if(0 == Value.LayoutScaleX){ Value.LayoutScaleX = 100; }
+	SSAR_DECLARE("layoutScaleY", Value.LayoutScaleY); if(0 == Value.LayoutScaleY){ Value.LayoutScaleY = 100; }
 	SSAR_DECLARE_LISTEX("nodeList", Value.NodeList, "node");
 
 	Value.BuildTree();

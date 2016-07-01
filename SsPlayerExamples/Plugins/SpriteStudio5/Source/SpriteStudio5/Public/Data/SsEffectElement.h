@@ -39,6 +39,7 @@ namespace SsEffectFunctionType
 		TransSize,
 		PointGravity,
 		TurnToDirectionEnabled,
+		InfiniteEmitEnabled,
 	};
 }
 FString SPRITESTUDIO5_API __EnumToString_(TEnumAsByte<SsEffectFunctionType::Type> n);
@@ -614,8 +615,27 @@ struct SPRITESTUDIO5_API FSsParticleTurnToDirectionEnabled : public FSsEffectEle
 	void Serialize(FArchive& Ar) override;
 
 public:
+	UPROPERTY(VisibleAnywhere, Category = SsEffectElement, BlueprintReadOnly)
+	float Rotation;
+
+public:
 	FSsParticleTurnToDirectionEnabled()
+		: Rotation(0.f)
 	{
 		MyType = SsEffectFunctionType::TurnToDirectionEnabled;
+	}
+};
+
+//--------------------------------------------------------------------------------------
+USTRUCT()
+struct SPRITESTUDIO5_API FSsParticleInfiniteEmitEnabled : public FSsEffectElementBase
+{
+	GENERATED_USTRUCT_BODY()
+	void Serialize(FArchive& Ar) override;
+
+public:
+	FSsParticleInfiniteEmitEnabled()
+	{
+		MyType = SsEffectFunctionType::InfiniteEmitEnabled;
 	}
 };

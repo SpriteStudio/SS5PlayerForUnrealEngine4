@@ -5,6 +5,7 @@
 
 UReimportSspjFactory::UReimportSspjFactory(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
+	, bReimporting(false)
 {
 }
 
@@ -52,6 +53,8 @@ EReimportResult::Type UReimportSspjFactory::Reimport(UObject* Obj)
 		return EReimportResult::Failed;
 	}
 
+	bReimporting = true;
+
 	EReimportResult::Type Result = EReimportResult::Failed;
 	if(UFactory::StaticImportObject(SsProject->GetClass(), SsProject->GetOuter(), *SsProject->GetName(), RF_Public | RF_Standalone, *Filename, NULL, this))
 	{
@@ -71,5 +74,6 @@ EReimportResult::Type UReimportSspjFactory::Reimport(UObject* Obj)
 		Result = EReimportResult::Failed;
 	}
 
+	bReimporting = false;
 	return Result;
 }

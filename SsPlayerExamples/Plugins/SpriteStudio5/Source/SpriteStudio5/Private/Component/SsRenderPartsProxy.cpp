@@ -301,34 +301,37 @@ void FSsRenderPartsProxy::SetDynamicData_RenderThread(const TArray<FSsRenderPart
 {
 	RenderParts = InRenderParts;
 
-	void* VertexBufferData = RHILockVertexBuffer(VertexBuffer.VertexBufferRHI, 0, RenderParts.Num() * 4 * sizeof(FSsPartVertex), RLM_WriteOnly);
-	for(int32 i = 0; i < RenderParts.Num(); ++i)
+	if(0 < RenderParts.Num())
 	{
-		for(int32 v = 0; v < 4; ++v)
+		void* VertexBufferData = RHILockVertexBuffer(VertexBuffer.VertexBufferRHI, 0, RenderParts.Num() * 4 * sizeof(FSsPartVertex), RLM_WriteOnly);
+		for(int32 i = 0; i < RenderParts.Num(); ++i)
 		{
-			((FSsPartVertex*)VertexBufferData)[i*4+v].Position  = FVector(
-				0.f,
-				( RenderParts[i].Vertices[v].Position.X - 0.5f - Pivot.X) * CanvasSizeUU.X,
-				(-RenderParts[i].Vertices[v].Position.Y + 0.5f - Pivot.Y) * CanvasSizeUU.Y
-				);
-
-			((FSsPartVertex*)VertexBufferData)[i*4+v].Color     = RenderParts[i].Vertices[v].Color;
-			((FSsPartVertex*)VertexBufferData)[i*4+v].TangentX  = FVector(1.f, 0.f, 0.f);
-			((FSsPartVertex*)VertexBufferData)[i*4+v].TangentZ  = FVector(0.f, 0.f, 1.f);
-			((FSsPartVertex*)VertexBufferData)[i*4+v].TexCoord  = RenderParts[i].Vertices[v].TexCoord;
-
-			// ColorBlend.X にカラーブレンドモード (マテリアルを分けるのでコレは不要) 
-/*			if(RenderParts[i].ColorBlendType != SsBlendType::Invalid)
+			for(int32 v = 0; v < 4; ++v)
 			{
-				((FSsPartVertex*)VertexBufferData)[i*4+v].ColorBlend.X = (float)(RenderParts[i].ColorBlendType + 0.01f);
-			}
-			else
-			{
-				((FSsPartVertex*)VertexBufferData)[i*4+v].ColorBlend.X = 4.01f;
-			}
+				((FSsPartVertex*)VertexBufferData)[i*4+v].Position  = FVector(
+					0.f,
+					( RenderParts[i].Vertices[v].Position.X - 0.5f - Pivot.X) * CanvasSizeUU.X,
+					(-RenderParts[i].Vertices[v].Position.Y + 0.5f - Pivot.Y) * CanvasSizeUU.Y
+					);
+
+				((FSsPartVertex*)VertexBufferData)[i*4+v].Color     = RenderParts[i].Vertices[v].Color;
+				((FSsPartVertex*)VertexBufferData)[i*4+v].TangentX  = FVector(1.f, 0.f, 0.f);
+				((FSsPartVertex*)VertexBufferData)[i*4+v].TangentZ  = FVector(0.f, 0.f, 1.f);
+				((FSsPartVertex*)VertexBufferData)[i*4+v].TexCoord  = RenderParts[i].Vertices[v].TexCoord;
+
+				// ColorBlend.X にカラーブレンドモード (マテリアルを分けるのでコレは不要) 
+/*				if(RenderParts[i].ColorBlendType != SsBlendType::Invalid)
+				{
+					((FSsPartVertex*)VertexBufferData)[i*4+v].ColorBlend.X = (float)(RenderParts[i].ColorBlendType + 0.01f);
+				}
+				else
+				{
+					((FSsPartVertex*)VertexBufferData)[i*4+v].ColorBlend.X = 4.01f;
+				}
 */
-			((FSsPartVertex*)VertexBufferData)[i*4+v].ColorBlend.Y = RenderParts[i].Vertices[v].ColorBlendRate;
+				((FSsPartVertex*)VertexBufferData)[i*4+v].ColorBlend.Y = RenderParts[i].Vertices[v].ColorBlendRate;
+			}
 		}
+		RHIUnlockVertexBuffer(VertexBuffer.VertexBufferRHI);
 	}
-	RHIUnlockVertexBuffer(VertexBuffer.VertexBufferRHI);
 }

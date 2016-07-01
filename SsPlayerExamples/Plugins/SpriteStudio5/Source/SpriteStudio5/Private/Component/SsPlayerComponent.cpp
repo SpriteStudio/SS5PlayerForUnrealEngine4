@@ -346,20 +346,17 @@ void USsPlayerComponent::SendRenderDynamicData_Concurrent()
 					NewRenderParts.Add(Part);
 				}
 
-				if(0 < NewRenderParts.Num())
+				ENQUEUE_UNIQUE_RENDER_COMMAND_FOURPARAMETER(
+					FSendSsPartsData,
+					FSsRenderPartsProxy*, SsPartsProxy, (FSsRenderPartsProxy*)SceneProxy,
+					TArray<FSsRenderPartWithMaterial>, InRenderParts, NewRenderParts,
+					FVector2D, Pivot, Player.GetAnimPivot(),
+					FVector2D, CanvasSizeUU, (Player.GetAnimCanvasSize() * UUPerPixel),
 				{
-					ENQUEUE_UNIQUE_RENDER_COMMAND_FOURPARAMETER(
-						FSendSsPartsData,
-						FSsRenderPartsProxy*, SsPartsProxy, (FSsRenderPartsProxy*)SceneProxy,
-						TArray<FSsRenderPartWithMaterial>, InRenderParts, NewRenderParts,
-						FVector2D, Pivot, Player.GetAnimPivot(),
-						FVector2D, CanvasSizeUU, (Player.GetAnimCanvasSize() * UUPerPixel),
-					{
-						SsPartsProxy->CanvasSizeUU = CanvasSizeUU;
-						SsPartsProxy->SetPivot(Pivot);
-						SsPartsProxy->SetDynamicData_RenderThread(InRenderParts);
-					});
-				}
+					SsPartsProxy->CanvasSizeUU = CanvasSizeUU;
+					SsPartsProxy->SetPivot(Pivot);
+					SsPartsProxy->SetDynamicData_RenderThread(InRenderParts);
+				});
 			} break;
 		case ESsPlayerComponentRenderMode::OffScreenPlane:
 			{
@@ -487,9 +484,6 @@ void USsPlayerComponent::UpdatePlayer(float DeltaSeconds)
 				const TArray<FSsRenderPart> RenderParts = Player.GetRenderParts();
 				for(int32 i = 0; i < RenderParts.Num(); ++i)
 				{
-					FSsRenderPartWithMaterial Part;
-					FMemory::Memcpy(&Part, &(RenderParts[i]), sizeof(FSsRenderPart));
-
 					uint32 MatIdx = PartsMatIndex(RenderParts[i].AlphaBlendType, RenderParts[i].ColorBlendType);
 					UMaterialInstanceDynamic** ppMID = PartsMIDMap[MatIdx].Find(RenderParts[i].Texture);
 					if((NULL == ppMID) || (NULL == *ppMID))

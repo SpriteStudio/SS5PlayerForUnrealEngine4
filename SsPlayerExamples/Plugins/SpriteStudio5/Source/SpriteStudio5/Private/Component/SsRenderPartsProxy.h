@@ -43,12 +43,6 @@ public:
 };
 
 
-// マテリアル付き描画用のパーツ情報
-struct FSsRenderPartWithMaterial : public FSsRenderPart
-{
-	UMaterialInterface* Material;
-};
-
 // RenderProxy
 class FSsRenderPartsProxy : public FPrimitiveSceneProxy
 {

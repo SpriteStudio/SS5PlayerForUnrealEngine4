@@ -50,6 +50,7 @@ namespace UnrealBuildTool.Rules
 					"ShaderCore",
 					"SlateCore",
 					"SlateRHIRenderer",
+					"Slate",
 					"UMG",
 				}
 				);

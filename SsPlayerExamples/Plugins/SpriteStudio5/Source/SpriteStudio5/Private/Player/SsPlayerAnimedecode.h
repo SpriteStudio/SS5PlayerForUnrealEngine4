@@ -54,6 +54,7 @@ private:
 	FSsPartState*			PartState;			///パーツの現在の状態が格納されています。
 	TArray<FSsPartState*>	SortList;			///ソート状態
 
+	int				SeedOffset;
 	float			NowPlatTime;
 	float			FrameDelta;
 	int				CurAnimeEndFrame;
@@ -61,12 +62,12 @@ private:
 	FVector2D		CurAnimeCanvasSize;
 	FVector2D		CurAnimePivot;
 	FSsAnimation*	CurAnimation;
-
-	float			EffectUntreatedDeltaTime;	/// SetPlayFrameによるエフェクトの未処理累積時間 
+	bool			bCalcHideParts;	// 非表示パーツを計算する(Widgetでのアタッチ用) 
 
 private:
 	void	UpdateState( int nowTime , FSsPart* part , FSsPartAnime* part_anime , FSsPartState* state );
 	void	UpdateInstance( int nowTime , FSsPart* part , FSsPartAnime* part_anime , FSsPartState* state );
+	void	UpdateEffect( float frameDelta , int nowTime , FSsPart* part , FSsPartAnime* part_anime , FSsPartState* state );
 	void	UpdateMatrix(FSsPart* part , FSsPartAnime* anime , FSsPartState* state);
 	void	UpdateVertices(FSsPart* part , FSsPartAnime* anime , FSsPartState* state);
 
@@ -87,6 +88,8 @@ public:
 	void	SetAnimation(struct FSsModel* model, FSsAnimation* anime, FSsCellMapList* cellmap, USsProject* sspj=0);
 	bool	IsAnimationValid() const { return (NULL != CurAnimation); }
 
+	void	SetCalcHideParts(bool bInCalcHideParts) { bCalcHideParts = bInCalcHideParts; }
+
 	void	SetPlayFrame(float time);
 	float	GetPlayFrame() const { return NowPlatTime; }
 	int		GetAnimeEndFrame() { return CurAnimeEndFrame; }
@@ -98,6 +101,9 @@ public:
 
 	// パーツのTransformを取得 
 	bool GetPartTransform(int PartIndex, FVector2D& OutPosition, float& OutRotate, FVector2D& OutScale) const;
+
+	void SetSeedOffset(int NewSeedOffset){ SeedOffset = NewSeedOffset; }
+	int GetSeedOffset(){ return SeedOffset; }
 
 	void ReloadEffects();
 
@@ -113,5 +119,6 @@ public:
 	void	SsInterpolationValue(int time , const FSsKeyframe* leftkey , const FSsKeyframe* rightkey , FSsColorAnime& v);
 	void	SsInterpolationValue(int time , const FSsKeyframe* leftkey , const FSsKeyframe* rightkey , FSsVertexAnime& v);
 	void	SsInterpolationValue(int time , const FSsKeyframe* leftkey , const FSsKeyframe* rightkey , FSsInstanceAttr& v);
+	void	SsInterpolationValue(int time , const FSsKeyframe* leftkey , const FSsKeyframe* rightkey , FSsEffectAttr& v);
 };
 

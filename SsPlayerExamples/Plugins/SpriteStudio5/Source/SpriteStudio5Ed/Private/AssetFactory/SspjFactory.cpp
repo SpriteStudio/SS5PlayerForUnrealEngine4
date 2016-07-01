@@ -48,14 +48,23 @@ UClass* USspjFactory::ResolveSupportedClass()
 
 UObject* USspjFactory::FactoryCreateBinary(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, const TCHAR* Type, const uint8*& Buffer, const uint8* InBufferEnd, FFeedbackContext* Warn)
 {
-	bool bReimport = this->IsA(UReimportSspjFactory::StaticClass());
-	TMap<FString, UTexture*>* ExistImages = NULL;
-	if(bReimport)
-	{
-		ExistImages = &(Cast<UReimportSspjFactory>(this)->ExistImages);
-	}
-
 	FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
+
+	// インポート設定の取得 
+	const USsImportSettings* ImportSettings = GetDefault<USsImportSettings>();
+
+	// 再インポートかどうか 
+	bool bReimport = false;
+	TMap<FString, UTexture*>* ExistImages = NULL;
+	if(this->IsA(UReimportSspjFactory::StaticClass()))
+	{
+		UReimportSspjFactory* ReimportFactory = Cast<UReimportSspjFactory>(this);
+		bReimport = ReimportFactory->bReimporting;
+		if(bReimport)
+		{
+			ExistImages = &(ReimportFactory->ExistImages);
+		}
+	}
 
 	FString ProjectNameStr = InName.ToString();
 	FName ProjectName = InName;
@@ -65,12 +74,13 @@ UObject* USspjFactory::FactoryCreateBinary(UClass* InClass, UObject* InParent, F
 	{
 		FString ProjectPackageName;
 		FString BasePackageName = FPackageName::GetLongPackagePath(InParent->GetOutermost()->GetName()) / ProjectNameStr;
+		if(ImportSettings->bCreateSspjFolder)
+		{
+			BasePackageName = BasePackageName / ProjectNameStr;
+		}
 		AssetToolsModule.Get().CreateUniqueAssetName(BasePackageName, TEXT(""), ProjectPackageName, ProjectNameStr);
 		InParentPackage->Rename(*ProjectPackageName);
 	}
-
-	// インポート設定の取得 
-	const USsImportSettings* ImportSettings = GetDefault<USsImportSettings>();
 
 	// インポート開始 
 	FEditorDelegates::OnAssetPreImport.Broadcast(this, InClass, InParent, ProjectName, Type);

@@ -17,5 +17,7 @@ class UReimportSspjFactory : public USspjFactory, public FReimportHandler
 	virtual EReimportResult::Type Reimport(UObject* Obj) override;
 	virtual int32 GetPriority() const { return ImportPriority; }
 
+public:
+	bool bReimporting;
 	TMap<FString, UTexture*> ExistImages;
 };

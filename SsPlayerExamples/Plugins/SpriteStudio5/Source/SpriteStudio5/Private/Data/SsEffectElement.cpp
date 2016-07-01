@@ -163,4 +163,12 @@ void FSsParticlePointGravity::Serialize(FArchive& Ar)
 
 void FSsParticleTurnToDirectionEnabled::Serialize(FArchive& Ar)
 {
+	if(2 <= Ar.CustomVer(SSPJ_GUID))
+	{
+		Ar << Rotation;
+	}
+}
+
+void FSsParticleInfiniteEmitEnabled::Serialize(FArchive& Ar)
+{
 }

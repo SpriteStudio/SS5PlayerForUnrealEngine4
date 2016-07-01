@@ -9,6 +9,12 @@ class USsImportSettings : public UObject
 
 public:
 	//
+	//	インポート時にSSPJファイル名のフォルダを作成し、SSPJとテクスチャをその下に保存します 
+	//
+	UPROPERTY(EditAnywhere, config, Category=Import)
+	bool bCreateSspjFolder;
+
+	//
 	//	インポートしたテクスチャのMigGenSettingsをNoMipmapsに上書きします 
 	//
 	UPROPERTY(EditAnywhere, config, Category=ImportTexture)

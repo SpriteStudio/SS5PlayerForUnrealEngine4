@@ -17,10 +17,10 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FSsWidgetUserDataSignature, FName,
 
 
 //
-// SpriteStudio5 Player Widget 
-// sspjデータを再生/UMG上で描画する 
+// SpriteStudio5 Player Widget (Old Version) 
+// sspjデータを再生/UMG上で描画する (旧バージョン) 
 //
-UCLASS(ClassGroup=SpriteStudio)
+UCLASS(ClassGroup=SpriteStudio, meta=(DisplayName="Ss Player Widget (old)"))
 class SPRITESTUDIO5_API USsPlayerWidget : public UImage, public FTickableGameObject, public FSsPlayPropertySync 
 {
 	GENERATED_UCLASS_BODY()
@@ -37,7 +37,7 @@ public:
 	// UWidget interface
 	virtual void SynchronizeProperties() override;
 #if WITH_EDITOR
-	//virtual const FText GetPaletteCategory() override { return LOCTEXT("Sprite Studio", "Sprite Studio"); }
+	virtual const FText GetPaletteCategory() override { return FText::FromString(TEXT("Sprite Studio")); }
 #endif
 
 	// FTickableObjectBase interface
@@ -54,7 +54,6 @@ private:
 
 #if WITH_EDITOR
 	// １フレームに複数回Tick呼び出しされてしまう問題の対処用 
-	UWorld* TickWorld;
 	float BackWorldTime;
 #endif
 

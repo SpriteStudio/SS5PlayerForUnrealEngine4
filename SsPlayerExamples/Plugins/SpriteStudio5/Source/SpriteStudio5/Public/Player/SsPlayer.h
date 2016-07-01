@@ -53,6 +53,9 @@ public:
 	// パーツのColorLabelを取得 
 	FName GetPartColorLabel(int32 PartIndex);
 
+	// 非表示パーツの計算を行うかを設定 
+	void SetCalcHideParts(bool bInCalcHideParts);
+
 private:
 	void TickAnimation(float DeltaSeconds, FSsPlayerTickResult& Result);
 	void FindUserDataInInterval(FSsPlayerTickResult& Result, float Start, float End);
@@ -77,6 +80,7 @@ private:
 	FVector2D AnimPivot;
 	int32 PlayingAnimPackIndex;
 	int32 PlayingAnimationIndex;
+	bool bCalcHideParts;
 
 	TArray<FSsRenderPart> RenderParts;
 };

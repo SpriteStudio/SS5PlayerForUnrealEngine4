@@ -240,6 +240,7 @@ FString	__EnumToString_( TEnumAsByte<SsAttributeKind::Type> n )
 	if ( SsAttributeKind::Boundr )		return "BNDR";
 	if ( SsAttributeKind::User )		return "USER";
 	if ( SsAttributeKind::Instance )	return "IPRM";
+	if ( SsAttributeKind::Effect)		return "EFCT";
 
 	return "invalid";	
 }
@@ -281,7 +282,7 @@ void	__StringToEnum_( FString n , TEnumAsByte<SsAttributeKind::Type> &out )
 	if ( n == "BNDR") out = SsAttributeKind::Boundr;
 	if ( n == "USER") out = SsAttributeKind::User;
 	if ( n == "IPRM") out = SsAttributeKind::Instance;
-
+	if ( n == "EFCT") out = SsAttributeKind::Effect;
 }
 
 

@@ -189,6 +189,21 @@ void	GetSsUserDataAnime( const FSsKeyframe* key , FSsUserDataAnime& v )
 
 }
 
+void	GetSsEffectParamAnime( const FSsKeyframe* key, FSsEffectAttr& v )
+{
+	v.StartTime = key->Value["startTime"].get<int>();
+	v.Speed = key->Value["speed"].get<float>();
+	v.Independent = key->Value["independent"].get<bool>();
+	v.CurKeyframe = key->Time;
+
+	int iflags = 0;
+	if (v.Independent)
+	{
+		iflags = iflags | SsEffectLoopFlag::EFFECT_LOOP_FLAG_INFINITY;
+	}
+	v.LoopFlag = iflags;
+}
+
 void	GetSsInstparamAnime( const FSsKeyframe* key , FSsInstanceAttr& v )
 {
 	const FString& sstartLabel = key->Value["startLabel"].get<FString>();
@@ -217,6 +232,26 @@ void	GetSsInstparamAnime( const FSsKeyframe* key , FSsInstanceAttr& v )
 	v.Pingpong = spingpong;
 	v.Independent = sindependent;
 	v.CurKeyframe = key->Time;
+
+
+	int iflags = 0;
+	if (sinfinity)
+	{
+		iflags = iflags | SsInstanceLoopFlag::INSTANCE_LOOP_FLAG_INFINITY;
+	}
+	if (sreverse)
+	{
+		iflags = iflags | SsInstanceLoopFlag::INSTANCE_LOOP_FLAG_REVERSE;
+	}
+	if (spingpong)
+	{
+		iflags = iflags | SsInstanceLoopFlag::INSTANCE_LOOP_FLAG_PINGPONG;
+	}
+	if (sindependent)
+	{
+		iflags = iflags | SsInstanceLoopFlag::INSTANCE_LOOP_FLAG_INDEPENDENT;
+	}
+	v.LoopFlag = iflags;
 }
 
 bool StringToPoint2(const FString& str, FVector2D& point)

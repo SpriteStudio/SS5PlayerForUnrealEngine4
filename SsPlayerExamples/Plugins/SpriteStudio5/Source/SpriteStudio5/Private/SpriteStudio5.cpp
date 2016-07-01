@@ -6,6 +6,13 @@
 DEFINE_LOG_CATEGORY(LogSpriteStudio);
 
 
+FCustomVersionRegistration GRegisterSspjCustomVersion(
+	SSPJ_GUID,
+	SSPJ_VERSION,
+	TEXT("SsProjectVersion")
+	);
+
+
 class FSpriteStudio5 : public ISpriteStudio5
 {
 	/** IModuleInterface implementation */
