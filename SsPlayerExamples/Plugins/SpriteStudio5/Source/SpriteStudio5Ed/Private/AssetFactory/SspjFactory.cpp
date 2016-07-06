@@ -15,11 +15,17 @@ namespace
 {
 	FString GetFilePath(const FString& CurPath, const FString& BaseDir, const FString& FileName)
 	{
-		if(FPaths::IsRelative(BaseDir))
+		bool bBaseDirRelative = FPaths::IsRelative(BaseDir);
+		bool bFileNameRelative = FPaths::IsRelative(FileName);
+		if(bBaseDirRelative && bFileNameRelative)
 		{
 			return CurPath / BaseDir / FileName;
 		}
-		return BaseDir / FileName;
+		if(bFileNameRelative)
+		{
+			return BaseDir / FileName;
+		}
+		return FileName;
 	}
 }
 
