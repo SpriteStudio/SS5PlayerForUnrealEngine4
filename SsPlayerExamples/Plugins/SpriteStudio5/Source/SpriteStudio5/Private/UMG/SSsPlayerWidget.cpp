@@ -727,12 +727,12 @@ void SSsPlayerWidget::PaintInternal(
 	FRenderData RenderData;
 	UMaterialInterface* BkMaterial = nullptr;
 	SsBlendType::Type BkAlphaBlendType = SsBlendType::Invalid;
-	for (auto It = InRenderParts.CreateConstIterator(); It; ++It)
+	for(auto It = InRenderParts.CreateConstIterator(); It; ++It)
 	{
-		if ((0 != It.GetIndex())
-			&& ((It->Material != BkMaterial)
-				|| (It->AlphaBlendType != BkAlphaBlendType)
-				)
+		if((0 != It.GetIndex())
+		   && ((It->Material != BkMaterial)
+			   || (It->AlphaBlendType != BkAlphaBlendType)
+			   )
 			)
 		{
 			RenderDataArray.Add(RenderData);
@@ -742,11 +742,11 @@ void SSsPlayerWidget::PaintInternal(
 		bool bAllInClipRect = false;
 
 		// クリッピング 
-		if (!bIgnoreClipRect)
+		if(!bIgnoreClipRect)
 		{
 			FSsRenderVertex Verts[4];
 			bool bIsInClipRect[4];
-			for (int32 i = 0; i < 4; ++i)
+			for(int32 i = 0; i < 4; ++i)
 			{
 				Verts[i] = It->Vertices[i];
 				Verts[i].Position = FVector2D(
@@ -758,141 +758,149 @@ void SSsPlayerWidget::PaintInternal(
 			// 全頂点がClipRectの内側であれば、Clip無しと同様の描画 
 			bAllInClipRect = bIsInClipRect[0] & bIsInClipRect[1] & bIsInClipRect[2] & bIsInClipRect[3];
 
-			if (!bAllInClipRect)
+			if(!bAllInClipRect)
 			{
-				const int32 EdgeList[6][3] =
+				const int32 EdgeList[2][3][3] =
 				{
 					// tri[0-1-3] 
-					{ 0, 1, 3 },
-					{ 1, 3, 0 },
-					{ 3, 0, 1 },
+					{
+						{ 0, 1, 3 },
+						{ 1, 3, 0 },
+						{ 3, 0, 1 },
+					},
 					// tri[0-3-2] 
-					{ 0, 3, 2 },
-					{ 3, 2, 0 },
-					{ 2, 0, 3 },
+					{
+						{ 0, 3, 2 },
+						{ 3, 2, 0 },
+						{ 2, 0, 3 },
+					}
 				};
 
-				TArray<FSsRenderVertex> TmpVerts;
-				for (int32 i = 0; i < 6; ++i)
+				for(int32 t = 0; t < 2; ++t)
 				{
-					int32 Idx0 = EdgeList[i][0];
-					int32 Idx1 = EdgeList[i][1];
-					int32 Idx2 = EdgeList[i][2];
+					TArray<FSsRenderVertex> TmpVerts;
+					for(int32 i = 0; i < 3; ++i)
+					{
+						int32 Idx0 = EdgeList[t][i][0];
+						int32 Idx1 = EdgeList[t][i][1];
+						int32 Idx2 = EdgeList[t][i][2];
 
-					// 2頂点ともClipRectの内側 
-					if (bIsInClipRect[Idx0] && bIsInClipRect[Idx1])
-					{
-						AddArrayIfDifferent(TmpVerts, Verts[Idx0]);
-						AddArrayIfDifferent(TmpVerts, Verts[Idx1]);
-					}
-					// 2頂点ともClipRectの外側 
-					else if (!bIsInClipRect[Idx0] && !bIsInClipRect[Idx1])
-					{
-						FVector2D IntersectionPoint[2];
-						int32 IntersectionCount = CalcRectVsLineSegmentIntersectionPoint(
-							Verts[Idx0].Position, Verts[Idx1].Position,
-							MyClippingRect,
-							IntersectionPoint[0], IntersectionPoint[1]
-							);
-						// 外から外へ突き抜ける 
-						if (2 == IntersectionCount)
+						// 2頂点ともClipRectの内側 
+						if(bIsInClipRect[Idx0] && bIsInClipRect[Idx1])
 						{
-							AddArrayIfDifferent(TmpVerts, InterpolationSsVertex(Verts[Idx0], Verts[Idx1], Verts[Idx2], IntersectionPoint[0]));
-							AddArrayIfDifferent(TmpVerts, InterpolationSsVertex(Verts[Idx0], Verts[Idx1], Verts[Idx2], IntersectionPoint[1]));
+							AddArrayIfDifferent(TmpVerts, Verts[Idx0]);
+							AddArrayIfDifferent(TmpVerts, Verts[Idx1]);
 						}
-						// 完全に外側(１点交差の場合もこちらとみなす) 
+						// 2頂点ともClipRectの外側 
+						else if(!bIsInClipRect[Idx0] && !bIsInClipRect[Idx1])
+						{
+							FVector2D IntersectionPoint[2];
+							int32 IntersectionCount = CalcRectVsLineSegmentIntersectionPoint(
+								Verts[Idx0].Position, Verts[Idx1].Position,
+								MyClippingRect,
+								IntersectionPoint[0], IntersectionPoint[1]
+								);
+							// 外から外へ突き抜ける 
+							if(2 == IntersectionCount)
+							{
+								AddArrayIfDifferent(TmpVerts, InterpolationSsVertex(Verts[Idx0], Verts[Idx1], Verts[Idx2], IntersectionPoint[0]));
+								AddArrayIfDifferent(TmpVerts, InterpolationSsVertex(Verts[Idx0], Verts[Idx1], Verts[Idx2], IntersectionPoint[1]));
+							}
+							// 完全に外側(１点交差の場合もこちらとみなす) 
+							else
+							{
+								FVector2D P;
+								if(NearestRectVertexInTriangle(
+									MyClippingRect,
+									Verts[Idx0].Position, Verts[Idx1].Position, Verts[Idx2].Position,
+									Verts[Idx0].Position,
+									P
+									))
+								{
+									AddArrayIfDifferent(TmpVerts, InterpolationSsVertex(Verts[Idx0], Verts[Idx1], Verts[Idx2], P));
+								}
+								if(NearestRectVertexInTriangle(
+									MyClippingRect,
+									Verts[Idx0].Position, Verts[Idx1].Position, Verts[Idx2].Position,
+									Verts[Idx1].Position,
+									P
+									))
+								{
+									AddArrayIfDifferent(TmpVerts, InterpolationSsVertex(Verts[Idx0], Verts[Idx1], Verts[Idx2], P));
+								}
+							}
+						}
+						// 内側から外側へ 
+						else if(bIsInClipRect[Idx0])
+						{
+							AddArrayIfDifferent(TmpVerts, Verts[Idx0]);
+
+							FVector2D IntersectionPoint[2];
+							int32 IntersectionCount = CalcRectVsLineSegmentIntersectionPoint(
+								Verts[Idx0].Position, Verts[Idx1].Position,
+								MyClippingRect,
+								IntersectionPoint[0], IntersectionPoint[1]
+								);
+							check(1 <= IntersectionCount);
+
+							for(int32 j = 0; j < IntersectionCount; ++j)
+							{
+								AddArrayIfDifferent(TmpVerts, InterpolationSsVertex(Verts[Idx0], Verts[Idx1], Verts[Idx2], IntersectionPoint[j]));
+							}
+						}
+						// 外側から内側へ 
 						else
 						{
-							FVector2D P;
-							if (NearestRectVertexInTriangle(
+							FVector2D IntersectionPoint[2];
+							int32 IntersectionCount = CalcRectVsLineSegmentIntersectionPoint(
+								Verts[Idx0].Position, Verts[Idx1].Position,
 								MyClippingRect,
-								Verts[Idx0].Position, Verts[Idx1].Position, Verts[Idx2].Position,
-								Verts[Idx0].Position,
-								P
-								))
+								IntersectionPoint[0], IntersectionPoint[1]
+								);
+							check(1 <= IntersectionCount);
+							for(int32 j = 0; j < IntersectionCount; ++j)
 							{
-								AddArrayIfDifferent(TmpVerts, InterpolationSsVertex(Verts[Idx0], Verts[Idx1], Verts[Idx2], P));
+								AddArrayIfDifferent(TmpVerts, InterpolationSsVertex(Verts[Idx0], Verts[Idx1], Verts[Idx2], IntersectionPoint[j]));
 							}
-							if (NearestRectVertexInTriangle(
-								MyClippingRect,
-								Verts[Idx0].Position, Verts[Idx1].Position, Verts[Idx2].Position,
-								Verts[Idx1].Position,
-								P
-								))
-							{
-								AddArrayIfDifferent(TmpVerts, InterpolationSsVertex(Verts[Idx0], Verts[Idx1], Verts[Idx2], P));
-							}
+
+							AddArrayIfDifferent(TmpVerts, Verts[Idx1]);
 						}
 					}
-					// 内側から外側へ 
-					else if (bIsInClipRect[Idx0])
+
+					// TriangleFan 
+					for(int32 i = 1; i < TmpVerts.Num() - 1; ++i)
 					{
-						AddArrayIfDifferent(TmpVerts, Verts[Idx0]);
-
-						FVector2D IntersectionPoint[2];
-						int32 IntersectionCount = CalcRectVsLineSegmentIntersectionPoint(
-							Verts[Idx0].Position, Verts[Idx1].Position,
-							MyClippingRect,
-							IntersectionPoint[0], IntersectionPoint[1]
-							);
-						check(1 <= IntersectionCount);
-
-						for (int32 j = 0; j < IntersectionCount; ++j)
-						{
-							AddArrayIfDifferent(TmpVerts, InterpolationSsVertex(Verts[Idx0], Verts[Idx1], Verts[Idx2], IntersectionPoint[j]));
-						}
+						RenderData.Indices.Add(RenderData.Vertices.Num() + 0);
+						RenderData.Indices.Add(RenderData.Vertices.Num() + i);
+						RenderData.Indices.Add(RenderData.Vertices.Num() + i + 1);
 					}
-					// 外側から内側へ 
-					else
+					for(int32 i = 0; i < TmpVerts.Num(); ++i)
 					{
-						FVector2D IntersectionPoint[2];
-						int32 IntersectionCount = CalcRectVsLineSegmentIntersectionPoint(
-							Verts[Idx0].Position, Verts[Idx1].Position,
-							MyClippingRect,
-							IntersectionPoint[0], IntersectionPoint[1]
-							);
-						check(1 <= IntersectionCount);
-						for (int32 j = 0; j < IntersectionCount; ++j)
-						{
-							AddArrayIfDifferent(TmpVerts, InterpolationSsVertex(Verts[Idx0], Verts[Idx1], Verts[Idx2], IntersectionPoint[j]));
-						}
+						FVector2D TransPosition =
+							AllottedGeometry.GetAccumulatedRenderTransform().TransformPoint(
+								FVector2D(
+									(TmpVerts[i].Position.X - AllottedGeometry.AbsolutePosition.X) / AllottedGeometry.Scale,
+									(TmpVerts[i].Position.Y - AllottedGeometry.AbsolutePosition.Y) / AllottedGeometry.Scale
+									));
 
-						AddArrayIfDifferent(TmpVerts, Verts[Idx1]);
+						FSlateVertex Vert;
+						Vert.Position[0] = TransPosition.X;
+						Vert.Position[1] = TransPosition.Y;
+
+						Vert.TexCoords[0] = TmpVerts[i].TexCoord.X;
+						Vert.TexCoords[1] = TmpVerts[i].TexCoord.Y;
+						Vert.TexCoords[2] = 0.f;
+						Vert.TexCoords[3] = TmpVerts[i].ColorBlendRate;
+						Vert.MaterialTexCoords[0] = Vert.MaterialTexCoords[1] = 0.f;
+						Vert.Color = TmpVerts[i].Color;
+						RenderData.Vertices.Add(Vert);
 					}
-				}
-
-				for (int32 i = 1; i < TmpVerts.Num() - 1; ++i)
-				{
-					RenderData.Indices.Add(RenderData.Vertices.Num() + 0);
-					RenderData.Indices.Add(RenderData.Vertices.Num() + i);
-					RenderData.Indices.Add(RenderData.Vertices.Num() + i + 1);
-				}
-				for (int32 i = 0; i < TmpVerts.Num(); ++i)
-				{
-					FVector2D TransPosition =
-						AllottedGeometry.GetAccumulatedRenderTransform().TransformPoint(
-							FVector2D(
-								(TmpVerts[i].Position.X - AllottedGeometry.AbsolutePosition.X) / AllottedGeometry.Scale,
-								(TmpVerts[i].Position.Y - AllottedGeometry.AbsolutePosition.Y) / AllottedGeometry.Scale
-								));
-
-					FSlateVertex Vert;
-					Vert.Position[0] = TransPosition.X;
-					Vert.Position[1] = TransPosition.Y;
-
-					Vert.TexCoords[0] = TmpVerts[i].TexCoord.X;
-					Vert.TexCoords[1] = TmpVerts[i].TexCoord.Y;
-					Vert.TexCoords[2] = 0.f;
-					Vert.TexCoords[3] = TmpVerts[i].ColorBlendRate;
-					Vert.MaterialTexCoords[0] = Vert.MaterialTexCoords[1] = 0.f;
-					Vert.Color = TmpVerts[i].Color;
-					RenderData.Vertices.Add(Vert);
 				}
 			}
 		}
 
 		// クリッピング無し 
-		if (bIgnoreClipRect || bAllInClipRect)
+		if(bIgnoreClipRect || bAllInClipRect)
 		{
 			RenderData.Indices.Add(RenderData.Vertices.Num() + 0);
 			RenderData.Indices.Add(RenderData.Vertices.Num() + 1);
