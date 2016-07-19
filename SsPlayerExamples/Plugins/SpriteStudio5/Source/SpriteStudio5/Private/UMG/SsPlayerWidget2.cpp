@@ -188,6 +188,12 @@ void USsPlayerWidget2::SynchronizeProperties()
 void USsPlayerWidget2::Tick(float DeltaTime)
 {
 #if WITH_EDITOR
+	// SsProjectがReimportされたら、再初期化する 
+	if(Player.GetSsProject().IsStale())
+	{
+		SynchronizeProperties();
+	}
+
 	// １フレームに複数回の呼び出しが来てしまうのに対処. 
 	// UObject と FTickableGameObject を併用した際のバグらしい？ 
 	if(GetWorld())
