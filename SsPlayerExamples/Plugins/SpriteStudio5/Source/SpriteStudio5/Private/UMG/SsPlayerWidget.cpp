@@ -109,7 +109,7 @@ void USsPlayerWidget::Tick(float DeltaTime)
 	// UObject と FTickableGameObject を併用した際のバグらしい？ 
 	if(GetWorld())
 	{
-		if((GetWorld()->TimeSeconds - BackWorldTime + 0.01f) < DeltaTime)
+		if((GetWorld()->TimeSeconds - BackWorldTime + 0.001f) < DeltaTime)
 		{
 			return;
 		}
