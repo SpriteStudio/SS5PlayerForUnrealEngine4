@@ -241,19 +241,19 @@ UClass* USsPlayerWidget2::GetSlotClass() const
 {
 	return USsPlayerSlot::StaticClass();
 }
-void USsPlayerWidget2::OnSlotAdded(UPanelSlot* Slot)
+void USsPlayerWidget2::OnSlotAdded(UPanelSlot* InSlot)
 {
 	if(PlayerWidget.IsValid())
 	{
-		USsPlayerSlot* PlayerSlot = Cast<USsPlayerSlot>(Slot);
+		USsPlayerSlot* PlayerSlot = Cast<USsPlayerSlot>(InSlot);
 		PlayerSlot->BuildSlot(PlayerWidget.ToSharedRef());
 	}
 }
-void USsPlayerWidget2::OnSlotRemoved(UPanelSlot* Slot)
+void USsPlayerWidget2::OnSlotRemoved(UPanelSlot* InSlot)
 {
 	if(PlayerWidget.IsValid())
 	{
-		TSharedPtr<SWidget> Widget = Slot->Content->GetCachedWidget();
+		TSharedPtr<SWidget> Widget = InSlot->Content->GetCachedWidget();
 		if(Widget.IsValid())
 		{
 			PlayerWidget->RemoveSlot(Widget.ToSharedRef());

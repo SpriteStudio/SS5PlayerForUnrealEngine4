@@ -50,27 +50,27 @@ TSharedRef<FSsProjectViewer> FSsProjectViewer::CreateEditor( const EToolkitMode:
 }
 
 
-void FSsProjectViewer::RegisterTabSpawners( const TSharedRef<class FTabManager>& TabManager )
+void FSsProjectViewer::RegisterTabSpawners( const TSharedRef<class FTabManager>& InTabManager )
 {
-	WorkspaceMenuCategory = TabManager->AddLocalWorkspaceMenuCategory(LOCTEXT("WorkspaceMenu_SsProjectViewer", "SsProjectViewer"));
+	WorkspaceMenuCategory = InTabManager->AddLocalWorkspaceMenuCategory(LOCTEXT("WorkspaceMenu_SsProjectViewer", "SsProjectViewer"));
 	auto WorkspaceMenuCategoryRef = WorkspaceMenuCategory.ToSharedRef();
 
-	FAssetEditorToolkit::RegisterTabSpawners(TabManager);
+	FAssetEditorToolkit::RegisterTabSpawners(InTabManager);
 
-	TabManager->RegisterTabSpawner( ViewportTabId, FOnSpawnTab::CreateSP(this, &FSsProjectViewer::SpawnTab_Viewport) )
+	InTabManager->RegisterTabSpawner( ViewportTabId, FOnSpawnTab::CreateSP(this, &FSsProjectViewer::SpawnTab_Viewport) )
 		.SetDisplayName( LOCTEXT("ViewportTab", "Viewport") )
 		.SetGroup( WorkspaceMenuCategoryRef );
 
-	TabManager->RegisterTabSpawner( DetailsTabId, FOnSpawnTab::CreateSP(this, &FSsProjectViewer::SpawnTab_Details) )
+	InTabManager->RegisterTabSpawner( DetailsTabId, FOnSpawnTab::CreateSP(this, &FSsProjectViewer::SpawnTab_Details) )
 		.SetDisplayName( LOCTEXT("DetailsTab", "Details") )
 		.SetGroup( WorkspaceMenuCategoryRef );
 }
-void FSsProjectViewer::UnregisterTabSpawners( const TSharedRef<class FTabManager>& TabManager )
+void FSsProjectViewer::UnregisterTabSpawners( const TSharedRef<class FTabManager>& InTabManager)
 {
-	FAssetEditorToolkit::UnregisterTabSpawners(TabManager);
+	FAssetEditorToolkit::UnregisterTabSpawners(InTabManager);
 
-	TabManager->UnregisterTabSpawner( ViewportTabId );
-	TabManager->UnregisterTabSpawner( DetailsTabId );
+	InTabManager->UnregisterTabSpawner( ViewportTabId );
+	InTabManager->UnregisterTabSpawner( DetailsTabId );
 }
 
 bool FSsProjectViewer::OnRequestClose()

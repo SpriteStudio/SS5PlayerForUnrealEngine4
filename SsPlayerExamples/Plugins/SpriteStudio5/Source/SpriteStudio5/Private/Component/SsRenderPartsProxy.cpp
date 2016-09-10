@@ -104,14 +104,14 @@ void FSsPartsVertexFactory::Init(const FSsPartsVertexBuffer* VertexBuffer)
 {
 	if(IsInRenderingThread())
 	{
-		FLocalVertexFactory::FDataType Data;
-		Data.PositionComponent = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, Position, VET_Float3);
-		Data.TextureCoordinates.Add(FVertexStreamComponent(VertexBuffer, STRUCT_OFFSET(FSsPartVertex,TexCoord), sizeof(FSsPartVertex), VET_Float2));
-		Data.ColorComponent = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, Color, VET_Color);
-		Data.TextureCoordinates.Add(FVertexStreamComponent(VertexBuffer, STRUCT_OFFSET(FSsPartVertex,ColorBlend), sizeof(FSsPartVertex), VET_Float2));
-		Data.TangentBasisComponents[0] = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, TangentX, VET_PackedNormal);
-		Data.TangentBasisComponents[1] = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, TangentZ, VET_PackedNormal);
-		SetData(Data);
+		FLocalVertexFactory::FDataType NewData;
+		NewData.PositionComponent = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, Position, VET_Float3);
+		NewData.TextureCoordinates.Add(FVertexStreamComponent(VertexBuffer, STRUCT_OFFSET(FSsPartVertex,TexCoord), sizeof(FSsPartVertex), VET_Float2));
+		NewData.ColorComponent = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, Color, VET_Color);
+		NewData.TextureCoordinates.Add(FVertexStreamComponent(VertexBuffer, STRUCT_OFFSET(FSsPartVertex,ColorBlend), sizeof(FSsPartVertex), VET_Float2));
+		NewData.TangentBasisComponents[0] = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, TangentX, VET_PackedNormal);
+		NewData.TangentBasisComponents[1] = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, TangentZ, VET_PackedNormal);
+		SetData(NewData);
 	}
 	else
 	{
@@ -120,14 +120,14 @@ void FSsPartsVertexFactory::Init(const FSsPartsVertexBuffer* VertexBuffer)
 			FSsPartsVertexFactory*, VertexFactory, this,
 			const FSsPartsVertexBuffer*, VertexBuffer, VertexBuffer,
 		{
-			FDataType Data;
-			Data.PositionComponent = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, Position, VET_Float3);
-			Data.TextureCoordinates.Add(FVertexStreamComponent(VertexBuffer, STRUCT_OFFSET(FSsPartVertex,TexCoord), sizeof(FSsPartVertex), VET_Float2));
-			Data.ColorComponent = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, Color, VET_Color);
-			Data.TextureCoordinates.Add(FVertexStreamComponent(VertexBuffer, STRUCT_OFFSET(FSsPartVertex,ColorBlend), sizeof(FSsPartVertex), VET_Float2));
-			Data.TangentBasisComponents[0] = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, TangentX, VET_PackedNormal);
-			Data.TangentBasisComponents[1] = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, TangentZ, VET_PackedNormal);
-			VertexFactory->SetData(Data);
+			FDataType NewData;
+			NewData.PositionComponent = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, Position, VET_Float3);
+			NewData.TextureCoordinates.Add(FVertexStreamComponent(VertexBuffer, STRUCT_OFFSET(FSsPartVertex,TexCoord), sizeof(FSsPartVertex), VET_Float2));
+			NewData.ColorComponent = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, Color, VET_Color);
+			NewData.TextureCoordinates.Add(FVertexStreamComponent(VertexBuffer, STRUCT_OFFSET(FSsPartVertex,ColorBlend), sizeof(FSsPartVertex), VET_Float2));
+			NewData.TangentBasisComponents[0] = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, TangentX, VET_PackedNormal);
+			NewData.TangentBasisComponents[1] = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, TangentZ, VET_PackedNormal);
+			VertexFactory->SetData(NewData);
 		});
 	}
 }

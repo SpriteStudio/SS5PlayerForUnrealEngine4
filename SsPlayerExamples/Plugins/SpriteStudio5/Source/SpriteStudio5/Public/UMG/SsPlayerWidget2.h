@@ -73,8 +73,8 @@ protected:
 
 	// UPanelWidget interface
 	virtual UClass* GetSlotClass() const override;
-	virtual void OnSlotAdded(UPanelSlot* Slot) override;
-	virtual void OnSlotRemoved(UPanelSlot* Slot) override;
+	virtual void OnSlotAdded(UPanelSlot* InSlot) override;
+	virtual void OnSlotRemoved(UPanelSlot* InSlot) override;
 
 private:
 	FSsPlayer Player;
