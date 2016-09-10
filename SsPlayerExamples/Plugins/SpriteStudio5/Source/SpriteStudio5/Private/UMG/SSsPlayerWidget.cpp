@@ -549,6 +549,16 @@ void SSsPlayerWidget::ArrangeChildrenInternal(
 					// 回避のため、計算前にリセットしておく 
 					//
 					Children[i].GetWidget()->SetRenderTransform(FSlateRenderTransform());
+
+					if(Children[i].WidgetSlot && Children[i].WidgetSlot->Content)
+					{
+						Children[i].WidgetSlot->Content->SetRenderTransformPivot(FVector2D::ZeroVector);
+						Children[i].WidgetSlot->Content->SetRenderAngle(FMath::RadiansToDegrees(a01));
+						Children[i].WidgetSlot->Content->SetRenderShear(
+							FVector2D(FMath::RadiansToDegrees((PI/2.f)- sub_a02_01), 0.f)
+							);
+					}
+
 					ArrangedChildren.AddWidget(
 						EVisibility::Visible,
 						AllottedGeometry.MakeChild(
@@ -560,15 +570,6 @@ void SSsPlayerWidget::ArrangeChildrenInternal(
 							FVector2D(Width, Height)
 							)
 						);
-
-					if(Children[i].WidgetSlot && Children[i].WidgetSlot->Content)
-					{
-						Children[i].WidgetSlot->Content->SetRenderTransformPivot(FVector2D::ZeroVector);
-						Children[i].WidgetSlot->Content->SetRenderAngle(FMath::RadiansToDegrees(a01));
-						Children[i].WidgetSlot->Content->SetRenderShear(
-							FVector2D(FMath::RadiansToDegrees((PI/2.f)- sub_a02_01), 0.f)
-							);
-					}
 
 					bValidPart = true;
 					break;
@@ -685,7 +686,6 @@ int32 SSsPlayerWidget::OnPaint(
 			//		ただ、元のRectが完全にClipRectの外に出ていた場合、 
 			//		RenderTransformによる変形によってClipRect内に入っていても、全く描画されないっぽい. 
 			//
-
 			const int32 CurWidgetsMaxLayerId = CurWidget.Widget->Paint(
 				NewArgs,
 				CurWidget.Geometry,
