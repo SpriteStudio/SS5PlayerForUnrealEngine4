@@ -299,7 +299,7 @@ void SsValueSeriarizer(ISsXmlArchiver* ar , FSsValue& v , const FString key = "v
 				const char* str = ce->GetText();
 				if ( str != 0 )
 				{
-					hash[fceName] = SsValueSeriarizer__MakeValue( str, (fceName == FName("rgba")) );
+					hash[fceName] = SsValueSeriarizer__MakeValue(str, (fceName == FName("rgba") || fceName == FName("name")));
 					ce = (XMLElement*)ce->NextSibling();
 				}else{
 					//さらに子構造があるようだ
