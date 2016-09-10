@@ -23,6 +23,9 @@ public:
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 
+	// UVisual interface 
+	virtual void ReleaseSlateResources(bool bReleaseChildren) override;
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="SsPlayerSlot")
 	FName PartName;

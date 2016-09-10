@@ -16,6 +16,13 @@ USsPlayerSlot::~USsPlayerSlot()
 	}
 }
 
+void USsPlayerSlot::ReleaseSlateResources(bool bReleaseChildren)
+{
+	Super::ReleaseSlateResources(bReleaseChildren);
+
+	Slot = nullptr;
+}
+
 void USsPlayerSlot::BuildSlot(TSharedRef<SSsPlayerWidget> SsPlayerWidget)
 {
 	Slot = &SsPlayerWidget->AddSlot()
