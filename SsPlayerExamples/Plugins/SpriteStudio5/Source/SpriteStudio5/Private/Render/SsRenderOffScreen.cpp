@@ -234,15 +234,14 @@ namespace
 		RHICmdList.SetDepthStencilState(TStaticDepthStencilState<false, CF_Always>::GetRHI());
 		RHICmdList.SetRasterizerState(TStaticRasterizerState<FM_Solid, CM_None>::GetRHI());
 
-		RHICmdList.Clear(
-			true, FLinearColor(
+		RHICmdList.ClearColorTexture(
+			static_cast<FTextureRenderTarget2DResource*>(RenderParts.RenderTarget->GetRenderTargetResource())->GetTextureRHI(),
+			FLinearColor(
 				RenderParts.ClearColor.R / 255.f,
 				RenderParts.ClearColor.G / 255.f,
 				RenderParts.ClearColor.B / 255.f,
 				RenderParts.ClearColor.A / 255.f
 				),
-			false, 0.f,
-			false, 0,
 			FIntRect()
 			);
 
