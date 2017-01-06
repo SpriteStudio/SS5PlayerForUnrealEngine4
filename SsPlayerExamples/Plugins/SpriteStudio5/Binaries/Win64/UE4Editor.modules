@@ -1,7 +1,7 @@
 {
-	"Changelist" : 3195953,
-	"CompatibleChangelist" : 0,
-	"BuildId" : "94e0158e-8ce4-4d18-b18b-298e995432ef",
+	"Changelist" : 3224400,
+	"CompatibleChangelist" : 3195953,
+	"BuildId" : "29ce0b9e-3f36-459c-9fb4-d5b63a5de2b0",
 	"Modules" : 
 	{
 		"SpriteStudio5" : "UE4Editor-SpriteStudio5.dll",

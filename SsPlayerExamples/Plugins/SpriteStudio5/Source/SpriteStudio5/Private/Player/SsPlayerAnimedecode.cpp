@@ -226,6 +226,7 @@ bool FSsAnimeDecoder::GetPartTransform(int PartIndex, FVector2D& OutPosition, fl
 
 void FSsAnimeDecoder::ReloadEffects()
 {
+#if 0
 	for(int i = 0; i < PartAnime.Num(); ++i)
 	{
 		if(PartState[i].RefEffect)
@@ -235,6 +236,7 @@ void FSsAnimeDecoder::ReloadEffects()
 			PartState[i].RefEffect->Reload();
 		}
 	}
+#endif
 }
 
 FName FSsAnimeDecoder::GetPartColorLabel(int32 PartIndex)
