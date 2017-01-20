@@ -48,12 +48,15 @@ void USsPlayerSlot::PostEditChangeProperty(FPropertyChangedEvent& PropertyChange
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
-	FString PropertyName = PropertyChangedEvent.Property->GetNameCPP();
-	if(0 == PropertyName.Compare(TEXT("PartName")))
+	if(PropertyChangedEvent.Property)	// Undo/Redo時にNULLのケースがある 
 	{
-		if(Parent)
+		FString PropertyName = PropertyChangedEvent.Property->GetNameCPP();
+		if(0 == PropertyName.Compare(TEXT("PartName")))
 		{
-			Parent->SynchronizeProperties();
+			if(Parent)
+			{
+				Parent->SynchronizeProperties();
+			}
 		}
 	}
 }
