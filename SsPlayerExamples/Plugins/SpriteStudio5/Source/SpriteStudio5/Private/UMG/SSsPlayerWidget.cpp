@@ -345,7 +345,6 @@ SSsPlayerWidget::SSsPlayerWidget()
 	, bIgnoreChildClipRect(false)
 	, bRenderOffScreen(false)
 	, RenderOffScreen(nullptr)
-	, OffScreenMID(nullptr)
 {
 }
 SSsPlayerWidget::~SSsPlayerWidget()
@@ -368,8 +367,7 @@ void SSsPlayerWidget::Initialize_Default()
 }
 void SSsPlayerWidget::Initialize_OffScreen(
 	float InResolutionX, float InResolutionY,
-	uint32 InMaxPartsNum,
-	UMaterialInterface* InBaseMaterial
+	uint32 InMaxPartsNum
 	)
 {
 	Terminate_OffScreen();
@@ -377,35 +375,15 @@ void SSsPlayerWidget::Initialize_OffScreen(
 
 	RenderOffScreen = new FSsRenderOffScreen();
 	RenderOffScreen->Initialize(InResolutionX, InResolutionY, InMaxPartsNum);
-
-	if(InBaseMaterial)
-	{
-		OffScreenMID = UMaterialInstanceDynamic::Create(InBaseMaterial, GetTransientPackage());
-		if(OffScreenMID)
-		{
-			OffScreenMID->AddToRoot();
-			OffScreenMID->SetFlags(RF_Transient);
-			OffScreenMID->SetTextureParameterValue(FName(TEXT("SsRenderTarget")), RenderOffScreen->GetRenderTarget());
-
-			BrushMap.Add(
-				OffScreenMID,
-				MakeShareable(new FSlateMaterialBrush(*OffScreenMID, FVector2D(64, 64)))
-				);
-		}
-	}
 }
 void SSsPlayerWidget::Terminate_OffScreen()
 {
 	bRenderOffScreen = false;
+	OffScreenBrush.Reset();
 	if(RenderOffScreen)
 	{
 		RenderOffScreen->ReserveTerminate();
 		RenderOffScreen = nullptr;
-	}
-	if(OffScreenMID)
-	{
-		OffScreenMID->RemoveFromRoot();
-		OffScreenMID = nullptr;
 	}
 }
 
@@ -413,40 +391,25 @@ void SSsPlayerWidget::Terminate_OffScreen()
 //
 // 描画用パーツ情報の登録 (Default) 
 //
-void SSsPlayerWidget::SetRenderParts_Default(const TArray<FSsRenderPartWithMaterial>& InRenderParts)
+void SSsPlayerWidget::SetRenderParts_Default(const TArray<FSsRenderPartWithSlateBrush>& InRenderParts)
 {
 	RenderParts_Default = InRenderParts;
-
-	TMap<UMaterialInterface*, TSharedPtr<FSlateMaterialBrush>> OldBrushMap = BrushMap;
-	BrushMap.Empty();
-
-	for (auto It = RenderParts_Default.CreateConstIterator(); It; ++It)
-	{
-		TSharedPtr<FSlateMaterialBrush>* Brush = OldBrushMap.Find(It->Material);
-		if (Brush)
-		{
-			BrushMap.Add(It->Material, *Brush);
-		}
-		else
-		{
-			BrushMap.Add(
-				It->Material,
-				MakeShareable(new FSlateMaterialBrush(*It->Material, FVector2D(64, 64)))
-				);
-		}
-	}
 }
 
 //
 // 描画用パーツ情報の登録 (OffScreen) 
 //
-void SSsPlayerWidget::SetRenderParts_OffScreen(const TArray<FSsRenderPart>& InRenderParts)
+void SSsPlayerWidget::SetRenderParts_OffScreen(
+	const TArray<FSsRenderPart>& InRenderParts,
+	TSharedPtr<FSlateMaterialBrush>& InOffscreenBrush
+	)
 {
 	RenderParts_OffScreen = InRenderParts;
 	if(RenderOffScreen)
 	{
 		RenderOffScreen->Render(RenderParts_OffScreen);
 	}
+	OffScreenBrush = InOffscreenBrush;
 }
 
 FVector2D SSsPlayerWidget::ComputeDesiredSize(float LayoutScaleMultiplier) const
@@ -490,7 +453,7 @@ void SSsPlayerWidget::OnArrangeChildren(
 {	
 	if(!bRenderOffScreen)
 	{
-		ArrangeChildrenInternal<FSsRenderPartWithMaterial>(
+		ArrangeChildrenInternal<FSsRenderPartWithSlateBrush>(
 			RenderParts_Default,
 			AllottedGeometry,
 			ArrangedChildren
@@ -617,46 +580,49 @@ int32 SSsPlayerWidget::OnPaint(
 	}
 	else
 	{
-		FSsRenderPartWithMaterial Part;
-		Part.PartIndex = -1;
-		Part.Vertices[0].Position.X = 0.f;
-		Part.Vertices[0].Position.Y = 0.f;
-		Part.Vertices[0].TexCoord.X = 0.f;
-		Part.Vertices[0].TexCoord.Y = 0.f;
-		Part.Vertices[0].Color = FColor::White;
-		Part.Vertices[0].ColorBlendRate = 0.f;
-		Part.Vertices[1].Position.X = 1.f;
-		Part.Vertices[1].Position.Y = 0.f;
-		Part.Vertices[1].TexCoord.X = 1.f;
-		Part.Vertices[1].TexCoord.Y = 0.f;
-		Part.Vertices[1].Color = FColor::White;
-		Part.Vertices[1].ColorBlendRate = 0.f;
-		Part.Vertices[2].Position.X = 0.f;
-		Part.Vertices[2].Position.Y = 1.f;
-		Part.Vertices[2].TexCoord.X = 0.f;
-		Part.Vertices[2].TexCoord.Y = 1.f;
-		Part.Vertices[2].Color = FColor::White;
-		Part.Vertices[2].ColorBlendRate = 0.f;
-		Part.Vertices[3].Position.X = 1.f;
-		Part.Vertices[3].Position.Y = 1.f;
-		Part.Vertices[3].TexCoord.X = 1.f;
-		Part.Vertices[3].TexCoord.Y = 1.f;
-		Part.Vertices[3].Color = FColor::White;
-		Part.Vertices[3].ColorBlendRate = 0.f;
-		Part.ColorBlendType = SsBlendType::Mix;
-		Part.AlphaBlendType = SsBlendType::Mix;
-		Part.Material = OffScreenMID;
-		Part.Texture  = nullptr;
+		if((0 < RenderParts_OffScreen.Num()) && (nullptr != OffScreenBrush.Get()))
+		{
+			FSsRenderPartWithSlateBrush Part;
+			Part.PartIndex = -1;
+			Part.Vertices[0].Position.X = 0.f;
+			Part.Vertices[0].Position.Y = 0.f;
+			Part.Vertices[0].TexCoord.X = 0.f;
+			Part.Vertices[0].TexCoord.Y = 0.f;
+			Part.Vertices[0].Color = FColor::White;
+			Part.Vertices[0].ColorBlendRate = 0.f;
+			Part.Vertices[1].Position.X = 1.f;
+			Part.Vertices[1].Position.Y = 0.f;
+			Part.Vertices[1].TexCoord.X = 1.f;
+			Part.Vertices[1].TexCoord.Y = 0.f;
+			Part.Vertices[1].Color = FColor::White;
+			Part.Vertices[1].ColorBlendRate = 0.f;
+			Part.Vertices[2].Position.X = 0.f;
+			Part.Vertices[2].Position.Y = 1.f;
+			Part.Vertices[2].TexCoord.X = 0.f;
+			Part.Vertices[2].TexCoord.Y = 1.f;
+			Part.Vertices[2].Color = FColor::White;
+			Part.Vertices[2].ColorBlendRate = 0.f;
+			Part.Vertices[3].Position.X = 1.f;
+			Part.Vertices[3].Position.Y = 1.f;
+			Part.Vertices[3].TexCoord.X = 1.f;
+			Part.Vertices[3].TexCoord.Y = 1.f;
+			Part.Vertices[3].Color = FColor::White;
+			Part.Vertices[3].ColorBlendRate = 0.f;
+			Part.ColorBlendType = SsBlendType::Mix;
+			Part.AlphaBlendType = SsBlendType::Mix;
+			Part.Texture  = nullptr;
+			Part.Brush = OffScreenBrush;
 
-		TArray<FSsRenderPartWithMaterial> Parts;
-		Parts.Add(Part);
-		PaintInternal(
-			Parts,
-			AllottedGeometry,
-			MyClippingRect,
-			OutDrawElements,
-			LayerId
-			);
+			TArray<FSsRenderPartWithSlateBrush> Parts;
+			Parts.Add(Part);
+			PaintInternal(
+				Parts,
+				AllottedGeometry,
+				MyClippingRect,
+				OutDrawElements,
+				LayerId
+				);
+		}
 	}
 
 
@@ -702,7 +668,7 @@ int32 SSsPlayerWidget::OnPaint(
 	return MaxLayerId;
 }
 void SSsPlayerWidget::PaintInternal(
-	const TArray<FSsRenderPartWithMaterial>& InRenderParts,
+	const TArray<FSsRenderPartWithSlateBrush>& InRenderParts,
 	const FGeometry& AllottedGeometry,
 	const FSlateRect& MyClippingRect,
 	FSlateWindowElementList& OutDrawElements,
@@ -725,12 +691,12 @@ void SSsPlayerWidget::PaintInternal(
 
 	TArray<FRenderData> RenderDataArray;
 	FRenderData RenderData;
-	UMaterialInterface* BkMaterial = nullptr;
+	FSlateMaterialBrush* BkBrush = nullptr;
 	SsBlendType::Type BkAlphaBlendType = SsBlendType::Invalid;
 	for(auto It = InRenderParts.CreateConstIterator(); It; ++It)
 	{
 		if((0 != It.GetIndex())
-		   && ((It->Material != BkMaterial)
+		   && (   (It->Brush.Get() != BkBrush)
 			   || (It->AlphaBlendType != BkAlphaBlendType)
 			   )
 			)
@@ -933,10 +899,10 @@ void SSsPlayerWidget::PaintInternal(
 
 		RenderData.RenderResourceHandle =
 			FSlateApplication::Get().GetRenderer()->GetResourceHandle(
-				*(BrushMap.Find(It->Material)->Get())
+				*It->Brush.Get()
 				);
 
-		BkMaterial = It->Material;
+		BkBrush = It->Brush.Get();
 		BkAlphaBlendType = It->AlphaBlendType;	// そもそもアルファブレンドモードはサポート出来なさげ 
 	}
 	RenderDataArray.Add(RenderData);
@@ -963,3 +929,8 @@ UTexture* SSsPlayerWidget::GetRenderTarget()
 	return nullptr;
 }
 
+
+FSsRenderOffScreen* SSsPlayerWidget::GetRenderOffScreen()
+{
+	return RenderOffScreen;
+}

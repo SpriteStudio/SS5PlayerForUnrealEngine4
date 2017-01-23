@@ -45,6 +45,7 @@ class SPRITESTUDIO5_API USsPlayerWidget2 : public UPanelWidget, public FTickable
 
 public:
 	// UObject interface
+	virtual void BeginDestroy() override;
 	virtual void Serialize(FArchive& Ar) override;
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
@@ -80,6 +81,13 @@ private:
 	FSsPlayer Player;
 
 	TSharedPtr<SSsPlayerWidget> PlayerWidget;
+	TMap<UMaterialInterface*, TSharedPtr<struct FSlateMaterialBrush>> BrushMap;
+
+	UPROPERTY(Transient)
+	UMaterialInstanceDynamic* OffScreenMID;
+
+	UPROPERTY(Transient)
+	UTexture* OffScreenRenderTarget;
 
 	UPROPERTY(Transient)
 	UMaterialInterface* BasePartsMaterials[7];

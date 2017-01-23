@@ -662,3 +662,10 @@ struct FSsRenderPartWithMaterial : public FSsRenderPart
 {
 	UMaterialInterface* Material;
 };
+
+// SlateBrush付き描画用のパーツ情報
+struct FSsRenderPartWithSlateBrush : public FSsRenderPart
+{
+	TSharedPtr<struct FSlateMaterialBrush> Brush;
+};
+

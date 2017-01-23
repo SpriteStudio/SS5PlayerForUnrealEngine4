@@ -44,13 +44,12 @@ public:
 	void Initialize_Default();
 	void Initialize_OffScreen(
 		float InResolutionX, float InResolutionY,
-		uint32 InMaxPartsNum,
-		UMaterialInterface* InBaseMaterial
+		uint32 InMaxPartsNum
 		);
 
 	void SetAnimCanvasSize(const FVector2D& InSize) { AnimCanvasSize = InSize; }
-	void SetRenderParts_Default(const TArray<FSsRenderPartWithMaterial>& InRenderParts);
-	void SetRenderParts_OffScreen(const TArray<FSsRenderPart>& InRenderParts);
+	void SetRenderParts_Default(const TArray<FSsRenderPartWithSlateBrush>& InRenderParts);
+	void SetRenderParts_OffScreen(const TArray<FSsRenderPart>& InRenderParts, TSharedPtr<FSlateMaterialBrush>& InOffscreenBrush);
 
 	// SWidget interface 
 	virtual FVector2D ComputeDesiredSize(float LayoutScaleMultiplier) const override;
@@ -94,10 +93,11 @@ public:
 	virtual int32 OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyClippingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
 
 	UTexture* GetRenderTarget();
+	FSsRenderOffScreen* GetRenderOffScreen();
 
 private:
 	void PaintInternal(
-		const TArray<FSsRenderPartWithMaterial>& InRenderParts,
+		const TArray<FSsRenderPartWithSlateBrush>& InRenderParts,
 		const FGeometry& AllottedGeometry,
 		const FSlateRect& MyClippingRect,
 		FSlateWindowElementList& OutDrawElements,
@@ -110,12 +110,11 @@ public:
 
 private:
 	bool bRenderOffScreen;
+	TSharedPtr<FSlateMaterialBrush> OffScreenBrush;
 
-	TArray<FSsRenderPartWithMaterial> RenderParts_Default;
-	TMap<UMaterialInterface*, TSharedPtr<FSlateMaterialBrush>> BrushMap;
+	TArray<FSsRenderPartWithSlateBrush> RenderParts_Default;
 
 	TArray<FSsRenderPart> RenderParts_OffScreen;
 	FSsRenderOffScreen* RenderOffScreen;
-	UMaterialInstanceDynamic* OffScreenMID;
 };
 

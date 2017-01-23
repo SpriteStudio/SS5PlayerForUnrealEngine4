@@ -1,6 +1,8 @@
 ﻿#include "SpriteStudio5PrivatePCH.h"
 #include "SsPlayerWidget2.h"
 
+#include "SlateMaterialBrush.h"
+
 #include "SSsPlayerWidget.h"
 #include "SsPlayerSlot.h"
 #include "SsProject.h"
@@ -40,6 +42,7 @@ namespace
 USsPlayerWidget2::USsPlayerWidget2(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 	, FSsPlayPropertySync(&SsProject, &AutoPlayAnimPackName, &AutoPlayAnimationName, &AutoPlayAnimPackIndex, &AutoPlayAnimationIndex)
+	, OffScreenMID(nullptr)
 #if WITH_EDITOR
 	, BackWorldTime(-1.f)
 #endif
@@ -96,6 +99,13 @@ USsPlayerWidget2::USsPlayerWidget2(const FObjectInitializer& ObjectInitializer)
 	BasePartsMaterials[4] = CS.PartInv.Object;
 	BasePartsMaterials[5] = CS.PartInvMix.Object;
 	BasePartsMaterials[6] = CS.PartEffect.Object;
+}
+
+// Destroy 
+void USsPlayerWidget2::BeginDestroy()
+{
+	Super::BeginDestroy();
+	BrushMap.Empty();	// ココで先に参照を切っておく. Brush -> MID の順で開放されるように 
 }
 
 // シリアライズ 
@@ -175,9 +185,9 @@ void USsPlayerWidget2::SynchronizeProperties()
 					{
 						PlayerWidget->Initialize_OffScreen(
 							OffScreenRenderResolution.X, OffScreenRenderResolution.Y,
-							SsProject->CalcMaxRenderPartsNum(),
-							BaseMaterial
+							SsProject->CalcMaxRenderPartsNum()
 							);
+						OffScreenRenderTarget = PlayerWidget->GetRenderTarget();
 					}
 				} break;
 		}
@@ -232,6 +242,10 @@ TSharedRef<SWidget> USsPlayerWidget2::RebuildWidget()
 		PlayerSlot->Parent = this;
 		PlayerSlot->BuildSlot(PlayerWidget.ToSharedRef());
 	}
+
+	BrushMap.Empty();
+	OffScreenMID = nullptr;
+	OffScreenRenderTarget = nullptr;
 
 	return PlayerWidget.ToSharedRef();
 }
@@ -304,13 +318,13 @@ void USsPlayerWidget2::UpdatePlayer(float DeltaSeconds)
 		{
 			case ESsPlayerWidgetRenderMode::UMG_Default:
 				{
-					TArray<FSsRenderPartWithMaterial> RenderPartsWithMat;
+					TArray<FSsRenderPartWithSlateBrush> RenderPartWithSlateBrush;
 					const TArray<FSsRenderPart> RenderParts = Player.GetRenderParts();
-					RenderPartsWithMat.Reserve(RenderParts.Num());
+					RenderPartWithSlateBrush.Reserve(RenderParts.Num());
 
 					for(int32 i = 0; i < RenderParts.Num(); ++i)
 					{
-						FSsRenderPartWithMaterial Part;
+						FSsRenderPartWithSlateBrush Part;
 						FMemory::Memcpy(&Part, &(RenderParts[i]), sizeof(FSsRenderPart));
 
 						uint32 MatIdx = UMGMatIndex(RenderParts[i].AlphaBlendType, RenderParts[i].ColorBlendType);
@@ -326,17 +340,49 @@ void USsPlayerWidget2::UpdatePlayer(float DeltaSeconds)
 								ppMID = &(PartsMIDMap[MatIdx].Add(RenderParts[i].Texture, NewMID));
 							}
 						}
-						Part.Material = *ppMID;
-						RenderPartsWithMat.Add(Part);
+
+						TSharedPtr<FSlateMaterialBrush>* pBrush = BrushMap.Find(*ppMID);
+						if(pBrush)
+						{
+							Part.Brush = *pBrush;
+						}
+						else
+						{
+							Part.Brush = MakeShareable(new FSlateMaterialBrush(**ppMID, FVector2D(64, 64)));
+							BrushMap.Add(*ppMID, Part.Brush);
+						}
+
+						RenderPartWithSlateBrush.Add(Part);
 					}
 
-					PlayerWidget->SetRenderParts_Default(RenderPartsWithMat);
+					PlayerWidget->SetRenderParts_Default(RenderPartWithSlateBrush);
 					PlayerWidget->SetAnimCanvasSize(Player.GetAnimCanvasSize());
 				} break;
 
 			case ESsPlayerWidgetRenderMode::UMG_OffScreen:
 				{
-					PlayerWidget->SetRenderParts_OffScreen(Player.GetRenderParts());
+					if(nullptr == PlayerWidget->GetRenderOffScreen())
+					{
+						break;
+					}
+					if(nullptr == OffScreenMID)
+					{
+						OffScreenMID = UMaterialInstanceDynamic::Create(BaseMaterial, GetTransientPackage());
+						OffScreenMID->SetFlags(RF_Transient);
+						OffScreenMID->SetTextureParameterValue(FName(TEXT("SsRenderTarget")), PlayerWidget->GetRenderOffScreen()->GetRenderTarget());
+					}
+
+					TSharedPtr<FSlateMaterialBrush>* Brush = BrushMap.Find(OffScreenMID);
+					if(nullptr == Brush)
+					{
+						BrushMap.Add(
+							OffScreenMID,
+							MakeShareable(new FSlateMaterialBrush(*OffScreenMID, FVector2D(64, 64)))
+							);
+						Brush = BrushMap.Find(OffScreenMID);
+					}
+
+					PlayerWidget->SetRenderParts_OffScreen(Player.GetRenderParts(), *Brush);
 					PlayerWidget->SetAnimCanvasSize(Player.GetAnimCanvasSize());
 				} break;
 		}
