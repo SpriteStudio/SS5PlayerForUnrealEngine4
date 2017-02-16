@@ -6,6 +6,7 @@
 #include "SSsPlayerWidget.h"
 #include "SsPlayerSlot.h"
 #include "SsProject.h"
+#include "SsRenderOffScreen.h"
 
 
 namespace
@@ -53,6 +54,7 @@ USsPlayerWidget2::USsPlayerWidget2(const FObjectInitializer& ObjectInitializer)
 	, AutoPlayRate(1.f)
 	, AutoPlayLoopCount(0)
 	, bAutoPlayRoundTrip(false)
+	, bDontUpdateIfHidden(false)
 	, RenderMode(ESsPlayerWidgetRenderMode::UMG_Default)
 	, bIgnoreClipRect(false)
 	, bIgnoreChildClipRect(false)
@@ -218,7 +220,23 @@ void USsPlayerWidget2::Tick(float DeltaTime)
 
 	if(bAutoUpdate)
 	{
-		UpdatePlayer(DeltaTime);
+		bool bUpdate = true;
+		if(bDontUpdateIfHidden)
+		{
+			// ウィジェットが非表示の場合はアニメーションを更新しない 
+			for(UPanelWidget* Widget = this; nullptr != Widget; Widget = Widget->GetParent())
+			{
+				if(!Widget->IsVisible())
+				{
+					bUpdate = false;
+					break;
+				}
+			}
+		}
+		if(bUpdate)
+		{
+			UpdatePlayer(DeltaTime);
+		}
 	}
 }
 

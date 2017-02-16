@@ -2,6 +2,8 @@
 #include "SspjFactory.h"
 
 #include "AssetRegistryModule.h"
+#include "AssetToolsModule.h"
+#include "IAssetTools.h"
 
 #include "SsImportSettings.h"
 #include "ReimportSspjFactory.h"

@@ -158,6 +158,11 @@ public:
 	UPROPERTY(Category=SpriteStudioPlaySettings, EditAnywhere, BlueprintReadOnly, AdvancedDisplay)
 	bool bAutoPlayRoundTrip;
 
+	// ウィジェットが非表示の時はアニメーションを更新しない 
+	UPROPERTY(Category=SpriteStudioPlaySettings, EditAnywhere, BlueprintReadWrite, AdvancedDisplay)
+	bool bDontUpdateIfHidden;
+
+
 
 	//
 	// SpriteStudioRenderSettings 
