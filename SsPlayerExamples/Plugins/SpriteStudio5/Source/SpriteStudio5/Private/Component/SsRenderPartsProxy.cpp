@@ -189,6 +189,8 @@ FSsRenderPartsProxy::FSsRenderPartsProxy(USsPlayerComponent* InComponent, uint32
 	BeginInitResource(&VertexBuffer);
 	BeginInitResource(&IndexBuffer);
 	BeginInitResource(&VertexFactory);
+
+	bVerifyUsedMaterials = false;
 }
 
 // デストラクタ

@@ -77,6 +77,8 @@ FSsRenderPlaneProxy::FSsRenderPlaneProxy(USsPlayerComponent* InComponent, UMater
 	BeginInitResource(&VertexBuffer);
 	BeginInitResource(&IndexBuffer);
 	BeginInitResource(&VertexFactory);
+
+	bVerifyUsedMaterials = false;
 }
 
 // デストラクタ
