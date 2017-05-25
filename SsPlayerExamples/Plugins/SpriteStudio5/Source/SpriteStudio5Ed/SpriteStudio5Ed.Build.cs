@@ -4,7 +4,7 @@ namespace UnrealBuildTool.Rules
 {
 	public class SpriteStudio5Ed : ModuleRules
 	{
-		public SpriteStudio5Ed(TargetInfo Target)
+		public SpriteStudio5Ed(ReadOnlyTargetRules Target) : base(Target)
 		{
 			DynamicallyLoadedModuleNames.AddRange(
 				new string[] {

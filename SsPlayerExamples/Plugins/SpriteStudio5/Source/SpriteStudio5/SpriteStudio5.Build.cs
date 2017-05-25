@@ -4,7 +4,7 @@ namespace UnrealBuildTool.Rules
 {
 	public class SpriteStudio5 : ModuleRules
 	{
-		public SpriteStudio5(TargetInfo Target)
+		public SpriteStudio5(ReadOnlyTargetRules Target) : base(Target)
 		{
 			DynamicallyLoadedModuleNames.AddRange(
 				new string[] {
@@ -46,8 +46,8 @@ namespace UnrealBuildTool.Rules
 					"InputCore",
 					"RHI",
 					"RenderCore",
-					"Renderer",
 					"ShaderCore",
+					"UtilityShaders",
 					"SlateCore",
 					"SlateRHIRenderer",
 					"Slate",
@@ -58,6 +58,7 @@ namespace UnrealBuildTool.Rules
 			PrivateDependencyModuleNames.AddRange(
 				new string[]
 				{
+					"Renderer",
 				}
 				);
 

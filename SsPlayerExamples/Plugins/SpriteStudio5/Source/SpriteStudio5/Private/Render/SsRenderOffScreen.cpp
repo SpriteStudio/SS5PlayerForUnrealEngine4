@@ -2,6 +2,7 @@
 #include "SsRenderOffScreen.h"
 
 #include "MaterialShader.h"
+#include "ClearQuad.h"
 
 #include "SsOffScreenShaders.h"
 #include "SsProject.h"
@@ -231,18 +232,18 @@ namespace
 
 		RHICmdList.SetScissorRect(false, 0, 0, 0, 0);
 		RHICmdList.SetViewport(0, 0, 0.f, SurfaceWidth, SurfaceHeight, 1.f);
-		RHICmdList.SetDepthStencilState(TStaticDepthStencilState<false, CF_Always>::GetRHI());
-		RHICmdList.SetRasterizerState(TStaticRasterizerState<FM_Solid, CM_None>::GetRHI());
+		RHICmdList.GetContext().RHISetDepthStencilState(TStaticDepthStencilState<false, CF_Always>::GetRHI(), 0);
+		RHICmdList.GetContext().RHISetRasterizerState(TStaticRasterizerState<FM_Solid, CM_None>::GetRHI());
 
-		RHICmdList.ClearColorTexture(
-			static_cast<FTextureRenderTarget2DResource*>(RenderParts.RenderTarget->GetRenderTargetResource())->GetTextureRHI(),
+		DrawClearQuad(
+			RHICmdList,
+			GMaxRHIFeatureLevel,
 			FLinearColor(
 				RenderParts.ClearColor.R / 255.f,
 				RenderParts.ClearColor.G / 255.f,
 				RenderParts.ClearColor.B / 255.f,
 				RenderParts.ClearColor.A / 255.f
-				),
-			FIntRect()
+				)
 			);
 
 		FMatrix ProjectionMatrix;
@@ -348,8 +349,8 @@ namespace
 				continue;
 			}
 
-			RHICmdList.SetLocalBoundShaderState(
-				RHICmdList.BuildLocalBoundShaderState(
+			RHICmdList.GetContext().RHISetBoundShaderState(
+				RHICreateBoundShaderState(
 					GSsOffScreenVertexDeclaration.VertexDeclarationRHI,
 					VertexShader->GetVertexShader(),	//VertexShaderRHI
 					nullptr,							//HullShaderRHI
@@ -367,35 +368,47 @@ namespace
 			{
 			case SsBlendType::Mix:
 				{
-					RHICmdList.SetBlendState(TStaticBlendState<
-						CW_RGBA,
-						BO_Add, BF_SourceAlpha, BF_InverseSourceAlpha,
-						BO_Add, BF_SourceAlpha, BF_One
-						>::GetRHI());
+					RHICmdList.GetContext().RHISetBlendState(
+						TStaticBlendState<
+							CW_RGBA,
+							BO_Add, BF_SourceAlpha, BF_InverseSourceAlpha,
+							BO_Add, BF_SourceAlpha, BF_One
+							>::GetRHI(),
+						FLinearColor::White
+						);
 				} break;
 			case SsBlendType::Mul:
 				{
-					RHICmdList.SetBlendState(TStaticBlendState<
-						CW_RGBA,
-						BO_Add, BF_Zero, BF_SourceColor,
-						BO_Add, BF_InverseSourceAlpha, BF_One
-						>::GetRHI());
+					RHICmdList.GetContext().RHISetBlendState(
+						TStaticBlendState<
+							CW_RGBA,
+							BO_Add, BF_Zero, BF_SourceColor,
+							BO_Add, BF_InverseSourceAlpha, BF_One
+							>::GetRHI(),
+						FLinearColor::White
+						);
 				} break;
 			case SsBlendType::Add:
 				{
-					RHICmdList.SetBlendState(TStaticBlendState<
-						CW_RGBA,
-						BO_Add, BF_SourceAlpha, BF_One,
-						BO_Add, BF_SourceAlpha, BF_One
-						>::GetRHI());
+					RHICmdList.GetContext().RHISetBlendState(
+						TStaticBlendState<
+							CW_RGBA,
+							BO_Add, BF_SourceAlpha, BF_One,
+							BO_Add, BF_SourceAlpha, BF_One
+							>::GetRHI(),
+						FLinearColor::White
+						);
 				} break;
 			case SsBlendType::Sub:
 				{
-					RHICmdList.SetBlendState(TStaticBlendState<
-						CW_RGBA,
-						BO_ReverseSubtract, BF_SourceAlpha, BF_One,
-						BO_Add, BF_Zero, BF_DestAlpha
-						>::GetRHI());
+					RHICmdList.GetContext().RHISetBlendState(
+						TStaticBlendState<
+							CW_RGBA,
+							BO_ReverseSubtract, BF_SourceAlpha, BF_One,
+							BO_Add, BF_Zero, BF_DestAlpha
+							>::GetRHI(),
+						FLinearColor::White
+						);
 				} break;
 			}
 
