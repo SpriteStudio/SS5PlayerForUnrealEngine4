@@ -98,15 +98,15 @@ struct SPRITESTUDIO5_API FSsUserData
 		, KeyFrame(-1)
 	{}
 	
-	UPROPERTY(Category=SpriteStudioUserData, BlueprintReadWrite)
+	UPROPERTY()
 	FName PartName;
 
-	UPROPERTY(Category=SpriteStudioUserData, BlueprintReadWrite)
+	UPROPERTY()
 	int32 PartIndex;
 
-	UPROPERTY(Category=SpriteStudioUserData, BlueprintReadWrite)
+	UPROPERTY()
 	int32 KeyFrame;
 
-	UPROPERTY(Category=SpriteStudioUserData, BlueprintReadWrite)
+	UPROPERTY()
 	FSsUserDataValue Value;
 };

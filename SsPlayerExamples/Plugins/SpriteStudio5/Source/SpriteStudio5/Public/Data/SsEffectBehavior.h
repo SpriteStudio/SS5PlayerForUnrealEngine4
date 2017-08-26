@@ -17,13 +17,13 @@ public:
 	struct FSsCell* RefCell;
 	TArray<TSharedPtr<FSsEffectElementBase>> PList;
 
-	UPROPERTY(VisibleAnywhere, Category=SsEffectBehavior, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectBehavior)
 	FName CellName;
 
-	UPROPERTY(VisibleAnywhere, Category=SsEffectBehavior, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectBehavior)
 	FName CellMapName;
 
-	UPROPERTY(VisibleAnywhere, Category=SsEffectBehavior, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectBehavior)
 	TEnumAsByte<SsRenderBlendType::Type> BlendType;
 
 public:

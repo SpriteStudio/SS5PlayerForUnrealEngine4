@@ -4,8 +4,8 @@
 #include "ShaderParameterUtils.h"
 
 
-IMPLEMENT_SHADER_TYPE(, FSsOffScreenVS, TEXT("SsOffScreenShader"), TEXT("MainVS"), SF_Vertex);
-IMPLEMENT_SHADER_TYPE(, FSsOffScreenPS, TEXT("SsOffScreenShader"), TEXT("MainPS"), SF_Pixel);
+IMPLEMENT_SHADER_TYPE(, FSsOffScreenVS, TEXT("/Plugin/SpriteStudio5/Private/SsOffScreenShader.usf"), TEXT("MainVS"), SF_Vertex);
+IMPLEMENT_SHADER_TYPE(, FSsOffScreenPS, TEXT("/Plugin/SpriteStudio5/Private/SsOffScreenShader.usf"), TEXT("MainPS"), SF_Pixel);
 
 TGlobalResource<FSsOffScreenVertexDeclaration> GSsOffScreenVertexDeclaration;
 

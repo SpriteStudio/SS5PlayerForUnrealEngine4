@@ -122,7 +122,7 @@ void FSsRenderOffScreen::Initialize(uint32 InResolutionX, uint32 InResolutionY, 
 	RenderTarget = NewObject<UTextureRenderTarget2D>(UTextureRenderTarget2D::StaticClass());
 	RenderTarget->AddToRoot();
 	RenderTarget->SetFlags(RF_Transient);
-	RenderTarget->bHDR = false;
+	RenderTarget->RenderTargetFormat = RTF_RGBA8;
 	RenderTarget->bForceLinearGamma = false;
 	RenderTarget->AddressX = TA_Clamp;
 	RenderTarget->AddressY = TA_Clamp;
@@ -237,7 +237,6 @@ namespace
 
 		DrawClearQuad(
 			RHICmdList,
-			GMaxRHIFeatureLevel,
 			FLinearColor(
 				RenderParts.ClearColor.R / 255.f,
 				RenderParts.ClearColor.G / 255.f,

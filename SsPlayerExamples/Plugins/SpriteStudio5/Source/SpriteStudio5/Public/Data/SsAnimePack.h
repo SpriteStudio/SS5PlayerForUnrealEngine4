@@ -12,19 +12,19 @@ struct SPRITESTUDIO5_API FSsAnimationSettings
 	GENERATED_USTRUCT_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsAnimationSettings, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsAnimationSettings)
 	int32	Fps;			//!< 再生FPS
 
-	UPROPERTY(VisibleAnywhere, Category=SsAnimationSettings, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsAnimationSettings)
 	int32	FrameCount;		//!< フレーム数
 
-//	UPROPERTY(VisibleAnywhere, Category=SsAnimationSettings, BlueprintReadOnly)
+//	UPROPERTY(VisibleAnywhere, Category=SsAnimationSettings)
 //	TEnumAsByte<SsPartsSortMode::Type>	SortMode;		//!< パーツのソートモード
 
-	UPROPERTY(VisibleAnywhere, Category=SsAnimationSettings, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsAnimationSettings)
 	FVector2D	CanvasSize;				//!< キャンバスサイズ(元基準枠)。ビューポートのサイズとイコールではない。
 
-	UPROPERTY(VisibleAnywhere, Category=SsAnimationSettings, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsAnimationSettings)
 	FVector2D	Pivot;					//!< キャンバスの原点。0,0 が中央。-0.5, +0.5 が左上
 };
 
@@ -37,47 +37,47 @@ struct SPRITESTUDIO5_API FSsPart
 	GENERATED_USTRUCT_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsPart, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsPart)
 	FName	PartName;
 
-	UPROPERTY(VisibleAnywhere, Category=SsPart, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsPart)
 	int32	ArrayIndex;		//!< ツリーを配列に展開した時のインデックス
 
-	UPROPERTY(VisibleAnywhere, Category=SsPart, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsPart)
 	int32	ParentIndex;	//!< 親パーツのインデックス
 
-	UPROPERTY(VisibleAnywhere, Category=SsPart, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsPart)
 	TEnumAsByte<SsPartType::Type>		Type;			//!< 種別
 
-	UPROPERTY(VisibleAnywhere, Category=SsPart, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsPart)
 	TEnumAsByte<SsBoundsType::Type>		BoundsType;		//!< 当たり判定として使うか？使う場合はその形状。
 
-	UPROPERTY(VisibleAnywhere, Category=SsPart, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsPart)
 	TEnumAsByte<SsInheritType::Type>	InheritType;	//!< アトリビュート値の継承方法
 
-	UPROPERTY(VisibleAnywhere, Category=SsPart, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsPart)
 	TEnumAsByte<SsBlendType::Type>		AlphaBlendType;	//!< αブレンドの演算式
 
-	UPROPERTY(VisibleAnywhere, Category=SsPart, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsPart)
 	int32	Show;			//!< [編集用データ] パーツの表示・非常時
 
-	UPROPERTY(VisibleAnywhere, Category=SsPart, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsPart)
 	int32	Locked;			//!< [編集用データ] パーツのロック状態
 
 	UPROPERTY(VisibleAnywhere, Category=SsPart)
 	float InheritRates[(int)SsAttributeKind::Num];	///< 親の値の継承率。SS4との互換性のため残されているが0 or 1
 
 
-	UPROPERTY(VisibleAnywhere, Category=SsPart, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsPart)
 	FName	RefAnimePack;   ///< 参照アニメ名
 
-	UPROPERTY(VisibleAnywhere, Category=SsPart, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsPart)
 	FName	RefAnime;       ///< 参照アニメ名
 
-	UPROPERTY(VisibleAnywhere, Category=SsPart, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsPart)
 	FName	RefEffectName;	///< 割り当てたパーティクル名
 
-	UPROPERTY(VisibleAnywhere, Category = SsPart, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsPart)
 	FName	ColorLabel;
 
 public:
@@ -102,7 +102,7 @@ struct SPRITESTUDIO5_API FSsModel
 	GENERATED_USTRUCT_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsModel, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsModel)
 	TArray<FSsPart>	PartList;	//!<格納されているパーツのリスト
 };
 
@@ -116,10 +116,10 @@ struct SPRITESTUDIO5_API FSsPartAnime
 	void Serialize(FArchive& Ar);
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsPartAnime, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsPartAnime)
 	FName PartName;
 
-	UPROPERTY(VisibleAnywhere, Category=SsPartAnime, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsPartAnime)
 	TArray<FSsAttribute> Attributes;
 };
 
@@ -131,10 +131,10 @@ struct SPRITESTUDIO5_API FSsLabel
 	GENERATED_USTRUCT_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsLabel, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsLabel)
 	FName		LabelName;	///< 名前 [変数名変更禁止]
 
-	UPROPERTY(VisibleAnywhere, Category=SsLabel, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsLabel)
 	int32		Time;		///< 設置された時間(フレーム) [変数名変更禁止]
 };
 
@@ -146,19 +146,19 @@ struct SPRITESTUDIO5_API FSsAnimation
 	void Serialize(FArchive& Ar);
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsAnimation, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsAnimation)
 	FName	AnimationName;					/// アニメーションの名称
 
-	UPROPERTY(VisibleAnywhere, Category=SsAnimation, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsAnimation)
 	bool	OverrideSettings;				/// このインスタンスが持つ設定を使いanimePack の設定を参照しない。FPS, frameCount は常に自身の設定を使う。
 
-	UPROPERTY(VisibleAnywhere, Category=SsAnimation, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsAnimation)
 	FSsAnimationSettings	Settings;		/// 設定情報
 
-	UPROPERTY(Category=SsAnimation, BlueprintReadOnly)	// 要素数が多くDetailsウィンドウが極端に重くなってしまうため、VisibleAnywhereを付けない
+	UPROPERTY()	// 要素数が多くDetailsウィンドウが極端に重くなってしまうため、VisibleAnywhereを付けない
 	TArray<FSsPartAnime>	PartAnimes;		///	パーツ毎のアニメーションキーフレームが格納されるリスト
 
-	UPROPERTY(VisibleAnywhere, Category=SsAnimation, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsAnimation)
 	TArray<FSsLabel>		Labels;
 };
 
@@ -175,22 +175,22 @@ struct SPRITESTUDIO5_API FSsAnimePack
 	void Serialize(FArchive& Ar);
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsAnimePack, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsAnimePack)
 	FString					Version;
 
-	UPROPERTY(VisibleAnywhere, Category=SsAnimePack, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsAnimePack)
 	FSsAnimationSettings	Settings;		//!< 設定情報 
 
-	UPROPERTY(VisibleAnywhere, Category=SsAnimePack, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsAnimePack)
 	FName					AnimePackName;	//!< アニメーションパック名称
 
-	UPROPERTY(VisibleAnywhere, Category=SsAnimePack, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsAnimePack)
 	FSsModel				Model;			//!< パーツ情報の格納先
 
-	UPROPERTY(VisibleAnywhere, Category=SsAnimePack, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsAnimePack)
 	TArray<FName>			CellmapNames;	//!< 使用されているセルマップの名称		
 
-	UPROPERTY(VisibleAnywhere, Category=SsAnimePack, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsAnimePack)
 	TArray<FSsAnimation>	AnimeList;		//!< 格納されている子アニメーションのリスト
 
 	// アニメーション名からインデックスを取得する

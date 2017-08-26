@@ -13,19 +13,19 @@ struct SPRITESTUDIO5_API FSsCell
 
 public:
 	//--------- ランタイム用データとして保存すべきもの
-	UPROPERTY(VisibleAnywhere, Category=FSsCell, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=FSsCell)
 	FName		CellName;		///< セル名称
 
-	UPROPERTY(VisibleAnywhere, Category=FSsCell, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=FSsCell)
 	FVector2D	Pos;			///< 左上の座標
 
-	UPROPERTY(VisibleAnywhere, Category=FSsCell, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=FSsCell)
 	FVector2D	Size;			///< WHピクセルサイズ
 
-	UPROPERTY(VisibleAnywhere, Category=FSsCell, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=FSsCell)
 	FVector2D	Pivot;			///< 原点。size /2 が中央=0,0になる。
 
-	UPROPERTY(VisibleAnywhere, Category=FSsCell, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=FSsCell)
 	bool		Rotated;		///< 左方向に９０度回転されている。uvs の割り当てが変わる。
 };
 
@@ -47,34 +47,34 @@ struct SPRITESTUDIO5_API FSsCellMap
 	GENERATED_USTRUCT_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsCellMap, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsCellMap)
 	FString		Version;
 
-	UPROPERTY(VisibleAnywhere, Category=SsCellMap, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsCellMap)
 	FName		FileName;			///< セルマップのファイルネーム
 
-	UPROPERTY(VisibleAnywhere, Category=SsCellMap, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsCellMap)
 	FName		CellMapName;		///< このセルマップの名称です。
 
-	UPROPERTY(VisibleAnywhere, Category=SsCellMap, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsCellMap)
 	FString		ImagePath;			///< 参照画像ファイルパス。プロジェクトの画像基準相対
 
-	UPROPERTY(VisibleAnywhere, Category=SsCellMap, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsCellMap)
 	UTexture*	Texture;
 
-	UPROPERTY(VisibleAnywhere, Category=SsCellMap, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsCellMap)
 	FVector2D	PixelSize;			///< 画像のピクセルWHサイズ
 
-	UPROPERTY(VisibleAnywhere, Category=SsCellMap, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsCellMap)
 	bool		OverrideTexSettings;///< テクスチャ設定をプロジェクトの設定ではなく下記設定を使う
 
-	UPROPERTY(VisibleAnywhere, Category=SsCellMap, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsCellMap)
 	TEnumAsByte<SsTexWrapMode::Type>	WrapMode;			///< テクスチャのラップモード
 
-	UPROPERTY(VisibleAnywhere, Category=SsCellMap, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsCellMap)
 	TEnumAsByte<SsTexFilterMode::Type>	FilterMode;			///< テクスチャのフィルタモード
 
-	UPROPERTY(VisibleAnywhere, Category=SsCellMap, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsCellMap)
 	TArray<FSsCell>		Cells;
 };
 

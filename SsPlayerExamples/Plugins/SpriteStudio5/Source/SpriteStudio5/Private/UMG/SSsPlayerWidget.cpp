@@ -342,7 +342,6 @@ SSsPlayerWidget::SSsPlayerWidget()
 	: SPanel()
 	, AnimCanvasSize(0.f, 0.f)
 	, bIgnoreClipRect(true)
-	, bIgnoreChildClipRect(false)
 	, bRenderOffScreen(false)
 	, RenderOffScreen(nullptr)
 {
@@ -561,13 +560,21 @@ void SSsPlayerWidget::ArrangeChildrenInternal(
 int32 SSsPlayerWidget::OnPaint(
 	const FPaintArgs& Args,
 	const FGeometry& AllottedGeometry,
-	const FSlateRect& MyClippingRect,
+	const FSlateRect& MyCullingRect,
 	FSlateWindowElementList& OutDrawElements,
 	int32 LayerId,
 	const FWidgetStyle& InWidgetStyle,
 	bool bParentEnabled
 	) const
 {
+	FSlateRect MyClippingRect = FSlateRect(
+		FVector2D(AllottedGeometry.AbsolutePosition.X, AllottedGeometry.AbsolutePosition.Y),
+		FVector2D(
+			AllottedGeometry.AbsolutePosition.X + AllottedGeometry.GetLocalSize().X * AllottedGeometry.Scale,
+			AllottedGeometry.AbsolutePosition.Y + AllottedGeometry.GetLocalSize().Y * AllottedGeometry.Scale
+			)
+		);
+
 	if(!bRenderOffScreen)
 	{
 		PaintInternal(
@@ -640,28 +647,25 @@ int32 SSsPlayerWidget::OnPaint(
 		FArrangedWidget& CurWidget = ArrangedChildren[ChildIndex];
 
 		bool bWereOverlapping;
-		FSlateRect ChildClipRect = MyClippingRect.IntersectionWith(CurWidget.Geometry.GetClippingRect(), bWereOverlapping);
+		FSlateRect ChildClipRect = MyClippingRect.IntersectionWith(CurWidget.Geometry.GetLayoutBoundingRect(), bWereOverlapping);
 
 		if(bWereOverlapping)
 		{
-			//
-			//	MEMO: (UE4.12 現在) 
-			//		UMGのClipRectは、RenderTransformによる変形前のRectに対して作用する. 
-			//		そのため、境界付近での回転などで、かなり不自然な形状にクリップされることがある. 
-			//		bIgnoreChildClipRect を ON にしておけば、とりあえずおかしな変形は防げる。 
-			//		ただ、元のRectが完全にClipRectの外に出ていた場合、 
-			//		RenderTransformによる変形によってClipRect内に入っていても、全く描画されないっぽい. 
-			//
+			FSlateClippingManager& ClippingManager = OutDrawElements.GetClippingManager();
+			ClippingManager.PushClip(FSlateClippingZone(ChildClipRect));
+
 			const int32 CurWidgetsMaxLayerId = CurWidget.Widget->Paint(
 				NewArgs,
 				CurWidget.Geometry,
-				bIgnoreChildClipRect ? FSlateRect(FVector2D(0.f,0.f), FVector2D(10000.f,10000.f)) : ChildClipRect,
+				MyCullingRect,
 				OutDrawElements,
 				MaxLayerId + 1,
 				InWidgetStyle,
 				bForwardedEnabled
 				);
 			MaxLayerId = FMath::Max(MaxLayerId, CurWidgetsMaxLayerId);
+
+			ClippingManager.PopClip();
 		}
 	}
 
@@ -909,6 +913,10 @@ void SSsPlayerWidget::PaintInternal(
 
 	for(auto It = RenderDataArray.CreateConstIterator(); It; ++It)
 	{
+		if(0 == (*It).Indices.Num())
+		{
+			continue;
+		}
 		FSlateDrawElement::MakeCustomVerts(
 			OutDrawElements,
 			LayerId,

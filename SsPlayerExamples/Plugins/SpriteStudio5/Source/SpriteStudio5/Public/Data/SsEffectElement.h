@@ -66,13 +66,13 @@ struct SPRITESTUDIO5_API FSsVarianceValueFloat
 	GENERATED_USTRUCT_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsVarianceValue, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsVarianceValue)
 	TEnumAsByte<SsVarianceValueRangeType::Type> RangeType;
 
-	UPROPERTY(VisibleAnywhere, Category=SsVarianceValue, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsVarianceValue)
 	float Value;
 
-	UPROPERTY(VisibleAnywhere, Category=SsVarianceValue, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsVarianceValue)
 	float SubValue;
 
 public:
@@ -123,13 +123,13 @@ struct SPRITESTUDIO5_API FSsVarianceValueInt
 	GENERATED_USTRUCT_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsVarianceValue, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsVarianceValue)
 	TEnumAsByte<SsVarianceValueRangeType::Type> RangeType;
 
-	UPROPERTY(VisibleAnywhere, Category=SsVarianceValue, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsVarianceValue)
 	int32 Value;
 
-	UPROPERTY(VisibleAnywhere, Category=SsVarianceValue, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsVarianceValue)
 	int32 SubValue;
 
 public:
@@ -180,13 +180,13 @@ struct SPRITESTUDIO5_API FSsVarianceValueColor
 	GENERATED_USTRUCT_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsVarianceValue, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsVarianceValue)
 	TEnumAsByte<SsVarianceValueRangeType::Type> RangeType;
 
-	UPROPERTY(VisibleAnywhere, Category=SsVarianceValue, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsVarianceValue)
 	FSsU8Color Value;
 
-	UPROPERTY(VisibleAnywhere, Category=SsVarianceValue, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsVarianceValue)
 	FSsU8Color SubValue;
 
 public:
@@ -232,7 +232,7 @@ struct SPRITESTUDIO5_API FSsEffectElementBase
 	virtual void Serialize(FArchive& Ar){}
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly, Transient)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, Transient)
 	TEnumAsByte<SsEffectFunctionType::Type> MyType;
 
 public:
@@ -252,31 +252,31 @@ struct SPRITESTUDIO5_API FSsParticleElementBasic  : public FSsEffectElementBase
 	void Serialize(FArchive& Ar) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	int32 MaximumParticle;
 
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	FSsVarianceValueFloat Speed;
 
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	FSsVarianceValueInt Lifespan;
 
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	float Angle;
 
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	float AngleVariance;
 
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	int32 Interval;
 
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	int32 Lifetime;
 
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	int32 AttimeCreate;
 
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	int32 Priority;
 
 public:
@@ -305,7 +305,7 @@ struct SPRITESTUDIO5_API FSsParticleElementRndSeedChange : public FSsEffectEleme
 	void Serialize(FArchive& Ar) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	int32 Seed;
 
 public:
@@ -325,7 +325,7 @@ struct SPRITESTUDIO5_API FSsParticleElementDelay : public FSsEffectElementBase
 	void Serialize(FArchive& Ar) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	int32 DelayTime;
 
 public:
@@ -345,7 +345,7 @@ struct SPRITESTUDIO5_API FSsParticleElementGravity : public FSsEffectElementBase
 	void Serialize(FArchive& Ar) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	FVector2D Gravity;
 
 public:
@@ -365,10 +365,10 @@ struct SPRITESTUDIO5_API FSsParticleElementPosition : public FSsEffectElementBas
 	void Serialize(FArchive& Ar) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	FSsVarianceValueFloat OffsetX;
 
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	FSsVarianceValueFloat OffsetY;
 
 public:
@@ -389,10 +389,10 @@ struct SPRITESTUDIO5_API FSsParticleElementRotation : public FSsEffectElementBas
 	void Serialize(FArchive& Ar) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	FSsVarianceValueFloat Rotation;
 
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	FSsVarianceValueFloat RotationAdd;
 
 public:
@@ -413,10 +413,10 @@ struct SPRITESTUDIO5_API FSsParticleElementRotationTrans : public FSsEffectEleme
 	void Serialize(FArchive& Ar) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	float RotationFactor;
 
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	float EndLifeTimePer;
 
 public:
@@ -436,7 +436,7 @@ struct SPRITESTUDIO5_API FSsParticleElementTransSpeed : public FSsEffectElementB
 	void Serialize(FArchive& Ar) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	FSsVarianceValueFloat Speed;
 
 public:
@@ -456,7 +456,7 @@ struct SPRITESTUDIO5_API FSsParticleElementTangentialAcceleration : public FSsEf
 	void Serialize(FArchive& Ar) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	FSsVarianceValueFloat Acceleration;
 
 public:
@@ -476,7 +476,7 @@ struct SPRITESTUDIO5_API FSsParticleElementInitColor : public FSsEffectElementBa
 	void Serialize(FArchive& Ar) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	FSsVarianceValueColor Color;
 
 public:
@@ -496,7 +496,7 @@ struct SPRITESTUDIO5_API FSsParticleElementTransColor : public FSsEffectElementB
 	void Serialize(FArchive& Ar) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	FSsVarianceValueColor Color;
 
 public:
@@ -516,7 +516,7 @@ struct SPRITESTUDIO5_API FSsParticleElementAlphaFade : public FSsEffectElementBa
 	void Serialize(FArchive& Ar) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	FSsVarianceValueFloat Disprange;
 
 public:
@@ -536,13 +536,13 @@ struct SPRITESTUDIO5_API FSsParticleElementSize : public FSsEffectElementBase
 	void Serialize(FArchive& Ar) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	FSsVarianceValueFloat SizeX;
 
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	FSsVarianceValueFloat SizeY;
 
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	FSsVarianceValueFloat ScaleFactor;
 
 public:
@@ -564,13 +564,13 @@ struct SPRITESTUDIO5_API FSsParticleElementTransSize : public FSsEffectElementBa
 	void Serialize(FArchive& Ar) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	FSsVarianceValueFloat SizeX;
 
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	FSsVarianceValueFloat SizeY;
 
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	FSsVarianceValueFloat ScaleFactor;
 
 public:
@@ -592,10 +592,10 @@ struct SPRITESTUDIO5_API FSsParticlePointGravity : public FSsEffectElementBase
 	void Serialize(FArchive& Ar) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	FVector2D Position;
 
-	UPROPERTY(VisibleAnywhere, Category=SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsEffectElement)
 	float Power;
 
 public:
@@ -615,7 +615,7 @@ struct SPRITESTUDIO5_API FSsParticleTurnToDirectionEnabled : public FSsEffectEle
 	void Serialize(FArchive& Ar) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, Category = SsEffectElement, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category = SsEffectElement)
 	float Rotation;
 
 public:

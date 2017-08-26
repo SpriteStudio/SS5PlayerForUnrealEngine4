@@ -32,28 +32,28 @@ public:
 	//他のメンバーもあるが、必要最低限のものを読み込む
 
 	//アニメーションファイルの相対指定等
-	UPROPERTY(VisibleAnywhere, Category=SsProjectSetting, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsProjectSetting)
 	FString		AnimeBaseDirectory;			//!< アニメーションデータの読み書き基準ディレクトリ。
 
-	UPROPERTY(VisibleAnywhere, Category=SsProjectSetting, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsProjectSetting)
 	FString		CellMapBaseDirectory;		//!< セルマップデータの読み書き基準ディレクトリ。
 
-	UPROPERTY(VisibleAnywhere, Category=SsProjectSetting, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsProjectSetting)
 	FString		ImageBaseDirectory;			//!< 画像データの読み込み元先基準ディレクトリ。
 
-	UPROPERTY(VisibleAnywhere, Category=SsProjectSetting, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsProjectSetting)
 	FString		EffectBaseDirectory;		//!< エフェクトデータの読み込み元先基準ディレクトリ。
 
-	UPROPERTY(VisibleAnywhere, Category=SsProjectSetting, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsProjectSetting)
 	FString		ExportBaseDirectory;		//!< エクスポート先の基準ディレクトリ。
 
-	UPROPERTY(VisibleAnywhere, Category=SsProjectSetting, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsProjectSetting)
 	bool		QueryExportBaseDirectory;	//!< エクスポート先の基準ディレクトリ指定をさせるか？ 
 
-	UPROPERTY(VisibleAnywhere, Category=SsProjectSetting, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsProjectSetting)
 	TEnumAsByte<SsTexWrapMode::Type>	WrapMode;			//!< テクスチャのラップモード
 
-	UPROPERTY(VisibleAnywhere, Category=SsProjectSetting, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsProjectSetting)
 	TEnumAsByte<SsTexFilterMode::Type>	FilterMode;			//!< テクスチャのフィルタモード
 };
 
@@ -70,28 +70,28 @@ class SPRITESTUDIO5_API USsProject : public UObject
 	virtual void Serialize(FArchive& Ar) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsProject, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsProject)
 	FString				Version;
 
-	UPROPERTY(VisibleAnywhere, Category=SsProject, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsProject)
 	FSsProjectSetting	Settings;			//!< プロジェクト設定
 
-	UPROPERTY(VisibleAnywhere, Category=SsProject, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsProject)
 	TArray<FName>		CellmapNames;		//!< セルマップファイルのリスト
 
-	UPROPERTY(VisibleAnywhere, Category=SsProject, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsProject)
 	TArray<FName>		AnimepackNames;		//!< アニメファイルのリスト
 
-	UPROPERTY(VisibleAnywhere, Category=SsProject, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsProject)
 	TArray<FName>		EffectFileNames;	//!< エフェクトファイルのリスト
 
-	UPROPERTY(VisibleAnywhere, Category=SsProject, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsProject)
 	TArray<FSsCellMap>		CellmapList;	//!< セルマップリスト
 
-	UPROPERTY(VisibleAnywhere, Category=SsProject, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsProject)
 	TArray<FSsAnimePack>	AnimeList;		//!< アニメーションのリスト	
 
-	UPROPERTY(VisibleAnywhere, Category=SsProject, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsProject)
 	TArray<FSsEffectFile>	EffectList;		//!< エフェクトリスト	
 
 #if WITH_EDITORONLY_DATA

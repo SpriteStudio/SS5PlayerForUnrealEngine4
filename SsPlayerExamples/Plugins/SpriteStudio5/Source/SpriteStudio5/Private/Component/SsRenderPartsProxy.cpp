@@ -82,7 +82,7 @@ void FSsPartsIndexBuffer::InitRHI()
 //
 // VertexFactory 
 //
-IMPLEMENT_VERTEX_FACTORY_TYPE(FSsPartsVertexFactory, "LocalVertexFactory", true, true, true, true, true);
+IMPLEMENT_VERTEX_FACTORY_TYPE(FSsPartsVertexFactory, "/Engine/Private/LocalVertexFactory.ush", true, true, true, true, true);
 
 bool FSsPartsVertexFactory::ShouldCache(EShaderPlatform Platform, const class FMaterial* Material, const class FShaderType* ShaderType)
 {

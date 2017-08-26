@@ -172,13 +172,9 @@ public:
 	UPROPERTY(Category=SpriteStudioRenderSettings, EditAnywhere, BlueprintReadOnly)
 	TEnumAsByte<ESsPlayerWidgetRenderMode::Type> RenderMode;
 
-	// オンにすると、クリッピング範囲を無視して範囲外のパーツも描画します(Default描画モードのみ) 
+	// オンにすると、ウィジェットの範囲外のパーツも描画します(Default描画モードのみ) 
 	UPROPERTY(Category=SpriteStudioRenderSettings, EditAnywhere, BlueprintReadOnly)
 	bool bIgnoreClipRect;
-
-	// オンにすると、子ウィジェットのクリップによる変形を無効化します 
-	UPROPERTY(Category=SpriteStudioRenderSettings, EditAnywhere, BlueprintReadOnly)
-	bool bIgnoreChildClipRect;
 
 	// 描画モードがOffScreenの場合のベースマテリアル 
 	UPROPERTY(Category=SpriteStudioRenderSettings, EditAnywhere, BlueprintReadOnly, meta=(DisplayThumbnail="true"))

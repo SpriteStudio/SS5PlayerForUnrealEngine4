@@ -14,16 +14,16 @@ struct SPRITESTUDIO5_API FSsKeyframe
 	void Serialize(FArchive& Ar);
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsKeyframe, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsKeyframe)
 	int32	Time;	///< 時間
 
-	UPROPERTY(VisibleAnywhere, Category=SsKeyframe, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsKeyframe)
 	TEnumAsByte<SsInterpolationType::Type>	IpType;	///< 補間タイプ
 
-	UPROPERTY(VisibleAnywhere, Category=SsKeyframe, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsKeyframe)
 	FSsCurve	Curve;	///< 曲線補間計算用パラメータ
 
-	UPROPERTY(VisibleAnywhere, Category=SsKeyframe, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsKeyframe)
 	FSsValue	Value;	///< 値
 public:
 	FSsKeyframe()
@@ -42,10 +42,10 @@ struct SPRITESTUDIO5_API FSsAttribute	//Tag毎に存在する
 
 public:
 	//キーフレームデータ : Value（タグによって異なるの組み)
-	UPROPERTY(VisibleAnywhere, Category=SsAttribute, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsAttribute)
 	TEnumAsByte<SsAttributeKind::Type> Tag;
 
-	UPROPERTY(VisibleAnywhere, Category=SsAttribute, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsAttribute)
 	TArray<FSsKeyframe> Key;
 
 public:

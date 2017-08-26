@@ -57,7 +57,6 @@ USsPlayerWidget2::USsPlayerWidget2(const FObjectInitializer& ObjectInitializer)
 	, bDontUpdateIfHidden(false)
 	, RenderMode(ESsPlayerWidgetRenderMode::UMG_Default)
 	, bIgnoreClipRect(false)
-	, bIgnoreChildClipRect(false)
 	, BaseMaterial(nullptr)
 	, OffScreenRenderResolution(512, 512)
 {
@@ -134,13 +133,6 @@ void USsPlayerWidget2::PostEditChangeProperty(FPropertyChangedEvent& PropertyCha
 				PlayerWidget->bIgnoreClipRect = bIgnoreClipRect;
 			}
 		}
-		else if(0 == PropertyChangedEvent.Property->GetNameCPP().Compare(TEXT("bIgnoreChildClipRect")))
-		{
-			if(PlayerWidget.IsValid())
-			{
-				PlayerWidget->bIgnoreChildClipRect = bIgnoreChildClipRect;
-			}
-		}
 	}
 }
 #endif
@@ -173,7 +165,6 @@ void USsPlayerWidget2::SynchronizeProperties()
 	if(PlayerWidget.IsValid())
 	{
 		PlayerWidget->bIgnoreClipRect = bIgnoreClipRect;
-		PlayerWidget->bIgnoreChildClipRect = bIgnoreChildClipRect;
 
 		switch(RenderMode)
 		{
@@ -252,7 +243,6 @@ TSharedRef<SWidget> USsPlayerWidget2::RebuildWidget()
 {
 	PlayerWidget = SNew(SSsPlayerWidget);
 	PlayerWidget->bIgnoreClipRect = bIgnoreClipRect;
-	PlayerWidget->bIgnoreChildClipRect = bIgnoreChildClipRect;
 
 	for(auto It = Slots.CreateConstIterator(); It; ++It)
 	{

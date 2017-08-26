@@ -30,10 +30,10 @@ struct FSsValue
 	void Serialize(FArchive& Ar);
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsValue, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsValue)
 	TEnumAsByte<SsValueType::Type> Type;
 
-	UPROPERTY(VisibleAnywhere, Category=SsValue, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsValue)
 	FString		ValueName;
 
 	union{

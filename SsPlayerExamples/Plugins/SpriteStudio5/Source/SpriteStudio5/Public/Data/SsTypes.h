@@ -176,27 +176,27 @@ struct FSsCurve
 	GENERATED_USTRUCT_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere, Category=SsCurve, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsCurve)
 	float StartTime;		///< 始点キーの時間から制御点の時間へのオフセット値。Ｘ軸に当たる。
 
-	UPROPERTY(VisibleAnywhere, Category=SsCurve, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsCurve)
 	float StartValue;		///< 始点キーの値から	〃	。Ｙ軸	〃
 
-	UPROPERTY(VisibleAnywhere, Category=SsCurve, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsCurve)
 	float EndTime;		///< 終点キーの時間から制御点の時間へのオフセット値。Ｘ軸に当たる。
 
-	UPROPERTY(VisibleAnywhere, Category=SsCurve, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsCurve)
 	float EndValue;		///< 終点キーの値から	〃	。Ｙ軸	〃
 
 
-	UPROPERTY(VisibleAnywhere, Category=SsCurve, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsCurve)
 	float StartKeyTime;	///< [ワークパラメータ] 始点キーの時間 計算時のみ使用
 
-	UPROPERTY(VisibleAnywhere, Category=SsCurve, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsCurve)
 	float EndKeyTime;		///< [ワークパラメータ] 終点キーの時間 計算時のみ使用
 
 
-	UPROPERTY(VisibleAnywhere, Category=SsCurve, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category=SsCurve)
 	bool SyncStartEnd;		///< [編集用パラメータ]カーブエディタでの編集時に始点・終点ハンドルを同期して動かすか？
 
 	FSsCurve() : StartTime(0.f), StartValue(0.f), EndTime(0.f), EndValue(0.f), StartKeyTime(0.f), EndKeyTime(0.f){}

@@ -76,7 +76,7 @@ ASsPlayerActor* USsStatics::SpawnSsPlayerAtLocationByIndex(
 		return NULL;
 	}
 
-	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject);
+	UWorld* World = GEngine->GetWorldFromContextObjectChecked(WorldContextObject);
 	if(NULL == World)
 	{
 		return NULL;
