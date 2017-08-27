@@ -172,7 +172,7 @@ public:
 	UPROPERTY(Category=SpriteStudioRenderSettings, EditAnywhere, BlueprintReadOnly)
 	TEnumAsByte<ESsPlayerWidgetRenderMode::Type> RenderMode;
 
-	// オンにすると、ウィジェットの範囲外のパーツも描画します(Default描画モードのみ) 
+	// オンにすると、ウィジェットの範囲外のパーツも描画します(Default描画モードのみ)(UMG標準のClippingが優先) 
 	UPROPERTY(Category=SpriteStudioRenderSettings, EditAnywhere, BlueprintReadOnly)
 	bool bIgnoreClipRect;
 

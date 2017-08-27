@@ -652,7 +652,10 @@ int32 SSsPlayerWidget::OnPaint(
 		if(bWereOverlapping)
 		{
 			FSlateClippingManager& ClippingManager = OutDrawElements.GetClippingManager();
-			ClippingManager.PushClip(FSlateClippingZone(ChildClipRect));
+			if(EWidgetClipping::Inherit != this->Clipping)
+			{
+				ClippingManager.PushClip(FSlateClippingZone(CurWidget.Geometry));
+			}
 
 			const int32 CurWidgetsMaxLayerId = CurWidget.Widget->Paint(
 				NewArgs,
@@ -665,7 +668,10 @@ int32 SSsPlayerWidget::OnPaint(
 				);
 			MaxLayerId = FMath::Max(MaxLayerId, CurWidgetsMaxLayerId);
 
-			ClippingManager.PopClip();
+			if(EWidgetClipping::Inherit != this->Clipping)
+			{
+				ClippingManager.PopClip();
+			}
 		}
 	}
 
