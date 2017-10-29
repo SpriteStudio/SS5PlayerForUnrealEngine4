@@ -260,12 +260,6 @@ namespace
 								FPlane((Left+Right)/(Left-Right),	(Top+Bottom)/(Bottom-Top),	ZNear/(ZNear-ZFar), 1 ) );
 		}
 
-		if(GRHISupportsBaseVertexIndex)
-		{
-			RHICmdList.SetStreamSource(0, RenderParts.VertexBuffer->VertexBufferRHI, sizeof(FSsOffScreenVertex), 0);
-		}
-
-
 		// 頂点バッファへ書き込み 
 		if(0 < RenderParts.RenderParts.Num())
 		{
@@ -413,6 +407,7 @@ namespace
 
 			if(GRHISupportsBaseVertexIndex)
 			{
+				RHICmdList.SetStreamSource(0, RenderParts.VertexBuffer->VertexBufferRHI, 0);
 				RHICmdList.DrawIndexedPrimitive(
 					RenderParts.IndexBuffer->IndexBufferRHI,
 					PT_TriangleList,
@@ -429,7 +424,6 @@ namespace
 				RHICmdList.SetStreamSource(
 					0,												//StreamIndex
 					RenderParts.VertexBuffer->VertexBufferRHI,
-					sizeof(FSsOffScreenVertex),
 					sizeof(FSsOffScreenVertex) * (StartPartIndex * 4)	//Offset
 					);
 				RHICmdList.DrawIndexedPrimitive(

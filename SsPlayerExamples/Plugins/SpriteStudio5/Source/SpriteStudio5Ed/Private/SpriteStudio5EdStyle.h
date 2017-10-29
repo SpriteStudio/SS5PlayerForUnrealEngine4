@@ -11,7 +11,7 @@ public:
 		: FSlateStyleSet("SpriteStudio5EdStyle")
 
 	{
-		SetContentRoot(FPaths::GamePluginsDir() / TEXT("SpriteStudio5/Resources"));
+		SetContentRoot(FPaths::ProjectPluginsDir() / TEXT("SpriteStudio5/Resources"));
 
 		Set("PlayIcon", new IMAGE_BRUSH("play_icon", FVector2D(40.f, 40.f)));
 		Set("PrevIcon", new IMAGE_BRUSH("prev_icon", FVector2D(40.f, 40.f)));
