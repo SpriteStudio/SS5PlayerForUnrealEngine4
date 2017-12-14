@@ -20,6 +20,20 @@ USsProject* FSsLoader::LoadSsProject(UObject* InParent, FName InName, EObjectFla
 
 	SsXmlIArchiver ar(&xml, "SpriteStudioProject");
 
+	FString VersionStr;
+	if(!ar.dc_attr("version", VersionStr) || !VersionStr.StartsWith("1."))
+	{
+		if(VersionStr.StartsWith("2."))
+		{
+			UE_LOG(LogSpriteStudioEd, Error, TEXT("Not Support SSPJ Version:%s . Use SpriteStudio6 plugin."), *VersionStr);
+		}
+		else
+		{
+			UE_LOG(LogSpriteStudioEd, Error, TEXT("Not Support SSPJ Version:%s"), *VersionStr);
+		}
+		return nullptr;
+	}
+
 	USsProject* Proj = NewObject<USsProject>(InParent, InName, Flags);
 	SerializeSsProject(*Proj, &ar);
 
