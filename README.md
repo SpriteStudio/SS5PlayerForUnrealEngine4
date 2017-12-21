@@ -7,7 +7,7 @@ https://github.com/SpriteStudio/SS5PlayerForUnrealEngine4/wiki
 http://historia.co.jp/spritestudio
 
 ##### 対応UE4バージョン
-UE4.17
+UE4.18
 
 
 ※ UE4.16以前のバージョンでは、導入の際に、シェーダファイルをエンジンのインストールフォルダにコピーする必要がありますので、ご注意下さい  
