@@ -342,7 +342,7 @@ void USsPlayerWidget2::UpdatePlayer(float DeltaSeconds)
 							UMaterialInstanceDynamic* NewMID = UMaterialInstanceDynamic::Create(BasePartsMaterials[MatIdx], GetTransientPackage());
 							if(NewMID)
 							{
-								NewMID->AddToRoot();
+								PartsMIDRef.Add(NewMID);
 								NewMID->SetFlags(RF_Transient);
 								NewMID->SetTextureParameterValue(FName(TEXT("SsCellTexture")), RenderParts[i].Texture);
 								ppMID = &(PartsMIDMap[MatIdx].Add(RenderParts[i].Texture, NewMID));
