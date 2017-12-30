@@ -1192,12 +1192,12 @@ bool FSsAnimeDecoder::CreateRenderPart(FSsRenderPart& OutRenderPart, FSsPartStat
 {
 	// 各種非表示チェック
 	if(!State){ return false; }
-	if(State->NoCells){ return false; }
-	if(NULL == State->CellValue.Cell) { return false; }
-	if(NULL == State->CellValue.Texture) { return false; }
 	float HideAlpha = 1.f;
 	if(!bCalcHideParts)
 	{
+		if(State->NoCells){ return false; }
+		if(NULL == State->CellValue.Cell) { return false; }
+		if(NULL == State->CellValue.Texture) { return false; }
 		if(State->Hide) { return false; }
 		if(0.0f == State->Alpha){ return false; }
 	}
