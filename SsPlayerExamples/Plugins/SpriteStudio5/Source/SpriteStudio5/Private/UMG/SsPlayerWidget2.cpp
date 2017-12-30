@@ -600,3 +600,38 @@ FName USsPlayerWidget2::GetPartColorLabelByIndex(int32 PartIndex)
 {
 	return Player.GetPartColorLabel(PartIndex);
 }
+
+bool USsPlayerWidget2::GetPartTransform(FName PartName, FVector2D& OutPosition, float& OutAngle, FVector2D& OutScale) const
+{
+	int32 PartIndex = Player.GetPartIndexFromName(PartName);
+	if(0 <= PartIndex)
+	{
+		return GetPartTransformByIndex(PartIndex, OutPosition, OutAngle, OutScale);
+	}
+	return false;
+}
+
+bool USsPlayerWidget2::GetPartTransformByIndex(int32 PartIndex, FVector2D& OutPosition, float& OutAngle, FVector2D& OutScale) const
+{
+	if(!Player.GetPartTransform(PartIndex, OutPosition, OutAngle, OutScale))
+	{
+		return false;
+	}
+
+	// UMGの座標系に合わせる 
+	OutPosition.Y *= -1.f;
+	OutAngle *= -1.f;
+	if(Player.bFlipH)
+	{
+		OutPosition.X = 1.f - OutPosition.X;
+		OutAngle *= -1.f;
+	}
+	if(Player.bFlipV)
+	{
+		OutPosition.Y = 1.f - OutPosition.Y;
+		OutAngle *= -1.f;
+	}
+	
+
+	return true;
+}
