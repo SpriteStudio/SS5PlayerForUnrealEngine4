@@ -6,6 +6,14 @@ https://github.com/SpriteStudio/SS5PlayerForUnrealEngine4/wiki
 チュートリアルと機能リファレンスはこちらです。  
 http://historia.co.jp/spritestudio
 
+
+SS5Player for Unreal Engine 4は開発を終了しました。  
+
+現在開発中のSS6Player for Unreal Engine 4はこちらです。  
+https://github.com/SpriteStudio/SS6PlayerForUnrealEngine4
+
+SS5Player for Unreal Engine 4の今後のサポート等はUE4のバージョンアップに伴うプラグインのビルド対応を2018/12まで提供する予定です。  
+
 ##### 対応UE4バージョン
 UE4.18
 
