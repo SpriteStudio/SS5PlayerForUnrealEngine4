@@ -55,6 +55,7 @@ USsPlayerWidget2::USsPlayerWidget2(const FObjectInitializer& ObjectInitializer)
 	, AutoPlayLoopCount(0)
 	, bAutoPlayRoundTrip(false)
 	, bDontUpdateIfHidden(false)
+	, bTickableWhenPaused(false)
 	, RenderMode(ESsPlayerWidgetRenderMode::UMG_Default)
 	, bIgnoreClipRect(false)
 	, BaseMaterial(nullptr)
@@ -204,17 +205,6 @@ void USsPlayerWidget2::Tick(float DeltaTime)
 	if(Player.GetSsProject().IsStale())
 	{
 		SynchronizeProperties();
-	}
-
-	// １フレームに複数回の呼び出しが来てしまうのに対処. 
-	// UObject と FTickableGameObject を併用した際のバグらしい？ 
-	if(GetWorld())
-	{
-		if((GetWorld()->TimeSeconds - BackWorldTime + 0.001f) < DeltaTime)
-		{
-			return;
-		}
-		BackWorldTime = this->GetWorld()->TimeSeconds;
 	}
 #endif
 
