@@ -1,15 +1,9 @@
 ﻿#pragma once
 
+#include "RHIDefinitions.h"
 #include "PrimitiveSceneProxy.h"
+#include "StaticMeshResources.h"
 
-
-// VertexBuffer
-class FSsPartsVertexBuffer : public FVertexBuffer
-{
-public:
-	virtual void InitRHI() override;
-	uint32 NumVerts;
-};
 
 // IndexBuffer
 class FSsPartsIndexBuffer : public FIndexBuffer
@@ -22,14 +16,25 @@ public:
 // VertexFactory
 class FSsPartsVertexFactory : public FLocalVertexFactory
 {
-public:
 	DECLARE_VERTEX_FACTORY_TYPE(FSsPartsVertexFactory);
+public:
+	FSsPartsVertexFactory(ERHIFeatureLevel::Type InFeatureLevel, const char* InDebugName)
+		: FLocalVertexFactory(InFeatureLevel, InDebugName)
+	{}
 
-	static bool ShouldCache(EShaderPlatform Platform, const class FMaterial* Material, const class FShaderType* ShaderType);
-	static void ModifyCompilationEnvironment(EShaderPlatform Platform, const FMaterial* Material, FShaderCompilerEnvironment& OutEnvironment);
+	static bool ShouldCompilePermutation(EShaderPlatform Platform, const class FMaterial* Material, const class FShaderType* ShaderType)
+	{
+		return FLocalVertexFactory::ShouldCompilePermutation(Platform, Material, ShaderType);
+	}
+	static void ModifyCompilationEnvironment(EShaderPlatform Platform, const FMaterial* Material, FShaderCompilerEnvironment& OutEnvironment)
+	{
+		FLocalVertexFactory::ModifyCompilationEnvironment(Platform, Material, OutEnvironment);
+	}
+	static bool SupportsTessellationShaders()
+	{
+		return FLocalVertexFactory::SupportsTessellationShaders();
+	}
 	static FVertexFactoryShaderParameters* ConstructShaderParameters(EShaderFrequency ShaderFrequency);
-
-	void Init(const FSsPartsVertexBuffer* VertexBuffer);
 };
 
 // VertexFactoryShaderParameters
@@ -51,6 +56,8 @@ public:
 	virtual ~FSsRenderPartsProxy();
 
 	// FPrimitiveSceneProxy interface
+	virtual SIZE_T GetTypeHash() const override;
+	virtual void CreateRenderThreadResources() override;
 	virtual void GetDynamicMeshElements(const TArray<const FSceneView*>& Views, const FSceneViewFamily& ViewFamily, uint32 VisibilityMap, FMeshElementCollector& Collector) const override;
 	virtual FPrimitiveViewRelevance GetViewRelevance(const FSceneView* View) const override;
 	virtual uint32 GetMemoryFootprint() const override;
@@ -68,7 +75,9 @@ private:
 	TArray<FSsRenderPartWithMaterial> RenderParts;
 	FVector2D Pivot;
 
-	FSsPartsVertexBuffer  VertexBuffer;
-	FSsPartsIndexBuffer   IndexBuffer;
+	uint32 MaxPartsNum;
+
+	FStaticMeshVertexBuffers VertexBuffers;
+	FSsPartsIndexBuffer IndexBuffer;
 	FSsPartsVertexFactory VertexFactory;
 };

@@ -44,18 +44,6 @@ namespace
 };
 
 //
-// VertexBuffer 
-//
-void FSsPartsVertexBuffer::InitRHI()
-{
-	if(0 < NumVerts)
-	{
-		FRHIResourceCreateInfo CreateInfo;
-		VertexBufferRHI = RHICreateVertexBuffer(NumVerts * sizeof(FSsPartVertex), BUF_Dynamic, CreateInfo);
-	}
-}
-
-//
 // IndexBuffer 
 //
 void FSsPartsIndexBuffer::InitRHI()
@@ -84,52 +72,11 @@ void FSsPartsIndexBuffer::InitRHI()
 //
 IMPLEMENT_VERTEX_FACTORY_TYPE(FSsPartsVertexFactory, "/Engine/Private/LocalVertexFactory.ush", true, true, true, true, true);
 
-bool FSsPartsVertexFactory::ShouldCache(EShaderPlatform Platform, const class FMaterial* Material, const class FShaderType* ShaderType)
-{
-	return (   Material->GetFriendlyName().StartsWith("WorldGridMaterial")
-			|| Material->GetFriendlyName().StartsWith("WireframeMaterial")
-			|| Material->GetFriendlyName().StartsWith("SsPart_")
-			)
-		&& FLocalVertexFactory::ShouldCache(Platform, Material, ShaderType);
-}
-void FSsPartsVertexFactory::ModifyCompilationEnvironment(EShaderPlatform Platform, const FMaterial* Material, FShaderCompilerEnvironment& OutEnvironment)
-{
-	FLocalVertexFactory::ModifyCompilationEnvironment(Platform, Material, OutEnvironment);
-}
 FVertexFactoryShaderParameters* FSsPartsVertexFactory::ConstructShaderParameters(EShaderFrequency ShaderFrequency)
 {
-	return (ShaderFrequency == SF_Pixel) ? new FSsPartVertexFactoryShaderParameters() : NULL;
-}
-void FSsPartsVertexFactory::Init(const FSsPartsVertexBuffer* VertexBuffer)
-{
-	if(IsInRenderingThread())
-	{
-		FLocalVertexFactory::FDataType NewData;
-		NewData.PositionComponent = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, Position, VET_Float3);
-		NewData.TextureCoordinates.Add(FVertexStreamComponent(VertexBuffer, STRUCT_OFFSET(FSsPartVertex,TexCoord), sizeof(FSsPartVertex), VET_Float2));
-		NewData.ColorComponent = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, Color, VET_Color);
-		NewData.TextureCoordinates.Add(FVertexStreamComponent(VertexBuffer, STRUCT_OFFSET(FSsPartVertex,ColorBlend), sizeof(FSsPartVertex), VET_Float2));
-		NewData.TangentBasisComponents[0] = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, TangentX, VET_PackedNormal);
-		NewData.TangentBasisComponents[1] = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, TangentZ, VET_PackedNormal);
-		SetData(NewData);
-	}
-	else
-	{
-		ENQUEUE_UNIQUE_RENDER_COMMAND_TWOPARAMETER(
-			FInitSsPartsVertexFactory,
-			FSsPartsVertexFactory*, VertexFactory, this,
-			const FSsPartsVertexBuffer*, VertexBuffer, VertexBuffer,
-		{
-			FDataType NewData;
-			NewData.PositionComponent = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, Position, VET_Float3);
-			NewData.TextureCoordinates.Add(FVertexStreamComponent(VertexBuffer, STRUCT_OFFSET(FSsPartVertex,TexCoord), sizeof(FSsPartVertex), VET_Float2));
-			NewData.ColorComponent = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, Color, VET_Color);
-			NewData.TextureCoordinates.Add(FVertexStreamComponent(VertexBuffer, STRUCT_OFFSET(FSsPartVertex,ColorBlend), sizeof(FSsPartVertex), VET_Float2));
-			NewData.TangentBasisComponents[0] = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, TangentX, VET_PackedNormal);
-			NewData.TangentBasisComponents[1] = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, FSsPartVertex, TangentZ, VET_PackedNormal);
-			VertexFactory->SetData(NewData);
-		});
-	}
+	return (ShaderFrequency == SF_Pixel)
+		? (FVertexFactoryShaderParameters*)new FSsPartVertexFactoryShaderParameters()
+		: FLocalVertexFactory::ConstructShaderParameters(ShaderFrequency);
 }
 
 //
@@ -185,31 +132,38 @@ FSsRenderPartsProxy::FSsRenderPartsProxy(USsPlayerComponent* InComponent, uint32
 	: FPrimitiveSceneProxy(InComponent)
 	, CanvasSizeUU(100.f, 100.f)
 	, Pivot(0.f, 0.f)
+	, MaxPartsNum(InMaxPartsNum)
+	, VertexFactory(GetScene().GetFeatureLevel(), "FSsRenderPartsProxy")
 {
 	// FPrimitiveSceneProxy
 	bWillEverBeLit = false;
 
 	Component = InComponent;
-
-	VertexBuffer.NumVerts  = 4 * InMaxPartsNum;
-	IndexBuffer.NumIndices = 6 * InMaxPartsNum;
-	VertexFactory.Init(&VertexBuffer);
-
-	BeginInitResource(&VertexBuffer);
-	BeginInitResource(&IndexBuffer);
-	BeginInitResource(&VertexFactory);
-
 	bVerifyUsedMaterials = false;
 }
 
 // デストラクタ
 FSsRenderPartsProxy::~FSsRenderPartsProxy()
 {
-	VertexBuffer.ReleaseResource();
+	VertexBuffers.PositionVertexBuffer.ReleaseResource();
+	VertexBuffers.StaticMeshVertexBuffer.ReleaseResource();
+	VertexBuffers.ColorVertexBuffer.ReleaseResource();
 	IndexBuffer.ReleaseResource();
 	VertexFactory.ReleaseResource();
 }
 
+SIZE_T FSsRenderPartsProxy::GetTypeHash() const
+{
+	static size_t UniquePointer;
+	return reinterpret_cast<size_t>(&UniquePointer);
+}
+
+void FSsRenderPartsProxy::CreateRenderThreadResources()
+{
+	VertexBuffers.InitWithDummyData(&VertexFactory, MaxPartsNum * 4, 2);
+	IndexBuffer.NumIndices = MaxPartsNum * 6;
+	IndexBuffer.InitResource();
+}
 
 void FSsRenderPartsProxy::GetDynamicMeshElements(const TArray<const FSceneView*>& Views, const FSceneViewFamily& ViewFamily, uint32 VisibilityMap, FMeshElementCollector& Collector) const
 {
@@ -259,22 +213,24 @@ void FSsRenderPartsProxy::GetDynamicMeshElements(const TArray<const FSceneView*>
 
 				// Draw the mesh.
 				FMeshBatch& Mesh = Collector.AllocateMesh();
+				Mesh.VertexFactory              = &VertexFactory;
+				Mesh.MaterialRenderProxy        = MaterialProxy;
+				Mesh.ReverseCulling             = IsLocalToWorldDeterminantNegative();
+				Mesh.CastShadow                 = true;
+				Mesh.DepthPriorityGroup         = SDPG_World;
+				Mesh.Type                       = PT_TriangleList;
+				Mesh.bDisableBackfaceCulling    = true;
+				Mesh.bCanApplyViewModeOverrides = false;
+
 				FMeshBatchElement& BatchElement = Mesh.Elements[0];
-				BatchElement.IndexBuffer = &IndexBuffer;
-				Mesh.bDisableBackfaceCulling = true;
-				Mesh.bWireframe = bWireframe;
-				Mesh.VertexFactory = &VertexFactory;
-				Mesh.MaterialRenderProxy = MaterialProxy;
-				BatchElement.PrimitiveUniformBuffer = CreatePrimitiveUniformBufferImmediate(GetLocalToWorld(), GetBounds(), GetLocalBounds(), true, UseEditorDepthTest());
-				BatchElement.FirstIndex = (StartPartIndex * 6);
-				BatchElement.NumPrimitives = (NumParts * 2);
+				BatchElement.IndexBuffer    = &IndexBuffer;
+				BatchElement.FirstIndex     = (StartPartIndex * 6);
 				BatchElement.MinVertexIndex = (StartPartIndex * 4);
 				BatchElement.MaxVertexIndex = ((StartPartIndex + NumParts) * 4) - 1;
-				BatchElement.UserData = GetBlendTypeAddr(RenderParts[i].AlphaBlendType);
-				Mesh.ReverseCulling = IsLocalToWorldDeterminantNegative();
-				Mesh.Type = PT_TriangleList;
-				Mesh.DepthPriorityGroup = SDPG_World;
-				Mesh.bCanApplyViewModeOverrides = false;
+				BatchElement.NumPrimitives  = (NumParts * 2);
+				BatchElement.UserData       = GetBlendTypeAddr(RenderParts[i].AlphaBlendType);
+				BatchElement.PrimitiveUniformBufferResource = &GetUniformBuffer();
+
 				Collector.AddMesh(ViewIndex, Mesh);
 
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
@@ -291,15 +247,16 @@ void FSsRenderPartsProxy::GetDynamicMeshElements(const TArray<const FSceneView*>
 
 FPrimitiveViewRelevance FSsRenderPartsProxy::GetViewRelevance(const FSceneView* View) const
 {
-	// どこかでちゃんと精査しないと・・・
 	FPrimitiveViewRelevance Result;
-	Result.bDrawRelevance = IsShown(View);
-	Result.bOpaqueRelevance = true;
-	Result.bNormalTranslucencyRelevance = false;
-	Result.bDynamicRelevance = true;
-	Result.bShadowRelevance = IsShadowCast(View);
+	Result.bDrawRelevance                 = IsShown(View);
+	Result.bRenderCustomDepth             = ShouldRenderCustomDepth();
+	Result.bRenderInMainPass              = ShouldRenderInMainPass();
+	Result.bUsesLightingChannels          = false;
+	Result.bOpaqueRelevance               = true;
 	Result.bSeparateTranslucencyRelevance = true;
-//	Result.bEditorPrimitiveRelevance = UseEditorCompositing(View);
+	Result.bNormalTranslucencyRelevance   = false;
+	Result.bShadowRelevance               = IsShadowCast(View);
+	Result.bDynamicRelevance              = true;
 	return Result;
 }
 
@@ -312,37 +269,59 @@ void FSsRenderPartsProxy::SetDynamicData_RenderThread(const TArray<FSsRenderPart
 {
 	RenderParts = InRenderParts;
 
-	if(0 < RenderParts.Num())
+	if(RenderParts.Num() <= 0)
 	{
-		void* VertexBufferData = RHILockVertexBuffer(VertexBuffer.VertexBufferRHI, 0, RenderParts.Num() * 4 * sizeof(FSsPartVertex), RLM_WriteOnly);
-		for(int32 i = 0; i < RenderParts.Num(); ++i)
+		return;
+	}
+
+	FVector TangentY;
+	{
+		FDynamicMeshVertex DummyVert(FVector::ZeroVector, FVector::ForwardVector, FVector::UpVector, FVector2D::ZeroVector, FColor::Black);
+		TangentY = DummyVert.GetTangentY();
+	}
+
+	for(auto ItPart = RenderParts.CreateConstIterator(); ItPart; ++ItPart)
+	{
+		for(int32 i = 0; i < 4; ++i)
 		{
-			for(int32 v = 0; v < 4; ++v)
-			{
-				((FSsPartVertex*)VertexBufferData)[i*4+v].Position  = FVector(
+			int32 Index = ItPart.GetIndex() * 4 + i;
+			VertexBuffers.PositionVertexBuffer.VertexPosition(Index) = FVector(
 					0.f,
-					( RenderParts[i].Vertices[v].Position.X - 0.5f - Pivot.X) * CanvasSizeUU.X,
-					(-RenderParts[i].Vertices[v].Position.Y + 0.5f - Pivot.Y) * CanvasSizeUU.Y
-					);
-
-				((FSsPartVertex*)VertexBufferData)[i*4+v].Color     = RenderParts[i].Vertices[v].Color;
-				((FSsPartVertex*)VertexBufferData)[i*4+v].TangentX  = FVector(1.f, 0.f, 0.f);
-				((FSsPartVertex*)VertexBufferData)[i*4+v].TangentZ  = FVector(0.f, 0.f, 1.f);
-				((FSsPartVertex*)VertexBufferData)[i*4+v].TexCoord  = RenderParts[i].Vertices[v].TexCoord;
-
-				// ColorBlend.X にカラーブレンドモード (マテリアルを分けるのでコレは不要) 
-/*				if(RenderParts[i].ColorBlendType != SsBlendType::Invalid)
-				{
-					((FSsPartVertex*)VertexBufferData)[i*4+v].ColorBlend.X = (float)(RenderParts[i].ColorBlendType + 0.01f);
-				}
-				else
-				{
-					((FSsPartVertex*)VertexBufferData)[i*4+v].ColorBlend.X = 4.01f;
-				}
-*/
-				((FSsPartVertex*)VertexBufferData)[i*4+v].ColorBlend.Y = RenderParts[i].Vertices[v].ColorBlendRate;
-			}
+					( ItPart->Vertices[i].Position.X - 0.5f - Pivot.X) * CanvasSizeUU.X,
+					(-ItPart->Vertices[i].Position.Y + 0.5f - Pivot.Y) * CanvasSizeUU.Y
+				);
+			VertexBuffers.StaticMeshVertexBuffer.SetVertexTangents(Index, FVector::ForwardVector, TangentY, FVector::UpVector);
+			VertexBuffers.StaticMeshVertexBuffer.SetVertexUV(Index, 0, ItPart->Vertices[i].TexCoord);
+			VertexBuffers.StaticMeshVertexBuffer.SetVertexUV(Index, 1, FVector2D(0.f, ItPart->Vertices[i].ColorBlendRate));
+			VertexBuffers.ColorVertexBuffer.VertexColor(Index) = ItPart->Vertices[i].Color;
 		}
+	}
+
+	{
+		auto& VertexBuffer = VertexBuffers.PositionVertexBuffer;
+		void* VertexBufferData = RHILockVertexBuffer(VertexBuffer.VertexBufferRHI, 0, InRenderParts.Num() * 4 * VertexBuffer.GetStride(), RLM_WriteOnly);
+		FMemory::Memcpy(VertexBufferData, VertexBuffer.GetVertexData(), InRenderParts.Num() * 4 * VertexBuffer.GetStride());
 		RHIUnlockVertexBuffer(VertexBuffer.VertexBufferRHI);
+	}
+
+	{
+		auto& VertexBuffer = VertexBuffers.ColorVertexBuffer;
+		void* VertexBufferData = RHILockVertexBuffer(VertexBuffer.VertexBufferRHI, 0, InRenderParts.Num() * 4 * VertexBuffer.GetStride(), RLM_WriteOnly);
+		FMemory::Memcpy(VertexBufferData, VertexBuffer.GetVertexData(), InRenderParts.Num() * 4 * VertexBuffer.GetStride());
+		RHIUnlockVertexBuffer(VertexBuffer.VertexBufferRHI);
+	}
+
+	{
+		auto& VertexBuffer = VertexBuffers.StaticMeshVertexBuffer;
+		void* VertexBufferData = RHILockVertexBuffer(VertexBuffer.TangentsVertexBuffer.VertexBufferRHI, 0, VertexBuffer.GetTangentSize(), RLM_WriteOnly);
+		FMemory::Memcpy(VertexBufferData, VertexBuffer.GetTangentData(), VertexBuffer.GetTangentSize());
+		RHIUnlockVertexBuffer(VertexBuffer.TangentsVertexBuffer.VertexBufferRHI);
+	}
+
+	{
+		auto& VertexBuffer = VertexBuffers.StaticMeshVertexBuffer;
+		void* VertexBufferData = RHILockVertexBuffer(VertexBuffer.TexCoordVertexBuffer.VertexBufferRHI, 0, VertexBuffer.GetTexCoordSize(), RLM_WriteOnly);
+		FMemory::Memcpy(VertexBufferData, VertexBuffer.GetTexCoordData(), VertexBuffer.GetTexCoordSize());
+		RHIUnlockVertexBuffer(VertexBuffer.TexCoordVertexBuffer.VertexBufferRHI);
 	}
 }
