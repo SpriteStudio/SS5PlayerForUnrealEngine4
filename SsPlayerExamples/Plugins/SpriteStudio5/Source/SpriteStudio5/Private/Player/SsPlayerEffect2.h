@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "xorshift32.h"
 #include "SsPlayerCellmap.h"
@@ -30,26 +30,26 @@ struct FParticleExistSt
 
 struct FEmitPattern
 {
-	int32	Uid;		// std::sort‚ÆTArray::Sort‚ÌƒAƒ‹ƒSƒŠƒYƒ€‚Ìˆá‚¢‚ğ‹zû‚·‚é‚½‚ß‚ÌAƒ\[ƒg—p‘æ‚Q”äŠr’l 
+	int32	Uid;		// std::sortã¨TArray::Sortã®ã‚¢ãƒ«ã‚´ãƒªã‚ºãƒ ã®é•ã„ã‚’å¸åã™ã‚‹ãŸã‚ã®ã€ã‚½ãƒ¼ãƒˆç”¨ç¬¬ï¼’æ¯”è¼ƒå€¤ 
 	int32	Life;
 	int32	Cycle;
 
-	// ƒ\[ƒg—p 
+	// ã‚½ãƒ¼ãƒˆç”¨ 
 	bool operator < (const FEmitPattern& Other) const
 	{
 		return (Life != Other.Life) ? (Life < Other.Life) : (Uid < Other.Uid);
 	}
 };
 
-//ÅI•`‰æ—pƒf[ƒ^
+//æœ€çµ‚æç”»ç”¨ãƒ‡ãƒ¼ã‚¿
 struct FParticleDrawData
 {
 	int32	Id;
 	int32	PId;
-	int32	STime;		//¶¬‚³‚ê‚½ŠJnŠÔ
+	int32	STime;		//ç”Ÿæˆã•ã‚ŒãŸé–‹å§‹æ™‚é–“
 	int32	Lifetime;
 
-	//•`‰æ—pƒ[ƒN
+	//æç”»ç”¨ãƒ¯ãƒ¼ã‚¯
 	float	X;
 	float	Y;
 	float	Rot;
@@ -59,17 +59,17 @@ struct FParticleDrawData
 	FVector2D	Scale;
 };
 
-//ƒGƒ~ƒbƒ^[‚ª‚Âƒpƒ‰ƒ[ƒ^
-//ƒGƒfƒBƒ^‚âƒtƒ@ƒCƒ‹‚©‚ç“ü—Í‚³‚ê‚é
+//ã‚¨ãƒŸãƒƒã‚¿ãƒ¼ãŒæŒã¤ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿
+//ã‚¨ãƒ‡ã‚£ã‚¿ã‚„ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰å…¥åŠ›ã•ã‚Œã‚‹
 struct FEmitterParameter
 {
 	int32	Life;
 	int32	Interval;
-	int32	Emitnum;		//ˆê“x‚É”ro‚³‚ê‚éŒÂ”
-	int32	Emitmax;		//Å‘å”ro”
-	int32	ParticleLife;	//¶¬‚³‚ê‚éƒp[ƒeƒBƒNƒ‹‚Ìõ–½
-	int32	ParticleLife2;	//õ–½Å‘å’l
-	bool	bInfinite;		//–³ŒÀ”­¶
+	int32	Emitnum;		//ä¸€åº¦ã«æ’å‡ºã•ã‚Œã‚‹å€‹æ•°
+	int32	Emitmax;		//æœ€å¤§æ’å‡ºæ•°
+	int32	ParticleLife;	//ç”Ÿæˆã•ã‚Œã‚‹ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã®å¯¿å‘½
+	int32	ParticleLife2;	//å¯¿å‘½æœ€å¤§å€¤
+	bool	bInfinite;		//ç„¡é™ç™ºç”Ÿ
 
 	int32	LoopStart;
 	int32	LoopEnd;
@@ -77,7 +77,7 @@ struct FEmitterParameter
 	int32	LoopGen;
 
 
-	//ƒeƒXƒg—pƒfƒtƒHƒ‹ƒg
+	//ãƒ†ã‚¹ãƒˆç”¨ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆ
 	FEmitterParameter()
 		: Life(15)
 		, Interval(1)
@@ -89,22 +89,22 @@ struct FEmitterParameter
 	{}
 };
 
-//ƒp[ƒeƒBƒNƒ‹‚ª‚Âƒpƒ‰ƒ[ƒ^
-//ƒGƒfƒBƒ^‚âƒtƒ@ƒCƒ‹‚©‚ç“ü—Í‚³‚ê‚é
+//ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ãŒæŒã¤ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿
+//ã‚¨ãƒ‡ã‚£ã‚¿ã‚„ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰å…¥åŠ›ã•ã‚Œã‚‹
 struct FParticleParameter
 {
 
 	FVector2D	Scale;
 
-	FSsU8Color	StartColor;	//ƒXƒ^[ƒg‚ÌƒJƒ‰[
-	FSsU8Color	EndColor;	//I—¹‚ÌƒJƒ‰[
+	FSsU8Color	StartColor;	//ã‚¹ã‚¿ãƒ¼ãƒˆæ™‚ã®ã‚«ãƒ©ãƒ¼
+	FSsU8Color	EndColor;	//çµ‚äº†æ™‚ã®ã‚«ãƒ©ãƒ¼
 
-	//‰‘¬
-	float		Speed;		//‰‘¬
-	float		Speed2;		//‰‘¬Å‘å’l
+	//åˆé€Ÿ
+	float		Speed;		//åˆé€Ÿ
+	float		Speed2;		//åˆé€Ÿæœ€å¤§å€¤
 
-	float		Angle;			//Œü‚¢‚Ä‚éŠp“x
-	float		AngleVariance;	//•Ï·
+	float		Angle;			//å‘ã„ã¦ã‚‹è§’åº¦
+	float		AngleVariance;	//å¤‰å·®
 
 	bool		bUseGravity;
 	FVector2D	Gravity;
@@ -168,7 +168,7 @@ struct FParticleParameter
 	int32		OverrideRSeed;
 };
 
-//ƒGƒ~ƒbƒ^“®ìƒNƒ‰ƒX
+//ã‚¨ãƒŸãƒƒã‚¿å‹•ä½œã‚¯ãƒ©ã‚¹
 struct FSsEffectEmitter
 {
 public:
@@ -183,13 +183,13 @@ public:
 	int32	EmitterSeed;
 	int32	SeedOffset;
 
-	//¶¬—p‚ÌƒŠƒ“ƒOƒoƒbƒtƒ@
+	//ç”Ÿæˆç”¨ã®ãƒªãƒ³ã‚°ãƒãƒƒãƒ•ã‚¡
 	TArray<FEmitPattern>	EmitPattern;
 	TArray<int32>			OffsetPattern;
 
 	FParticleExistSt*		ParticleExistList;
 
-	//–‘OŒvZƒoƒbƒtƒ@
+	//äº‹å‰è¨ˆç®—ãƒãƒƒãƒ•ã‚¡
 	int32	ParticleIdMax;
 
 	size_t		ParticleListBufferSize;
@@ -201,8 +201,8 @@ public:
 
 	int32	ParentIndex;
 
-	FSsCell*			RefCell;	//•`‰æ—pƒZƒ‹
-	FSsEffectBehavior*	RefData;	//ƒf[ƒ^XV—p
+	FSsCell*			RefCell;	//æç”»ç”¨ã‚»ãƒ«
+	FSsEffectBehavior*	RefData;	//ãƒ‡ãƒ¼ã‚¿æ›´æ–°ç”¨
 
 	size_t	GlobalTime;
 	size_t	SeedTableLen;
@@ -213,7 +213,7 @@ public:
 	FSsEffectEmitter()
 		: SeedOffset(0)
 		, ParticleExistList(0)
-		, ParticleListBufferSize(180 * 100)	//¶¬o—ˆ‚éƒp[ƒeƒBƒNƒ‹‚ÌÅ‘å’l
+		, ParticleListBufferSize(180 * 100)	//ç”Ÿæˆå‡ºæ¥ã‚‹ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã®æœ€å¤§å€¤
 		, SeedList(nullptr)
 		, Position(0.f, 0.f)
 		, Parent(nullptr)
@@ -240,17 +240,17 @@ public:
 
 	int32 GetTimeLength(){ return Emitter.Life + (Emitter.ParticleLife + Emitter.ParticleLife2); }
 
-	//Œ»İŠÔ‚©‚çYo‚³‚ê‚éˆÊ’u‚ğ‹‚ß‚é
-	//time•Ï”‚©‚ç‹‚ß‚ç‚ê‚é®‚Æ‚·‚é
+	//ç¾åœ¨æ™‚é–“ã‹ã‚‰ç”£å‡ºã•ã‚Œã‚‹ä½ç½®ã‚’æ±‚ã‚ã‚‹
+	//timeå¤‰æ•°ã‹ã‚‰æ±‚ã‚ã‚‰ã‚Œã‚‹å¼ã¨ã™ã‚‹
 	void UpdateParticle(float InTime, FParticleDrawData* ParticleDrawData, bool bRecalc=false);
 
-	//ƒp[ƒeƒBƒNƒ‹‚Ì”­¶ŠÔŠu‚ğ–‘OŒvZ‚·‚é
-	//‚±‚±‚Åo—Í‚ªŠm’è‚·‚é
+	//ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã®ç™ºç”Ÿé–“éš”ã‚’äº‹å‰è¨ˆç®—ã™ã‚‹
+	//ã“ã“ã§å‡ºåŠ›ãŒç¢ºå®šã™ã‚‹
 
 	void Precalculate2();
 
 
-	// ƒ\[ƒg—p 
+	// ã‚½ãƒ¼ãƒˆç”¨ 
 	bool operator < (const FSsEffectEmitter& Other) const
 	{
 		return (Priority != Other.Priority) ? (Priority < Other.Priority) : (Uid < Other.Uid);
@@ -260,14 +260,14 @@ public:
 class FSsEffectRenderV2
 {
 public:
-	//ƒGƒtƒFƒNƒg‚Ìƒpƒ‰ƒ[ƒ^ƒf[ƒ^
+	//ã‚¨ãƒ•ã‚§ã‚¯ãƒˆã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãƒ‡ãƒ¼ã‚¿
 	FSsEffectModel*		EffectData;
 
-	//Model‚É‹LÚ‚³‚ê‚Ä‚¢‚éƒGƒ~ƒbƒ^‚ÌƒŠƒXƒg
+	//Modelã«è¨˜è¼‰ã•ã‚Œã¦ã„ã‚‹ã‚¨ãƒŸãƒƒã‚¿ã®ãƒªã‚¹ãƒˆ
 	TArray<FSsEffectEmitter*>	EmitterList;
 	TArray<FSsEffectEmitter*>	UpdateList;
 
-	//ƒ‰ƒ“ƒ_ƒ€ƒV[ƒh
+	//ãƒ©ãƒ³ãƒ€ãƒ ã‚·ãƒ¼ãƒ‰
 	uint32		MySeed;
 
 	FVector		LayoutPosition;
@@ -279,7 +279,7 @@ public:
 
 	int32	EffectTimeLength;
 
-	bool	bInfinite;	//–³ŒÀ‚É”­¶o—ˆ‚é‚©‚Ç‚¤‚©
+	bool	bInfinite;	//ç„¡é™ã«ç™ºç”Ÿå‡ºæ¥ã‚‹ã‹ã©ã†ã‹
 
 	FSsPartState*	ParentState;
 
@@ -291,7 +291,7 @@ public:
 
 	int32	SeedOffset;
 
-	FSsCellMapList*	CurCellMapManager;/// ƒZƒ‹ƒ}ƒbƒv‚ÌƒŠƒXƒgiƒAƒjƒƒfƒR[ƒ_[‚©‚ç‚à‚ç‚¤
+	FSsCellMapList*	CurCellMapManager;/// ã‚»ãƒ«ãƒãƒƒãƒ—ã®ãƒªã‚¹ãƒˆï¼ˆã‚¢ãƒ‹ãƒ¡ãƒ‡ã‚³ãƒ¼ãƒ€ãƒ¼ã‹ã‚‰ã‚‚ã‚‰ã†
 
 	bool bIsWarningData;
 

@@ -1,4 +1,4 @@
-#include "SpriteStudio5PrivatePCH.h"
+ï»¿#include "SpriteStudio5PrivatePCH.h"
 #include "SsPlayerEffect2.h"
 
 #include "SsCellMap.h"
@@ -60,14 +60,14 @@ namespace
 	}
 }
 
-//Œ»İŠÔ‚©‚çYo‚³‚ê‚éˆÊ’u‚ğ‹‚ß‚é
-//time•Ï”‚©‚ç‹‚ß‚ç‚ê‚é®‚Æ‚·‚é
-//ƒp[ƒeƒBƒNƒ‹À•WŒvZ‚ÌƒRƒA
+//ç¾åœ¨æ™‚é–“ã‹ã‚‰ç”£å‡ºã•ã‚Œã‚‹ä½ç½®ã‚’æ±‚ã‚ã‚‹
+//timeå¤‰æ•°ã‹ã‚‰æ±‚ã‚ã‚‰ã‚Œã‚‹å¼ã¨ã™ã‚‹
+//ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«åº§æ¨™è¨ˆç®—ã®ã‚³ã‚¢
 void FSsEffectEmitter::UpdateParticle(float InTime, FParticleDrawData* ParticleDrawData, bool bRecalc/*=false*/)
 {
 	float _t = (float)(InTime - ParticleDrawData->STime);
 	float _tm = (float)(_t - 1.0f );
-	float _t2 = _t * _t; //(Œo‰ßŠÔ‚Ì“ñæ)
+	float _t2 = _t * _t; //(çµŒéæ™‚é–“ã®äºŒä¹—)
 	float _life = (float)(ParticleDrawData->Lifetime - ParticleDrawData->STime);
 
 	if(_life == 0)
@@ -77,12 +77,12 @@ void FSsEffectEmitter::UpdateParticle(float InTime, FParticleDrawData* ParticleD
 	float _lifeper = (float)(_t / _life);
 
 
-	//_t = 0“_‚Ì’l‚ğì‚é
-	//ƒV[ƒh’l‚ÅŒÅ’è‰»‚³‚ê‚é‚±‚Æ‚ª‘O’ñ
+	//_t = 0æ™‚ç‚¹ã®å€¤ã‚’ä½œã‚‹
+	//ã‚·ãƒ¼ãƒ‰å€¤ã§å›ºå®šåŒ–ã•ã‚Œã‚‹ã“ã¨ãŒå‰æ
 	uint32 pseed = SeedList[ParticleDrawData->Id % SeedTableLen];
 
 
-	//©g‚ÌƒV[ƒh’lAƒGƒ~ƒbƒ^[‚ÌƒV[ƒh’lAeƒp[ƒeƒBƒNƒ‹‚Ì‚h‚c‚ğƒV[ƒh’l‚Æ‚·‚é
+	//è‡ªèº«ã®ã‚·ãƒ¼ãƒ‰å€¤ã€ã‚¨ãƒŸãƒƒã‚¿ãƒ¼ã®ã‚·ãƒ¼ãƒ‰å€¤ã€è¦ªãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã®ï¼©ï¼¤ã‚’ã‚·ãƒ¼ãƒ‰å€¤ã¨ã™ã‚‹
 	Rand.init_genrand((pseed + EmitterSeed + ParticleDrawData->PId + SeedOffset));
 
 
@@ -90,7 +90,7 @@ void FSsEffectEmitter::UpdateParticle(float InTime, FParticleDrawData* ParticleD
 	float speed = Particle.Speed + (Particle.Speed2 * Rand.genrand_float32());
 
 
-	//Úü‰Á‘¬“x
+	//æ¥ç·šåŠ é€Ÿåº¦
 	float addr = 0.f;
 	if(Particle.bUseTanAccel)
 	{
@@ -98,11 +98,11 @@ void FSsEffectEmitter::UpdateParticle(float InTime, FParticleDrawData* ParticleD
 
 		float _speed = speed;
 		if(_speed <= 0){ _speed = 0.1f; }
-		//•½‹ÏŠp‘¬“x‚ğ‹‚ß‚é
-		float l = _life * _speed * 0.2f; //‰~‚Ì”¼Œa
+		//å¹³å‡è§’é€Ÿåº¦ã‚’æ±‚ã‚ã‚‹
+		float l = _life * _speed * 0.2f; //å††ã®åŠå¾„
 		float c = 3.14 * l;
 
-		//Å‰~ü / ‰Á‘¬“x(pixel)
+		//æœ€å††å‘¨ / åŠ é€Ÿåº¦(pixel)
 		addr = (accel / c) * _t;
 	}
 
@@ -130,14 +130,14 @@ void FSsEffectEmitter::UpdateParticle(float InTime, FParticleDrawData* ParticleD
 	}
 
 
-	//d—Í‰Á‘¬“x‚ÌŒvZ
+	//é‡åŠ›åŠ é€Ÿåº¦ã®è¨ˆç®—
 	if(Particle.bUseGravity)
 	{
 		x += (0.5 * Particle.Gravity.X * (_t2));
 		y += (0.5 * Particle.Gravity.Y * (_t2));
 	}
 
-	//‰ŠúˆÊ’uƒIƒtƒZƒbƒg
+	//åˆæœŸä½ç½®ã‚ªãƒ•ã‚»ãƒƒãƒˆ
 	float ox,oy;
 	ox = oy = 0;
 	if(Particle.bUseOffset)
@@ -146,17 +146,17 @@ void FSsEffectEmitter::UpdateParticle(float InTime, FParticleDrawData* ParticleD
 		oy = (Particle.Offset.Y + (Particle.Offset2.Y * Rand.genrand_float32()));
 	}
 
-	//Šp“x‰Šú’l
+	//è§’åº¦åˆæœŸå€¤
 	ParticleDrawData->Rot = 0;
 	if(Particle.bUseRotation)
 	{
 		ParticleDrawData->Rot = Particle.Rotation + (Rand.genrand_float32() * Particle.Rotation2);
 		float add = Particle.RotationAdd + (Rand.genrand_float32() * Particle.RotationAdd2);
 
-		//Šp“x•Ï‰»
+		//è§’åº¦å¤‰åŒ–
 		if(Particle.bUseRotationTrans)
 		{
-			//“’B‚Ü‚Å‚Ìâ‘ÎŠÔ
+			//åˆ°é”ã¾ã§ã®çµ¶å¯¾æ™‚é–“
 			float lastt = _life * Particle.EndLifeTimePer;
 
 			float addf = 0;
@@ -167,22 +167,22 @@ void FSsEffectEmitter::UpdateParticle(float InTime, FParticleDrawData* ParticleD
 			}
 			else
 			{
-				//1ƒtƒŒ[ƒ€‚Å‰ÁZ‚³‚ê‚é—Ê
+				//1ãƒ•ãƒ¬ãƒ¼ãƒ ã§åŠ ç®—ã•ã‚Œã‚‹é‡
 				addf = (add * Particle.RotationFactor - add) / lastt;
 
-				//‚ ‚Ü‚èŠÔ
+				//ã‚ã¾ã‚Šæ™‚é–“
 				float mod_t = _t - lastt;
 				if(mod_t < 0){ mod_t = 0; }
 
-				//Œ»İŠÔiÅIŠÔ‚ÅƒŠƒ~ƒbƒg
+				//ç¾åœ¨æ™‚é–“ï¼ˆæœ€çµ‚æ™‚é–“ã§ãƒªãƒŸãƒƒãƒˆ
 				float nowt = _t;
 				if(nowt > lastt){ nowt = lastt; }
 
-				//ÅI€ + ‰€ x F / 2
+				//æœ€çµ‚é … + åˆé … x F / 2
 				float final_soul = add + addf * nowt;
 				float addrf = (final_soul + add) * (nowt+1.0f) / 2.0f;
 				addrf -= add;
-				addrf+= (mod_t * final_soul); //‚ ‚Ü‚è‚ÆI€‚ÌÏ‚ğ‰ÁZ
+				addrf+= (mod_t * final_soul); //ã‚ã¾ã‚Šã¨çµ‚é …ã®ç©ã‚’åŠ ç®—
 				ParticleDrawData->Rot+=addrf;
 			}
 		}
@@ -192,7 +192,7 @@ void FSsEffectEmitter::UpdateParticle(float InTime, FParticleDrawData* ParticleD
 		}
 	}
 
-	//ƒJƒ‰[‚Ì‰Šú’lAƒJƒ‰[‚Ì•Ï‰»
+	//ã‚«ãƒ©ãƒ¼ã®åˆæœŸå€¤ã€ã‚«ãƒ©ãƒ¼ã®å¤‰åŒ–
 	ParticleDrawData->Color.A = 0xff;
 	ParticleDrawData->Color.R = 0xff;
 	ParticleDrawData->Color.G = 0xff;
@@ -247,7 +247,7 @@ void FSsEffectEmitter::UpdateParticle(float InTime, FParticleDrawData* ParticleD
 		}
 	}
 
-	//ƒXƒP[ƒŠƒ“ƒO
+	//ã‚¹ã‚±ãƒ¼ãƒªãƒ³ã‚°
 	ParticleDrawData->Scale.X = 1.0f;
 	ParticleDrawData->Scale.Y = 1.0f;
 	float scalefactor = 1.0f;
@@ -276,14 +276,14 @@ void FSsEffectEmitter::UpdateParticle(float InTime, FParticleDrawData* ParticleD
 	ParticleDrawData->Scale.X *= scalefactor;
 	ParticleDrawData->Scale.Y *= scalefactor;
 
-	ParticleDrawData->X = x + ox + Position.X;//ƒGƒ~ƒbƒ^‚©‚ç‚ÌƒIƒtƒZƒbƒg‚ğ‰ÁZ
-	ParticleDrawData->Y = y + oy + Position.Y;//ƒGƒ~ƒbƒ^‚©‚ç‚ÌƒIƒtƒZƒbƒg‚ğ‰ÁZ
+	ParticleDrawData->X = x + ox + Position.X;//ã‚¨ãƒŸãƒƒã‚¿ã‹ã‚‰ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆã‚’åŠ ç®—
+	ParticleDrawData->Y = y + oy + Position.Y;//ã‚¨ãƒŸãƒƒã‚¿ã‹ã‚‰ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆã‚’åŠ ç®—
 
 
-	//w’è‚Ì“_‚Ö‚æ‚¹‚é
+	//æŒ‡å®šã®ç‚¹ã¸ã‚ˆã›ã‚‹
 	if(Particle.bUsePGravity)
 	{
-		//¶¬’n“_‚©‚ç‚Ì‹——£ 
+		//ç”Ÿæˆåœ°ç‚¹ã‹ã‚‰ã®è·é›¢ 
 		FVector2D v(
 			Particle.GravityPos.X - (ox + Position.X),
 			Particle.GravityPos.Y - (oy + Position.Y)
@@ -296,7 +296,7 @@ void FSsEffectEmitter::UpdateParticle(float InTime, FParticleDrawData* ParticleD
 		if(gp > 0)
 		{
 			FVector2D v2(ParticleDrawData->X, ParticleDrawData->Y);
-			float len = FVector2D::Distance(FVector2D::ZeroVector, v);  //¶¬ˆÊ’u‚©‚ç‚Ì‹——£ 
+			float len = FVector2D::Distance(FVector2D::ZeroVector, v);  //ç”Ÿæˆä½ç½®ã‹ã‚‰ã®è·é›¢ 
 			float et = len / gp * 0.90f;
 			float _gt = _t;
 			if(_gt >= (int)et)
@@ -318,14 +318,14 @@ void FSsEffectEmitter::UpdateParticle(float InTime, FParticleDrawData* ParticleD
 		{
 			nv = nv * gp * _t;
 
-			//ƒpƒ[ƒ}ƒCƒiƒX‚Ìê‡‚Í’Pƒ‚É”½”­‚³‚¹‚é
-			//‹——£‚É‚æ‚éŒ¸Š‚Í‚È‚¢
+			//ãƒ‘ãƒ¯ãƒ¼ãƒã‚¤ãƒŠã‚¹ã®å ´åˆã¯å˜ç´”ã«åç™ºã•ã›ã‚‹
+			//è·é›¢ã«ã‚ˆã‚‹æ¸›è¡°ã¯ãªã„
 			ParticleDrawData->X += nv.X;
 			ParticleDrawData->Y += nv.Y;
 		}
 	}
 
-	//‘O‚ÌƒtƒŒ[ƒ€‚©‚ç‚Ì•ûŒü‚ğæ‚é
+	//å‰ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã‹ã‚‰ã®æ–¹å‘ã‚’å–ã‚‹
 	ParticleDrawData->Direc = 0.0f;
 	if(Particle.bUseTurnDirec && !bRecalc)
 	{
@@ -350,7 +350,7 @@ void FSsEffectEmitter::Precalculate2()
 
 	if(ParticleExistList == nullptr)
 	{
-		ParticleExistList = new FParticleExistSt[Emitter.Emitmax]; //‘¶İ‚µ‚Ä‚¢‚éƒp[ƒeƒBƒNƒ‹‚ª“ü‚éŒvZ—pƒoƒbƒtƒ@
+		ParticleExistList = new FParticleExistSt[Emitter.Emitmax]; //å­˜åœ¨ã—ã¦ã„ã‚‹ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ãŒå…¥ã‚‹è¨ˆç®—ç”¨ãƒãƒƒãƒ•ã‚¡
 	}
 
 	memset(ParticleExistList, 0, sizeof(FParticleExistSt) * Emitter.Emitmax);
@@ -404,7 +404,7 @@ void FSsEffectEmitter::Precalculate2()
 	SeedTableLen = ParticleListBufferSize * 3;
 	SeedList = new uint32[SeedTableLen];
 
-	//Šeƒp[ƒeƒBƒNƒ‹‚h‚c‚©‚çQÆ‚·‚éƒV[ƒh’l‚ğƒe[ƒuƒ‹‚Æ‚µ‚Äì¬‚·‚é
+	//å„ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ï¼©ï¼¤ã‹ã‚‰å‚ç…§ã™ã‚‹ã‚·ãƒ¼ãƒ‰å€¤ã‚’ãƒ†ãƒ¼ãƒ–ãƒ«ã¨ã—ã¦ä½œæˆã™ã‚‹
 	for(int32 i = 0; i < SeedTableLen; ++i)
 	{
 		SeedList[i] = Rand.genrand_uint32();
@@ -449,11 +449,11 @@ void FSsEffectEmitter::UpdateEmitter(double Time, int32 Slide)
 
 			if(!this->Emitter.bInfinite)
 			{
-				if(ParticleExistList[i].STime >= this->Emitter.Life) //ƒGƒ~ƒbƒ^[‚ªI—¹‚µ‚Ä‚¢‚é
+				if(ParticleExistList[i].STime >= this->Emitter.Life) //ã‚¨ãƒŸãƒƒã‚¿ãƒ¼ãŒçµ‚äº†ã—ã¦ã„ã‚‹
 				{
-					ParticleExistList[i].Exist = false;    //ì‚ç‚ê‚Ä‚È‚¢
+					ParticleExistList[i].Exist = false;    //ä½œã‚‰ã‚Œã¦ãªã„
 
-					//ÅI“I‚È’l‚ÉŒvZ‚µ’¼‚µ <-–‘OŒvZ‚µ‚Ä‚¨‚­‚Æ‚¢‚¢‚©‚àE
+					//æœ€çµ‚çš„ãªå€¤ã«è¨ˆç®—ã—ç›´ã— <-äº‹å‰è¨ˆç®—ã—ã¦ãŠãã¨ã„ã„ã‹ã‚‚ãƒ»
 					int32 t2 = this->Emitter.Life - OffsetPattern[i];
 					int loopnum2 = t2 / targetEP->Cycle;
 
@@ -486,13 +486,13 @@ const FParticleExistSt* FSsEffectEmitter::GetParticleDataFromID(int32 Id)
 }
 
 
-//ƒpƒ‰ƒ[ƒ^‚ğƒRƒs[‚·‚é
+//ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’ã‚³ãƒ”ãƒ¼ã™ã‚‹
 void FSsEffectRenderV2::InitEmitter(FSsEffectEmitter* Emitter, FSsEffectNode* Node)
 {
 	Emitter->RefData = Node->GetMyBehavior();
 	Emitter->RefCell = Emitter->RefData->RefCell;
 
-	//ƒZƒ‹‚Ì‰Šú‰»
+	//ã‚»ãƒ«ã®åˆæœŸåŒ–
 	FSsCelMapLinker* link = this->CurCellMapManager->GetCellMapLink(Emitter->RefData->CellMapName);
 
 	if(link)
@@ -530,7 +530,7 @@ void FSsEffectRenderV2::InitEmitter(FSsEffectEmitter* Emitter, FSsEffectNode* No
 		}
 	}
 
-	Emitter->Emitter.Life += Emitter->Particle.Delay;//ƒfƒBƒŒƒC•ª‰ÁZ
+	Emitter->Emitter.Life += Emitter->Particle.Delay;//ãƒ‡ã‚£ãƒ¬ã‚¤åˆ†åŠ ç®—
 }
 
 
@@ -561,7 +561,7 @@ void FSsEffectRenderV2::Update()
 
 	if(!this->bInfinite)
 	{
-		if(this->IsLoop()) //©“®ƒ‹[ƒv‚Ìê‡
+		if(this->IsLoop()) //è‡ªå‹•ãƒ«ãƒ¼ãƒ—ã®å ´åˆ
 		{
 			if(NowFrame > EffectTimeLength)
 			{
@@ -577,7 +577,7 @@ void FSsEffectRenderV2::Reload()
 {
 	NowFrame = 0;
 
-	//update‚ª•K—v‚©
+	//updateãŒå¿…è¦ã‹
 	Stop();
 	ClearEmitterList();
 
@@ -592,8 +592,8 @@ void FSsEffectRenderV2::Reload()
 	cnum.AddZeroed(list.Num());
 
 	bool _Infinite = false;
-	//ƒpƒ‰ƒ[ƒ^‚ğæ“¾ 
-	//ˆÈ‘O‚Ìƒf[ƒ^Œ`®‚©‚ç•ÏŠ· 
+	//ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’å–å¾— 
+	//ä»¥å‰ã®ãƒ‡ãƒ¼ã‚¿å½¢å¼ã‹ã‚‰å¤‰æ› 
 	for(int32 i = 0; i < list.Num(); ++i)
 	{
 		FSsEffectNode& node = list[i];
@@ -601,10 +601,10 @@ void FSsEffectRenderV2::Reload()
 		if(node.GetType() == SsEffectNodeType::Emmiter)
 		{
 			FSsEffectEmitter* e = new FSsEffectEmitter();
-			//ƒpƒ‰ƒ[ƒ^‚ğƒRƒs[ 
+			//ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’ã‚³ãƒ”ãƒ¼ 
 
 			e->ParentIndex = node.ParentIndex;
-			//Œq‚¬æ‚Í‹°‚ç‚­ƒp[ƒeƒBƒNƒ‹‚È‚Ì‚ÅƒGƒ~ƒbƒ^‚É•ÏŠ· 
+			//ç¹‹ãå…ˆã¯æã‚‰ããƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ãªã®ã§ã‚¨ãƒŸãƒƒã‚¿ã«å¤‰æ› 
 			if(e->ParentIndex != 0)
 			{
 				e->ParentIndex = list[e->ParentIndex].ParentIndex;
@@ -614,10 +614,10 @@ void FSsEffectRenderV2::Reload()
 			if(cnum[e->ParentIndex] > 10)
 			{
 				bIsWarningData = true;
-				continue; //q‚P‚Oƒm[ƒh•\¦§ŒÀ 
+				continue; //å­ï¼‘ï¼ãƒãƒ¼ãƒ‰è¡¨ç¤ºåˆ¶é™ 
 			}
 
-			//‘·—}§‘Îô 
+			//å­«æŠ‘åˆ¶å¯¾ç­– 
 			if(e->ParentIndex != 0)
 			{
 				int a = list[e->ParentIndex].ParentIndex;
@@ -640,7 +640,7 @@ void FSsEffectRenderV2::Reload()
 		}
 		else
 		{
-			//ƒGƒ~ƒbƒ^[“¯m‚ğŒq‚¬‚½‚¢‚Ì‚Å
+			//ã‚¨ãƒŸãƒƒã‚¿ãƒ¼åŒå£«ã‚’ç¹‹ããŸã„ã®ã§
 			this->EmitterList.Add(nullptr);
 		}
 	}
@@ -648,20 +648,20 @@ void FSsEffectRenderV2::Reload()
 	cnum.Empty();
 	bInfinite = _Infinite;
 
-	//eqŠÖŒW®—
+	//è¦ªå­é–¢ä¿‚æ•´ç†
 
 	EffectTimeLength = 0;
-	//–‘OŒvZŒvZ  updateList‚Éƒ‹[ƒg‚Ìq‚ğ”z’u‚µeqŠÖŒW‚ğŒ‹‚Ô
+	//äº‹å‰è¨ˆç®—è¨ˆç®—  updateListã«ãƒ«ãƒ¼ãƒˆã®å­ã‚’é…ç½®ã—è¦ªå­é–¢ä¿‚ã‚’çµã¶
 	for(int32 i = 0; i < this->EmitterList.Num(); ++i)
 	{
 		if(EmitterList[i] != nullptr)
 		{
 			EmitterList[i]->Uid = i;
-			EmitterList[i]->Precalculate2(); //ƒ‹[ƒv‘Î‰Œ`®
+			EmitterList[i]->Precalculate2(); //ãƒ«ãƒ¼ãƒ—å¯¾å¿œå½¢å¼
 
 			int32 parent_index = EmitterList[i]->ParentIndex;
 
-			if(EmitterList[i]->ParentIndex == 0)  //ƒ‹[ƒg’¼‰º 
+			if(EmitterList[i]->ParentIndex == 0)  //ãƒ«ãƒ¼ãƒˆç›´ä¸‹ 
 			{
 				EmitterList[i]->Parent = 0;
 				EmitterList[i]->GlobalTime = EmitterList[i]->GetTimeLength();
@@ -684,7 +684,7 @@ void FSsEffectRenderV2::Reload()
 		}
 	}
 
-	//ƒvƒ‰ƒCƒIƒŠƒeƒBƒ\[ƒg
+	//ãƒ—ãƒ©ã‚¤ã‚ªãƒªãƒ†ã‚£ã‚½ãƒ¼ãƒˆ
 	UpdateList.Sort();
 }
 
@@ -702,7 +702,7 @@ void FSsEffectRenderV2::CreateRenderPart(
 	)
 {
 	//MEMO:
-	//SSSDK SsEffectRenderV2::particleDraw ‘Š“– 
+	//SSSDK SsEffectRenderV2::particleDraw ç›¸å½“ 
 
 	if(Emitter == nullptr)
 	{
@@ -743,17 +743,17 @@ void FSsEffectRenderV2::CreateRenderPart(
 		{
 			if(Parent)
 			{
-				//e‚©‚ç•`‰æ‚·‚éƒp[ƒeƒBƒNƒ‹‚Ì‰ŠúˆÊ’u‚ğ’²‚×‚é
+				//è¦ªã‹ã‚‰æç”»ã™ã‚‹ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã®åˆæœŸä½ç½®ã‚’èª¿ã¹ã‚‹
 				pp.Id = DrawData->Id;
 				pp.STime = DrawData->STime;
 				pp.Lifetime = DrawData->Lifetime;
 				pp.PId = DrawData->PId;
-				//ƒp[ƒeƒBƒNƒ‹‚ª”­¶‚µ‚½ŠÔ‚Ìe‚ÌˆÊ’u‚ğæ‚é
+				//ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ãŒç™ºç”Ÿã—ãŸæ™‚é–“ã®è¦ªã®ä½ç½®ã‚’å–ã‚‹
 
 				int ptime = lp.STime + pp.STime;
 				if (ptime > lp.Lifetime) { ptime = lp.Lifetime; }
 
-				//‹tZ‚ÍƒfƒoƒbƒO‚µ‚¸‚ç‚¢‚©‚à‚µ‚ê‚È‚¢
+				//é€†ç®—ã¯ãƒ‡ãƒãƒƒã‚°ã—ãšã‚‰ã„ã‹ã‚‚ã—ã‚Œãªã„
 				Parent->UpdateParticle(lp.STime + pp.STime, &pp);
 				Emitter->Position.X = pp.X;
 				Emitter->Position.Y = pp.Y;
@@ -765,7 +765,7 @@ void FSsEffectRenderV2::CreateRenderPart(
 			fcolor.FromARGB(lp.Color.ToARGB());
 
 			//MEMO:
-			//drawSpriteƒRƒR‚©‚ç
+			//drawSpriteã‚³ã‚³ã‹ã‚‰
 			FSsRenderPart RenderPart;
 			RenderPart.PartIndex = State->Index;
 			RenderPart.Texture = Emitter->DispCell.Texture;
@@ -773,7 +773,7 @@ void FSsEffectRenderV2::CreateRenderPart(
 			RenderPart.ColorBlendType = SsBlendType::Effect;
 			
 			//MEMO:
-			//FSsPlayerEffect::CreateRenderVertices ‘Š“– 
+			//FSsPlayerEffect::CreateRenderVertices ç›¸å½“ 
 			{
 				float matrix[4 * 4];
 				IdentityMatrix(matrix);
@@ -800,11 +800,11 @@ void FSsEffectRenderV2::CreateRenderPart(
 					FVector2D dispscale = Emitter->DispCell.Cell->Size;
 
 
-					// RenderTarget‚É‘Î‚·‚é•`‰æŠî€ˆÊ’u
+					// RenderTargetã«å¯¾ã™ã‚‹æç”»åŸºæº–ä½ç½®
 					float OffX = (float)(CurAnimeCanvasSize.X / 2) + pivot.X + CurAnimePivot.X * CurAnimeCanvasSize.X;
 					float OffY = (float)(CurAnimeCanvasSize.Y / 2) + pivot.Y - CurAnimePivot.Y * CurAnimeCanvasSize.Y;
 
-					// ’¸“_À•W
+					// é ‚ç‚¹åº§æ¨™
 					FMatrix ViewMatrix(
 						FVector(matrix[0], matrix[1], matrix[2]),
 						FVector(matrix[4], matrix[5], matrix[6]),
@@ -858,7 +858,7 @@ void FSsEffectRenderV2::CreateRenderParts(TArray<FSsRenderPart>& OutRenderParts,
 		FSsEffectEmitter* e = UpdateList[i];
 		if(e && e->Parent)
 		{
-			//ƒOƒ[ƒoƒ‹‚ÌŠÔ‚ÅŒ»İe‚ª‚Ç‚ê‚¾‚¯¶¬‚³‚ê‚Ä‚¢‚é‚Ì‚©‚ğƒ`ƒFƒbƒN‚·‚é
+			//ã‚°ãƒ­ãƒ¼ãƒãƒ«ã®æ™‚é–“ã§ç¾åœ¨è¦ªãŒã©ã‚Œã ã‘ç”Ÿæˆã•ã‚Œã¦ã„ã‚‹ã®ã‹ã‚’ãƒã‚§ãƒƒã‚¯ã™ã‚‹
 			e->Parent->UpdateEmitter(TargetFrame, 0);
 
 			int32 loopnum = e->Parent->GetParticleIDMax();
