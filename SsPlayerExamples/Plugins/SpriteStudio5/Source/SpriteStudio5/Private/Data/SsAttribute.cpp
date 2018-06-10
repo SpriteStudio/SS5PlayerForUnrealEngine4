@@ -3,6 +3,37 @@
 #include "SsString_uty.h"
 
 
+namespace
+{
+	static const FName ConstName_Target("target");
+	static const FName ConstName_BlendType("blendType");
+	static const FName ConstName_LT("LT");
+	static const FName ConstName_RT("RT");
+	static const FName ConstName_LB("LB");
+	static const FName ConstName_RB("RB");
+	static const FName ConstName_RGBA("rgba");
+	static const FName ConstName_Rate("rate");
+	static const FName ConstName_Color("color");
+	static const FName ConstName_MapId("mapId");
+	static const FName ConstName_Name("name");
+	static const FName ConstName_Integer("integer");
+	static const FName ConstName_Point("point");
+	static const FName ConstName_Rect("rect");
+	static const FName ConstName_String("string");
+	static const FName ConstName_StartTime("startTime");
+	static const FName ConstName_Speed("speed");
+	static const FName ConstName_Independent("independent");
+	static const FName ConstName_StartLabel("startLabel");
+	static const FName ConstName_StartOffset("startOffset");
+	static const FName ConstName_EndLabel("endLabel");
+	static const FName ConstName_EndOffset("endOffset");
+	static const FName ConstName_LoopNum("loopNum");
+	static const FName ConstName_Infinity("infinity");
+	static const FName ConstName_Reverse("reverse");
+	static const FName ConstName_PingPong("pingpong");
+
+}
+
 void FSsKeyframe::Serialize(FArchive& Ar)
 {
 	Value.Serialize(Ar);
@@ -94,46 +125,46 @@ int32 FSsAttribute::GetUpperBoundKeyIndex(int32 Time)
 void	GetSsColorValue( const FSsKeyframe* key , FSsColorAnime& v )
 {
 	TEnumAsByte<SsColorBlendTarget::Type> target;
-	__StringToEnum_( key->Value["target"].get<FString>() , target );
+	__StringToEnum_( key->Value[ConstName_Target].get<FString>() , target );
 	TEnumAsByte<SsBlendType::Type> blendtype;
-	__StringToEnum_( key->Value["blendType"].get<FString>() , blendtype);
+	__StringToEnum_( key->Value[ConstName_BlendType].get<FString>() , blendtype);
 
 	v.BlendType = blendtype;
 	v.Target = target;
 
 	if ( target == SsColorBlendTarget::Vertex )
 	{
-		SsHash lt = key->Value["LT"].get<SsHash>();
-		SsHash rt = key->Value["RT"].get<SsHash>();
-		SsHash lb = key->Value["LB"].get<SsHash>();
-		SsHash rb = key->Value["RB"].get<SsHash>();
+		SsHash lt = key->Value[ConstName_LT].get<SsHash>();
+		SsHash rt = key->Value[ConstName_RT].get<SsHash>();
+		SsHash lb = key->Value[ConstName_LB].get<SsHash>();
+		SsHash rb = key->Value[ConstName_RB].get<SsHash>();
 
-		ConvertStringToSsColor( lt["rgba"].get<FString>() , v.Colors[0].Rgba);
-		v.Colors[0].Rate = lt["rate"].get<float>();
+		ConvertStringToSsColor( lt[ConstName_RGBA].get<FString>() , v.Colors[0].Rgba);
+		v.Colors[0].Rate = lt[ConstName_Rate].get<float>();
 
-		ConvertStringToSsColor( rt["rgba"].get<FString>() , v.Colors[1].Rgba);
-		v.Colors[1].Rate = rt["rate"].get<float>();
+		ConvertStringToSsColor( rt[ConstName_RGBA].get<FString>() , v.Colors[1].Rgba);
+		v.Colors[1].Rate = rt[ConstName_Rate].get<float>();
 
-		ConvertStringToSsColor( lb["rgba"].get<FString>() , v.Colors[2].Rgba);
-		v.Colors[2].Rate = lb["rate"].get<float>();
+		ConvertStringToSsColor( lb[ConstName_RGBA].get<FString>() , v.Colors[2].Rgba);
+		v.Colors[2].Rate = lb[ConstName_Rate].get<float>();
 
-		ConvertStringToSsColor( rb["rgba"].get<FString>() , v.Colors[3].Rgba);
-		v.Colors[3].Rate = rb["rate"].get<float>();
+		ConvertStringToSsColor( rb[ConstName_RGBA].get<FString>() , v.Colors[3].Rgba);
+		v.Colors[3].Rate = rb[ConstName_Rate].get<float>();
 
 	}else{
-		SsHash color = key->Value["color"].get<SsHash>();
-		ConvertStringToSsColor( color["rgba"].get<FString>() , v.Color.Rgba);
-		v.Color.Rate = color["rate"].get<float>();
+		SsHash color = key->Value[ConstName_Color].get<SsHash>();
+		ConvertStringToSsColor( color[ConstName_RGBA].get<FString>() , v.Color.Rgba);
+		v.Color.Rate = color[ConstName_Rate].get<float>();
 	}
 
 }
 
 void	GetFSsVertexAnime( const FSsKeyframe* key , FSsVertexAnime& v )
 {
-	const FString& sLT = key->Value["LT"].get<FString>();
-	const FString& sRT = key->Value["RT"].get<FString>();
-	const FString& sLB = key->Value["LB"].get<FString>();
-	const FString& sRB = key->Value["RB"].get<FString>();
+	const FString& sLT = key->Value[ConstName_LT].get<FString>();
+	const FString& sRT = key->Value[ConstName_RT].get<FString>();
+	const FString& sLB = key->Value[ConstName_LB].get<FString>();
+	const FString& sRB = key->Value[ConstName_RB].get<FString>();
 	
 	StringToPoint2( sLT , v.Offsets[0] );
 	StringToPoint2( sRT , v.Offsets[1] );
@@ -145,8 +176,8 @@ void	GetFSsVertexAnime( const FSsKeyframe* key , FSsVertexAnime& v )
 
 void GetFSsRefCell( const FSsKeyframe* key , FSsRefCell& v )
 {
-	int id = key->Value["mapId"].get<int>();
-	FName name = FName( *(key->Value["name"].get<FString>()) );
+	int id = key->Value[ConstName_MapId].get<int>();
+	FName name = FName( *(key->Value[ConstName_Name].get<FString>()) );
 
 	v.Mapid = id;
 	v.Name = name;
@@ -159,31 +190,31 @@ void	GetSsUserDataAnime( const FSsKeyframe* key , FSsUserDataAnime& v )
 	v.Point.X = v.Point.Y = 0;
 	v.Rect.X = v.Rect.Y = v.Rect.W = v.Rect.H = 0; 
 	v.String = FString(TEXT(""));
-	v.UseInteger = key->Value.IsExistHashkey("integer");
-	v.UsePoint = key->Value.IsExistHashkey("point");
-	v.UseRect = key->Value.IsExistHashkey("rect");
-	v.UseString = key->Value.IsExistHashkey("string");
+	v.UseInteger = key->Value.IsExistHashkey(ConstName_Integer);
+	v.UsePoint = key->Value.IsExistHashkey(ConstName_Point);
+	v.UseRect = key->Value.IsExistHashkey(ConstName_Rect);
+	v.UseString = key->Value.IsExistHashkey(ConstName_String);
 
 	if ( v.UseInteger )
 	{
-		v.Integer = key->Value["integer"].get<int>();
+		v.Integer = key->Value[ConstName_Integer].get<int>();
 	}
 
 	if ( v.UsePoint )
 	{
-		const FString& str = key->Value["point"].get<FString>();
+		const FString& str = key->Value[ConstName_Point].get<FString>();
 		StringToPoint2( str , v.Point );
 	}
 	
 	if ( v.UseRect )
 	{
-		const FString& str = key->Value["rect"].get<FString>();
+		const FString& str = key->Value[ConstName_Rect].get<FString>();
 		StringToIRect( str , v.Rect );
 	}
 
 	if ( v.UseString )
 	{
-		const FString& str = key->Value["string"].get<FString>();
+		const FString& str = key->Value[ConstName_String].get<FString>();
 		v.String = str;
 	}
 
@@ -191,9 +222,9 @@ void	GetSsUserDataAnime( const FSsKeyframe* key , FSsUserDataAnime& v )
 
 void	GetSsEffectParamAnime( const FSsKeyframe* key, FSsEffectAttr& v )
 {
-	v.StartTime = key->Value["startTime"].get<int>();
-	v.Speed = key->Value["speed"].get<float>();
-	v.Independent = key->Value["independent"].get<bool>();
+	v.StartTime = key->Value[ConstName_StartTime].get<int>();
+	v.Speed = key->Value[ConstName_Speed].get<float>();
+	v.Independent = key->Value[ConstName_Independent].get<bool>();
 	v.CurKeyframe = key->Time;
 
 	int iflags = 0;
@@ -206,18 +237,18 @@ void	GetSsEffectParamAnime( const FSsKeyframe* key, FSsEffectAttr& v )
 
 void	GetSsInstparamAnime( const FSsKeyframe* key , FSsInstanceAttr& v )
 {
-	const FString& sstartLabel = key->Value["startLabel"].get<FString>();
-	const int& sstartOffset = key->Value["startOffset"].get<int>();
-	const FString& sendLabel = key->Value["endLabel"].get<FString>();
-	const int& sendOffset = key->Value["endOffset"].get<int>();
+	const FString& sstartLabel = key->Value[ConstName_StartLabel].get<FString>();
+	const int& sstartOffset = key->Value[ConstName_StartOffset].get<int>();
+	const FString& sendLabel = key->Value[ConstName_EndLabel].get<FString>();
+	const int& sendOffset = key->Value[ConstName_EndOffset].get<int>();
 
-	const float& sspeed = key->Value["speed"].get<float>();
+	const float& sspeed = key->Value[ConstName_Speed].get<float>();
 
-	const int& sloopNum = key->Value["loopNum"].get<int>();
-	const bool& sinfinity = key->Value["infinity"].get<bool>();
-	const bool& sreverse = key->Value["reverse"].get<bool>();
-	const bool& spingpong = key->Value["pingpong"].get<bool>();
-	const bool& sindependent = key->Value["independent"].get<bool>();
+	const int& sloopNum = key->Value[ConstName_LoopNum].get<int>();
+	const bool& sinfinity = key->Value[ConstName_Infinity].get<bool>();
+	const bool& sreverse = key->Value[ConstName_Reverse].get<bool>();
+	const bool& spingpong = key->Value[ConstName_PingPong].get<bool>();
+	const bool& sindependent = key->Value[ConstName_Independent].get<bool>();
 
 
 	v.StartLabel = FName(*sstartLabel);

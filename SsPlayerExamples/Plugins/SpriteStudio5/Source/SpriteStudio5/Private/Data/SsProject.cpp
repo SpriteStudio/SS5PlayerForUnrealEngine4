@@ -28,6 +28,17 @@ void USsProject::Serialize(FArchive& Ar)
 			EffectList[i].Serialize(Ar);
 		}
 	}
+
+	if(Ar.IsLoading())
+	{
+		for(auto ItCellMap = CellmapList.CreateIterator(); ItCellMap; ++ItCellMap)
+		{
+			if(ItCellMap->CellMapNameEx == NAME_None)
+			{
+				ItCellMap->CellMapNameEx = FName(*(ItCellMap->CellMapName.ToString() + TEXT(".ssce")));
+			}
+		}
+	}
 }
 
 int32 USsProject::FindAnimePackIndex(const FName& AnimePackName) const

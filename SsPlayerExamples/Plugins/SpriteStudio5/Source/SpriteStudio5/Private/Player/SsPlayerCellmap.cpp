@@ -95,12 +95,11 @@ void FSsCellMapList::Set(USsProject* proj , FSsAnimePack* animepack)
 
 void FSsCellMapList::Add(FSsCellMap* cellmap)
 {
-	FName CellMapNameEx = FName( *(cellmap->CellMapName.ToString() + TEXT(".ssce")) );
-	if(!CellMapDic.Contains(CellMapNameEx))
+	if(!CellMapDic.Contains(cellmap->CellMapNameEx))
 	{
 		FSsCelMapLinker* linker = new FSsCelMapLinker(cellmap , this->CellMapPath);
-		CellMapDic.Add(CellMapNameEx);
-		CellMapDic[ CellMapNameEx ] = linker ;
+		CellMapDic.Add(cellmap->CellMapNameEx);
+		CellMapDic[ cellmap->CellMapNameEx ] = linker ;
 		CellMapList.Add( linker );
 	}
 }
