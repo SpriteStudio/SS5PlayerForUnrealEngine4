@@ -228,7 +228,7 @@ void FSsRenderPartsProxy::GetDynamicMeshElements(const TArray<const FSceneView*>
 				BatchElement.MinVertexIndex = (StartPartIndex * 4);
 				BatchElement.MaxVertexIndex = ((StartPartIndex + NumParts) * 4) - 1;
 				BatchElement.NumPrimitives  = (NumParts * 2);
-				BatchElement.UserData       = GetBlendTypeAddr(RenderParts[i].AlphaBlendType);
+				BatchElement.UserData       = IsMetalPlatform(GetScene().GetShaderPlatform()) ? GetBlendTypeAddr(SsBlendType::Mix) : GetBlendTypeAddr(RenderParts[i].AlphaBlendType);	// MetalではSetBlendStateが使用出来ないので、一旦クラッシュだけ回避 
 				BatchElement.PrimitiveUniformBufferResource = &GetUniformBuffer();
 
 				Collector.AddMesh(ViewIndex, Mesh);

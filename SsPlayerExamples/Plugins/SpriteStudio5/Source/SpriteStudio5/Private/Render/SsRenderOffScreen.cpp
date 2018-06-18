@@ -232,8 +232,6 @@ namespace
 
 		RHICmdList.SetScissorRect(false, 0, 0, 0, 0);
 		RHICmdList.SetViewport(0, 0, 0.f, SurfaceWidth, SurfaceHeight, 1.f);
-		RHICmdList.GetContext().RHISetDepthStencilState(TStaticDepthStencilState<false, CF_Always>::GetRHI(), 0);
-		RHICmdList.GetContext().RHISetRasterizerState(TStaticRasterizerState<FM_Solid, CM_None>::GetRHI());
 
 		DrawClearQuad(
 			RHICmdList,
@@ -325,6 +323,16 @@ namespace
 		TShaderMapRef<FSsOffScreenVS> VertexShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
 		TShaderMapRef<FSsOffScreenPS> PixelShader(GetGlobalShaderMap(GMaxRHIFeatureLevel));
 
+		FGraphicsPipelineStateInitializer GraphicsPSOInit;
+		RHICmdList.ApplyCachedRenderTargets(GraphicsPSOInit);
+		GraphicsPSOInit.PrimitiveType = EPrimitiveType::PT_TriangleList;
+		GraphicsPSOInit.RasterizerState   = TStaticRasterizerState<>::GetRHI();
+		GraphicsPSOInit.DepthStencilState = TStaticDepthStencilState<false, CF_Always>::GetRHI();
+		GraphicsPSOInit.BoundShaderState.VertexDeclarationRHI = GSsOffScreenVertexDeclaration.VertexDeclarationRHI;
+		GraphicsPSOInit.BoundShaderState.VertexShaderRHI = VertexShader->GetVertexShader();
+		GraphicsPSOInit.BoundShaderState.PixelShaderRHI  = PixelShader->GetPixelShader();
+
+
 		// マテリアルとブレンドタイプが一致しているパーツ毎に描画 
 		uint32 StartPartIndex = 0;
 		uint32 NumParts = 1;
@@ -342,68 +350,52 @@ namespace
 				continue;
 			}
 
-			RHICmdList.GetContext().RHISetBoundShaderState(
-				RHICreateBoundShaderState(
-					GSsOffScreenVertexDeclaration.VertexDeclarationRHI,
-					VertexShader->GetVertexShader(),	//VertexShaderRHI
-					nullptr,							//HullShaderRHI
-					nullptr,							//DomainShaderRHI
-					PixelShader->GetPixelShader(),		//PixelShaderRHI
-					FGeometryShaderRHIRef()
-				));
-
-			// テクスチャをセット
-			FSamplerStateRHIRef SampleState = TStaticSamplerState<SF_Point,AM_Clamp,AM_Clamp,AM_Clamp>::GetRHI();
-			PixelShader->SetCellTexture(RHICmdList, RenderPart.Texture ? RenderPart.Texture->Resource->TextureRHI : nullptr, SampleState);
-
-
 			switch(RenderPart.AlphaBlendType)
 			{
 			case SsBlendType::Mix:
 				{
-					RHICmdList.GetContext().RHISetBlendState(
-						TStaticBlendState<
+					GraphicsPSOInit.BlendState = TStaticBlendState<
 							CW_RGBA,
 							BO_Add, BF_SourceAlpha, BF_InverseSourceAlpha,
 							BO_Add, BF_SourceAlpha, BF_One
-							>::GetRHI(),
-						FLinearColor::White
-						);
+							>::GetRHI();
 				} break;
 			case SsBlendType::Mul:
 				{
-					RHICmdList.GetContext().RHISetBlendState(
-						TStaticBlendState<
+					GraphicsPSOInit.BlendState = TStaticBlendState<
 							CW_RGBA,
 							BO_Add, BF_Zero, BF_SourceColor,
 							BO_Add, BF_InverseSourceAlpha, BF_One
-							>::GetRHI(),
-						FLinearColor::White
-						);
+							>::GetRHI();
 				} break;
 			case SsBlendType::Add:
 				{
-					RHICmdList.GetContext().RHISetBlendState(
-						TStaticBlendState<
+					GraphicsPSOInit.BlendState = TStaticBlendState<
 							CW_RGBA,
 							BO_Add, BF_SourceAlpha, BF_One,
 							BO_Add, BF_SourceAlpha, BF_One
-							>::GetRHI(),
-						FLinearColor::White
-						);
+							>::GetRHI();
 				} break;
 			case SsBlendType::Sub:
 				{
-					RHICmdList.GetContext().RHISetBlendState(
-						TStaticBlendState<
+					GraphicsPSOInit.BlendState = TStaticBlendState<
 							CW_RGBA,
 							BO_ReverseSubtract, BF_SourceAlpha, BF_One,
 							BO_Add, BF_Zero, BF_DestAlpha
-							>::GetRHI(),
-						FLinearColor::White
-						);
+							>::GetRHI();
 				} break;
+			default:
+				{
+					check(false);
+				}
 			}
+			FGraphicsPipelineStateRHIRef GraphicsState = GDynamicRHI->RHICreateGraphicsPipelineState(GraphicsPSOInit);
+			RHICmdList.GetContext().RHISetGraphicsPipelineState(GraphicsState);
+
+
+			// テクスチャをセット
+			FSamplerStateRHIRef SampleState = TStaticSamplerState<SF_Point,AM_Clamp,AM_Clamp,AM_Clamp>::GetRHI();
+			PixelShader->SetCellTexture(RHICmdList, RenderPart.Texture ? RenderPart.Texture->Resource->TextureRHI : nullptr, SampleState);
 
 			if(GRHISupportsBaseVertexIndex)
 			{
