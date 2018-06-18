@@ -33,10 +33,7 @@ void USsProject::Serialize(FArchive& Ar)
 	{
 		for(auto ItCellMap = CellmapList.CreateIterator(); ItCellMap; ++ItCellMap)
 		{
-			if(ItCellMap->CellMapNameEx == NAME_None)
-			{
-				ItCellMap->CellMapNameEx = FName(*(ItCellMap->CellMapName.ToString() + TEXT(".ssce")));
-			}
+			ItCellMap->CellMapNameEx = FName(*(ItCellMap->CellMapName.ToString() + TEXT(".ssce")));
 		}
 	}
 }
