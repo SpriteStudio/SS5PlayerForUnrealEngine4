@@ -14,7 +14,7 @@ namespace UnrealBuildTool.Rules
 
 			PublicIncludePaths.AddRange(
 				new string[] {
-					"SpriteStudio5Ed/Public",
+					ModuleDirectory + "/Public",
 				}
 				);
 

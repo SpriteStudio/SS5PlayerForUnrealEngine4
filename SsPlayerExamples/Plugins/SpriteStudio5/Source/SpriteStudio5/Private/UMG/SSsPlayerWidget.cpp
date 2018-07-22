@@ -344,6 +344,7 @@ SSsPlayerWidget::SSsPlayerWidget()
 	, bIgnoreClipRect(true)
 	, bRenderOffScreen(false)
 	, RenderOffScreen(nullptr)
+	, Children(this)
 {
 }
 SSsPlayerWidget::~SSsPlayerWidget()
