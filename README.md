@@ -15,7 +15,7 @@ https://github.com/SpriteStudio/SS6PlayerForUnrealEngine4
 SS5Player for Unreal Engine 4の今後のサポート等はUE4のバージョンアップに伴うプラグインのビルド対応を2018/12まで提供する予定です。  
 
 ##### 対応UE4バージョン
-UE4.19
+UE4.20
 
 
 ※ UE4.16以前のバージョンでは、導入の際に、シェーダファイルをエンジンのインストールフォルダにコピーする必要がありますので、ご注意下さい  
