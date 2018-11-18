@@ -60,6 +60,7 @@ USsPlayerWidget2::USsPlayerWidget2(const FObjectInitializer& ObjectInitializer)
 	, bIgnoreClipRect(false)
 	, BaseMaterial(nullptr)
 	, OffScreenRenderResolution(512, 512)
+	, OffScreenClearColor(0, 0, 0, 0)
 	, bReflectParentAlpha(false)
 {
 	Player.SetCalcHideParts(true);
@@ -404,7 +405,7 @@ void USsPlayerWidget2::UpdatePlayer(float DeltaSeconds)
 						Brush = BrushMap.Find(OffScreenMID);
 					}
 
-					PlayerWidget->SetRenderParts_OffScreen(Player.GetRenderParts(), *Brush);
+					PlayerWidget->SetRenderParts_OffScreen(Player.GetRenderParts(), *Brush, OffScreenClearColor);
 					PlayerWidget->SetAnimCanvasSize(Player.GetAnimCanvasSize());
 				} break;
 		}
