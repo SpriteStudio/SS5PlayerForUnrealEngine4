@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "SsTypes.h"
+
 class FSsPlayer;
 class FSsRenderOffScreen;
 struct FSlateMaterialBrush;

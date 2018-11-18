@@ -1,6 +1,7 @@
 ﻿#include "SpriteStudio5PrivatePCH.h"
 #include "SpriteStudio5.h"
 
+#include "Interfaces/IPluginManager.h"
 #include "Misc/AssertionMacros.h"
 
 DEFINE_LOG_CATEGORY(LogSpriteStudio);
@@ -26,6 +27,8 @@ IMPLEMENT_MODULE(FSpriteStudio5, SpriteStudio5)
 
 void FSpriteStudio5::StartupModule()
 {
+	FString PluginShaderDir = FPaths::Combine(IPluginManager::Get().FindPlugin(TEXT("SpriteStudio5"))->GetBaseDir(), TEXT("Shaders"));
+	AddShaderSourceDirectoryMapping(TEXT("/Plugin/SpriteStudio5"), PluginShaderDir);
 }
 
 

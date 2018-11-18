@@ -6,6 +6,8 @@ namespace UnrealBuildTool.Rules
 	{
 		public SpriteStudio5(ReadOnlyTargetRules Target) : base(Target)
 		{
+			PrivatePCHHeaderFile = "Private/SpriteStudio5PrivatePCH.h";
+
 			DynamicallyLoadedModuleNames.AddRange(
 				new string[] {
 				}
@@ -52,6 +54,7 @@ namespace UnrealBuildTool.Rules
 					"SlateRHIRenderer",
 					"Slate",
 					"UMG",
+					"Projects",
 				}
 				);
 
