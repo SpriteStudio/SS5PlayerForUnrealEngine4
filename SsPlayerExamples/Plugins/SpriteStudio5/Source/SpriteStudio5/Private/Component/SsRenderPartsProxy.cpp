@@ -79,54 +79,6 @@ FVertexFactoryShaderParameters* FSsPartsVertexFactory::ConstructShaderParameters
 		: FLocalVertexFactory::ConstructShaderParameters(ShaderFrequency);
 }
 
-//
-// VertexFactoryShaderParameters
-//
-void FSsPartVertexFactoryShaderParameters::SetMesh(FRHICommandList& RHICmdList, FShader* Shader,const class FVertexFactory* VertexFactory,const class FSceneView& View,const struct FMeshBatchElement& BatchElement,uint32 DataFlags) const
-{
-	SsBlendType::Type AlphaBlendType = GetBlendTypeFromAddr(BatchElement.UserData);
-	switch(AlphaBlendType)
-	{
-		case SsBlendType::Mix:
-			{
-			} break;
-		case SsBlendType::Mul:
-			{
-				RHICmdList.GetContext().RHISetBlendState(
-					TStaticBlendState<
-						CW_RGBA,
-						BO_Add, BF_Zero, BF_SourceColor,
-						BO_Add, BF_InverseSourceAlpha, BF_One
-						>::GetRHI(),
-					FLinearColor::White
-					);
-			} break;
-		case SsBlendType::Add:
-			{
-				RHICmdList.GetContext().RHISetBlendState(
-					TStaticBlendState<
-						CW_RGBA,
-						BO_Add, BF_SourceAlpha, BF_One,
-						BO_Add, BF_SourceAlpha, BF_One
-						>::GetRHI(),
-					FLinearColor::White
-					);
-			} break;
-		case SsBlendType::Sub:
-			{
-				RHICmdList.GetContext().RHISetBlendState(
-					TStaticBlendState<
-						CW_RGBA,
-						BO_ReverseSubtract, BF_SourceAlpha, BF_One,
-						BO_Add, BF_Zero, BF_DestAlpha
-						>::GetRHI(),
-					FLinearColor::White
-					);
-			} break;
-	}
-}
-
-
 // コンストラクタ
 FSsRenderPartsProxy::FSsRenderPartsProxy(USsPlayerComponent* InComponent, uint32 InMaxPartsNum)
 	: FPrimitiveSceneProxy(InComponent)
@@ -228,7 +180,6 @@ void FSsRenderPartsProxy::GetDynamicMeshElements(const TArray<const FSceneView*>
 				BatchElement.MinVertexIndex = (StartPartIndex * 4);
 				BatchElement.MaxVertexIndex = ((StartPartIndex + NumParts) * 4) - 1;
 				BatchElement.NumPrimitives  = (NumParts * 2);
-				BatchElement.UserData       = IsMetalPlatform(GetScene().GetShaderPlatform()) ? GetBlendTypeAddr(SsBlendType::Mix) : GetBlendTypeAddr(RenderParts[i].AlphaBlendType);	// MetalではSetBlendStateが使用出来ないので、一旦クラッシュだけ回避 
 				BatchElement.PrimitiveUniformBufferResource = &GetUniformBuffer();
 
 				Collector.AddMesh(ViewIndex, Mesh);
